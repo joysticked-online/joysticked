@@ -9,6 +9,8 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@arthurfiorette/biomejs-config": "^2.0.1",
+    "@biomejs/biome": "^2.3.4",
     "prettier": "^3.6.2",
     "turbo": "^2.6.0",
     "typescript": "5.9.2"
