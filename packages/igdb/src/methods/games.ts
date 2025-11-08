@@ -63,12 +63,25 @@ export type GameField =
   | 'videos'
   | 'websites';
 
+export type GenreField =
+  | 'checksum'
+  | 'created_at'
+  | 'name'
+  | 'slug'
+  | 'updated_at'
+  | "url";
+
 export function gamesMethods(client: InternalApiClient) {
   return {
     async list<T>(options: QueryOptions<GameField[]>): Promise<IGDBAPIResponse<T>> {
       const body = buildQuery(options);
 
       return client.post(`/games`, body);
-    }
+    },
+    async genres<T>(options: Pick<QueryOptions<GenreField[]>, 'fields'>): Promise<IGDBAPIResponse<T>> {
+      const body = buildQuery(options);
+
+      return client.post(`/genres`, body);
+    },
   };
 }
