@@ -27,6 +27,19 @@
         "drizzle-kit": "0.31.6",
       },
     },
+    "packages/igdb": {
+      "name": "@joysticked/igdb",
+      "version": "0.1.0",
+      "dependencies": {
+        "zod": "^4.1.12",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
   },
   "packages": {
     "@arthurfiorette/biomejs-config": ["@arthurfiorette/biomejs-config@2.0.1", "", {}, "sha512-XrfWe/xtKjt2cFBjMKQSMDNTzEvS0dHMn1ycjw9xrHh+/UNoK/XuNA/GpIkDU6BZSIHT5SqeMcQ+Y+PLobFi5A=="],
@@ -110,6 +123,8 @@
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.12", "", { "os": "win32", "cpu": "x64" }, "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA=="],
 
     "@joysticked/api": ["@joysticked/api@workspace:apps/api"],
+
+    "@joysticked/igdb": ["@joysticked/igdb@workspace:packages/igdb"],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.34.41", "", {}, "sha512-6gS8pZzSXdyRHTIqoqSVknxolr1kzfy4/CeDnrzsVz8TTIWUbOBr6gnzOmTYJ3eXQNh4IYHIGi5aIL7sOZ2G/g=="],
 
