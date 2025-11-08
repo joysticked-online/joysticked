@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "module": "src/index.ts",
   "type": "module",
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

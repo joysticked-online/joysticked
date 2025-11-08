@@ -63,25 +63,137 @@ export type GameField =
   | 'videos'
   | 'websites';
 
-export type GenreField =
-  | 'checksum'
-  | 'created_at'
-  | 'name'
-  | 'slug'
-  | 'updated_at'
-  | "url";
+export type GenreField = 'checksum' | 'created_at' | 'name' | 'slug' | 'updated_at' | 'url';
+
+/**
+ * Game category enum values
+ */
+export enum GameCategory {
+  MAIN_GAME = 0,
+  DLC_ADDON = 1,
+  EXPANSION = 2,
+  BUNDLE = 3,
+  STANDALONE_EXPANSION = 4,
+  MOD = 5,
+  EPISODE = 6,
+  SEASON = 7,
+  REMAKE = 8,
+  REMASTER = 9,
+  EXPANDED_GAME = 10,
+  PORT = 11,
+  FORK = 12,
+  PACK = 13,
+  UPDATE = 14
+}
+
+/**
+ * Game status enum values
+ */
+export enum GameStatus {
+  RELEASED = 0,
+  ALPHA = 2,
+  BETA = 3,
+  EARLY_ACCESS = 4,
+  OFFLINE = 5,
+  CANCELLED = 6,
+  RUMORED = 7,
+  DELISTED = 8
+}
+
+/**
+ * Complete Game type with all IGDB fields
+ */
+export interface Game {
+  age_ratings: number[];
+  aggregated_rating: number;
+  aggregated_rating_count: number;
+  alternative_names: number[];
+  artworks: number[];
+  bundles: number[];
+  /** @deprecated Use game_type instead */
+  category: GameCategory;
+  checksum: string;
+  /** @deprecated Use collections instead */
+  collection: number;
+  collections: number[];
+  cover: number;
+  created_at: number;
+  dlcs: number[];
+  expanded_games: number[];
+  expansions: number[];
+  external_games: number[];
+  first_release_date: number;
+  /** @deprecated To be removed */
+  follows: number;
+  forks: number[];
+  franchise: number;
+  franchises: number[];
+  game_engines: number[];
+  game_localizations: number[];
+  game_modes: number[];
+  game_status: number;
+  game_type: number;
+  genres: number[];
+  hypes: number;
+  involved_companies: number[];
+  keywords: number[];
+  language_supports: number[];
+  multiplayer_modes: number[];
+  name: string;
+  parent_game: number;
+  platforms: number[];
+  player_perspectives: number[];
+  ports: number[];
+  rating: number;
+  rating_count: number;
+  release_dates: number[];
+  remakes: number[];
+  remasters: number[];
+  screenshots: number[];
+  similar_games: number[];
+  slug: string;
+  standalone_expansions: number[];
+  /** @deprecated Use game_status instead */
+  status: GameStatus;
+  storyline: string;
+  summary: string;
+  tags: number[];
+  themes: number[];
+  total_rating: number;
+  total_rating_count: number;
+  updated_at: number;
+  url: string;
+  version_parent: number;
+  version_title: string;
+  videos: number[];
+  websites: number[];
+}
+
+/**
+ * Picks only the specified fields from the Game type
+ */
+type PickGameFields<T extends GameField[]> = Pick<Game, T[number]>;
 
 export function gamesMethods(client: InternalApiClient) {
   return {
-    async list<T>(options: QueryOptions<GameField[]>): Promise<IGDBAPIResponse<T>> {
+    /**
+     * Fetches a list of games with specified fields
+     * @param options Query options including fields to fetch
+     * @returns Array of games with only the requested fields
+     */
+    async list<T extends GameField[]>(
+      options: QueryOptions<T>
+    ): Promise<IGDBAPIResponse<PickGameFields<T>[]>> {
       const body = buildQuery(options);
 
       return client.post(`/games`, body);
     },
-    async genres<T>(options: Pick<QueryOptions<GenreField[]>, 'fields'>): Promise<IGDBAPIResponse<T>> {
+    async genres<T>(
+      options: Pick<QueryOptions<GenreField[]>, 'fields'>
+    ): Promise<IGDBAPIResponse<T>> {
       const body = buildQuery(options);
 
       return client.post(`/genres`, body);
-    },
+    }
   };
 }
