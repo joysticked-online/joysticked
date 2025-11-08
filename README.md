@@ -42,7 +42,7 @@ Please feel free to open issues and pull requests.
 
 ## License
 
-GNU AGPL v3 [./LICENSE]
+[GNU AGPL v3](./LICENSE)
 
 ## Acknowledgments
 
