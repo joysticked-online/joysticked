@@ -188,9 +188,9 @@ export function gamesMethods(client: InternalApiClient) {
 
       return client.post(`/games`, body);
     },
-    async genres<T>(
-      options: Pick<QueryOptions<GenreField[]>, 'fields'>
-    ): Promise<IGDBAPIResponse<T>> {
+    async genres<T extends GenreField[]>(
+      options: Pick<QueryOptions<T>, 'fields'>
+    ): Promise<IGDBAPIResponse<PickGameFields<T>>> {
       const body = buildQuery(options);
 
       return client.post(`/genres`, body);
