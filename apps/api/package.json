@@ -2,7 +2,7 @@
   "name": "@joysticked/api",
   "version": "0.1.0",
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/shared/http/index.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.44.7",
