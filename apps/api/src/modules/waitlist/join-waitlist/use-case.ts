@@ -1,5 +1,5 @@
-import type { Database } from '@/shared/database';
-import { createWaitListRepository } from '@/shared/database/repositories/waitlist-repository';
+import type { Database } from '../../../shared/database';
+import { createWaitListRepository } from '../../../shared/database/repositories/waitlist-repository';
 
 export async function joinWaitlistUseCase(db: Database, { email }: { email: string }) {
   const waitlistRepository = createWaitListRepository(db);

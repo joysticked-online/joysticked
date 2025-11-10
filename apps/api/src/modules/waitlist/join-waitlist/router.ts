@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { databaseMiddleware } from '@/shared/http/middlewares/database';
+import { databaseMiddleware } from '../../../shared/http/middlewares/database';
 import { joinWaitlistBodySchema } from './schemas';
 import { joinWaitlistUseCase } from './use-case';
 
