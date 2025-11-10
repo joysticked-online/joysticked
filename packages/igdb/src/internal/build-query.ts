@@ -1,4 +1,4 @@
-export interface QueryOptions<T extends unknown[]> {
+export interface QueryOptions<T extends readonly unknown[]> {
   fields: T;
   where?: string;
   limit?: number;
@@ -8,7 +8,7 @@ export interface QueryOptions<T extends unknown[]> {
   exclude?: T;
 }
 
-export function buildQuery<T extends unknown[]>(options: QueryOptions<T>): string {
+export function buildQuery<T extends readonly unknown[]>(options: QueryOptions<T>): string {
   const parts: string[] = [];
 
   parts.push(`fields ${options.fields.join(',')};`);
