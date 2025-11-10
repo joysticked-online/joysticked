@@ -3,5 +3,5 @@
 import { api } from '@/lib/api';
 
 export async function joinWaitlist(email: string) {
-  return api.waitlist.join({ email });
+  return api.waitlist.join.post({ email });
 }
