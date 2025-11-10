@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-7">
-      <div className="fixed top-15">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden relative">
+      <div className="absolute top-15">
         <Logos.Joysticked />
       </div>
 
-      <div className="fixed bottom-0 flex max-w-screen flex-row items-end">
+      <div className="absolute bottom-0 flex max-w-screen flex-row items-end">
         <Illustrations.Elephant className="-translate-y-[60%] absolute z-10 translate-x-[520%]" />
 
         <div className="relative">
