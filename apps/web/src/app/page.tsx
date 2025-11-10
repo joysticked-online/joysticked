@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden relative">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden">
       <div className="absolute top-15">
         <Logos.Joysticked />
       </div>
