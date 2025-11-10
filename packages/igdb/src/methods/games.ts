@@ -170,29 +170,27 @@ export interface Game {
 }
 
 /**
- * Picks only the specified fields from the Game type
+ * Checks if array has duplicates - recursive validation
  */
-type PickGameFields<T extends GameField[]> = Pick<Game, T[number]>;
+type HasDuplicates<T extends readonly unknown[]> = T extends readonly [infer First, ...infer Rest]
+  ? First extends Rest[number]
+    ? true
+    : HasDuplicates<Rest>
+  : false;
 
 export function gamesMethods(client: InternalApiClient) {
   return {
-    /**
-     * Fetches a list of games with specified fields
-     * @param options Query options including fields to fetch
-     * @returns Array of games with only the requested fields
-     */
-    async list<T extends GameField[]>(
-      options: QueryOptions<T>
-    ): Promise<IGDBAPIResponse<PickGameFields<T>[]>> {
+    async list<const T extends readonly GameField[]>(
+      options: HasDuplicates<T> extends true ? never : QueryOptions<T>
+    ): Promise<IGDBAPIResponse<Pick<Game, T[number]>[]>> {
       const body = buildQuery(options);
-
       return client.post(`/games`, body);
     },
-    async genres<T extends GenreField[]>(
-      options: Pick<QueryOptions<T>, 'fields'>
-    ): Promise<IGDBAPIResponse<PickGameFields<T>>> {
-      const body = buildQuery(options);
 
+    async genres<const T extends readonly GenreField[]>(
+      options: HasDuplicates<T> extends true ? never : { fields: T }
+    ): Promise<IGDBAPIResponse<Pick<Game, T[number]>[]>> {
+      const body = buildQuery(options);
       return client.post(`/genres`, body);
     }
   };
