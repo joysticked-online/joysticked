@@ -1,9 +1,12 @@
 import { Elysia } from 'elysia';
 
+import { waitlistRouter } from '@/modules/waitlist/router';
 import { envs } from '@/shared/config/envs';
 
-const app = new Elysia().listen(envs.app.PORT, ({ port, hostname }) =>
-  console.log(`Server running on port http://${hostname}:${port}`)
-);
+const app = new Elysia()
+  .use([waitlistRouter])
+  .listen(envs.app.PORT, ({ port, hostname }) =>
+    console.log(`Server running on port http://${hostname}:${port}`)
+  );
 
 export type App = typeof app;
