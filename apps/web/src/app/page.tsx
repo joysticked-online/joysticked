@@ -1,7 +1,7 @@
-import { Illustrations } from '@/components/illustrations';
-import { Logos } from '@/components/logos';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Illustrations } from '../components/illustrations';
+import { Logos } from '../components/logos';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 export default function Home() {
   return (
