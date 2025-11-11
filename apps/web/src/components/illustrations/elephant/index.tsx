@@ -16,7 +16,6 @@ const ELEPHANTS = {
   JUMPING: Jumping
 } as const;
 
-// Original design dimensions
 const ORIGINAL_WIDTH = 1600;
 const ORIGINAL_START_X = -550;
 const ORIGINAL_END_X = 1100;
@@ -34,7 +33,6 @@ export function Elephant() {
 
   const CurrentElephant = isJumping ? ELEPHANTS.JUMPING : walkingSteps[stepIndex];
 
-  // Calculate responsive animation values
   const animationValues = useMemo(() => {
     const scale = windowWidth / ORIGINAL_WIDTH;
     const startX = ORIGINAL_START_X * scale;
@@ -44,13 +42,11 @@ export function Elephant() {
     return { startX, endX, duration };
   }, [windowWidth]);
 
-  // Update window width on resize
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
 
-    // Set initial width
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -89,7 +85,7 @@ export function Elephant() {
 
   return (
     <motion.div
-      key={windowWidth} // Force re-mount on width change to reset animation
+      key={windowWidth}
       initial={{ x: animationValues.startX, y: -50 }}
       animate={{ x: animationValues.endX, y: [-50, 0, -100, -10] }}
       transition={{
