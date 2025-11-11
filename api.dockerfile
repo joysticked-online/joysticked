@@ -1,9 +1,7 @@
-# syntax=docker/dockerfile:1
 FROM oven/bun:1.3.2-alpine
 
 WORKDIR /app
 
-# Copy packages
 COPY ./package.json ./package.json
 COPY ./packages/igdb/package.json ./packages/igdb/package.json
 COPY ./apps/api/package.json ./apps/api/package.json
