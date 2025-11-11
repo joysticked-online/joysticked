@@ -1,6 +1,7 @@
 import type { IGDBAPIResponse } from '../../types';
 import type { InternalApiClient } from '../internal/api-client';
 import { buildQuery, type QueryOptions } from '../internal/build-query';
+import type { HasDuplicates } from '../utils';
 
 export type CharacterField =
   | 'akas'
@@ -58,15 +59,6 @@ export interface Character {
   updated_at: number;
   url: string;
 }
-
-/**
- * Checks if array has duplicates - recursive validation
- */
-type HasDuplicates<T extends readonly unknown[]> = T extends readonly [infer First, ...infer Rest]
-  ? First extends Rest[number]
-    ? true
-    : HasDuplicates<Rest>
-  : false;
 
 export function charactersMethods(client: InternalApiClient) {
   return {
