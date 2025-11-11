@@ -1,7 +1,9 @@
 import { desc, eq, sql } from 'drizzle-orm';
 
+import { InternalServerError } from 'elysia';
 import type { Database } from '..';
 import { waitlists } from '../schemas/waitlists';
+import type { Transaction } from '../transaction';
 
 class WaitListRepository {
   constructor(private readonly db: Database) {}
@@ -14,8 +16,12 @@ class WaitListRepository {
     return opt[0];
   }
 
-  async createEntry(email: string) {
-    await this.db.insert(waitlists).values({ email });
+  async createEntry(email: string, tx?: Transaction) {
+    const entry = await (tx ?? this.db).insert(waitlists).values({ email }).returning();
+
+    if (!entry[0]) throw new InternalServerError();
+
+    return entry[0];
   }
 
   async deleteEntry(id: number) {
@@ -23,7 +29,7 @@ class WaitListRepository {
   }
 
   async getAllEntries() {
-    const entries = await this.db.select().from(waitlists).orderBy(desc(waitlists.createdAt));
+    const entries = await this.db.select().from(waitlists).orderBy(desc(waitlists.joinedAt));
 
     return entries;
   }

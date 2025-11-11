@@ -1,4 +1,15 @@
+import type { CreateEmailResponse } from 'resend';
 
 export interface EmailProvider {
-  sendEmail(to: string, subject: string, body: string): Promise<void>;
+  sendEmail({
+    type,
+    to,
+    subject,
+    body
+  }: {
+    type: 'hello' | 'waitlist';
+    to: string;
+    subject: string;
+    body: string;
+  }): Promise<CreateEmailResponse>;
 }

@@ -9,7 +9,7 @@ const geistSans = Geist({
 });
 
 const redaction = localFont({
-  src: '../assets/redaction.otf',
+  src: '../../public/redaction.otf',
   variable: '--font-redaction'
 });
 

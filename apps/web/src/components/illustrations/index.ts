@@ -10,17 +10,11 @@ import { Flower } from './flower';
 import { FlowerThree } from './flower-three';
 import { FlowerTwo } from './flower-two';
 import { HalfPortal } from './half-portal';
-<<<<<<< HEAD
 import { Ladder } from './ladder';
 import { LeftFloor } from './left-floor';
 import { Pipe } from './pipe';
 import { RightFloor } from './right-floor';
 import { TopFloor } from './top-floor';
-=======
-import { LeftFloor } from './left-floor';
-import { Pipe } from './pipe';
-import { RightFloor } from './right-floor';
->>>>>>> 0d37e22 (feat: add svgs)
 
 export const Illustrations = {
   HalfPortal,
