@@ -1,13 +1,13 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
+import { joinWaitlist } from '@/actions/join-waitlist';
+import { FieldInfo } from '@/components/forms/field-info';
 import { Illustrations } from '@/components/illustrations';
 import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
-import { joinWaitlist } from '@/actions/join-waitlist';
-import { FieldInfo } from '@/components/forms/field-info';
 import { waitlistSchema } from '@/lib/schemas/waitlist';
 
 export function TabletAndMobileHero() {
@@ -69,7 +69,7 @@ export function TabletAndMobileHero() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    className="h-8 max-w-80 w-full pr-12 bg-neutral-800 max-lg:rounded-lg"
+                    className="h-8 w-full max-w-80 border-none bg-neutral-800 pr-12 max-lg:rounded-lg"
                   />
                   <FieldInfo field={field} />
                 </>
