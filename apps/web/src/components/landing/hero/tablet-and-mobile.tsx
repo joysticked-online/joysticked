@@ -11,7 +11,7 @@ export function TabletAndMobileHero() {
         <Illustrations.Clouds />
       </div>
 
-      <div className="flex w-fit flex-col gap-6 max-md:pl-10">
+      <div className="relative z-10 flex w-fit flex-col gap-6 max-md:pl-10">
         <div className="flex flex-col items-start gap-2.5 md:items-center">
           <h1 className="w-fit max-w-[250px] font-redaction text-3xl md:max-w-xl md:text-center md:text-5xl">
             {LANDING_PAGE_COPY.TITLE}
