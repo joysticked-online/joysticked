@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 export function Clouds({ className }: { className?: string }) {
   return (
     <svg
@@ -8,7 +9,16 @@ export function Clouds({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      <g opacity="0.51">
+      <motion.g
+        opacity="0.51"
+        initial={{ y: 0, x: -100 }}
+        animate={{ y: 0, x: 100 }}
+        transition={{
+          repeat: Infinity,
+          duration: 7,
+          repeatType: 'reverse'
+        }}
+      >
         <path d="M87.6756 55.6486H90.8108V58.7837H87.6756V55.6486Z" fill="#262626" />
         <path d="M81.4053 52.5133H84.5405V55.6484H81.4053V52.5133Z" fill="#262626" />
         <path d="M78.2703 52.5133H81.4053V55.6484H78.2703V52.5133Z" fill="#262626" />
@@ -702,8 +712,17 @@ export function Clouds({ className }: { className?: string }) {
         <path d="M159.784 8.62079H162.919L162.919 11.7562H159.784V8.62079Z" fill="#171717" />
         <path d="M156.649 8.62079H159.784V11.7562H156.649L156.649 8.62079Z" fill="#171717" />
         <path d="M153.514 8.62079H156.649L156.649 11.7562H153.514V8.62079Z" fill="#171717" />
-      </g>
-      <g opacity="0.51">
+      </motion.g>
+      <motion.g
+        opacity="0.51"
+        initial={{ y: 0, x: -100 }}
+        animate={{ y: 0, x: 100 }}
+        transition={{
+          repeat: Infinity,
+          duration: 7,
+          repeatType: 'reverse'
+        }}
+      >
         <path d="M333.676 109.649H336.811V112.784H333.676V109.649Z" fill="#262626" />
         <path d="M327.405 106.513H330.54V109.648H327.405V106.513Z" fill="#262626" />
         <path d="M324.27 106.513H327.405V109.648H324.27V106.513Z" fill="#262626" />
@@ -1409,8 +1428,17 @@ export function Clouds({ className }: { className?: string }) {
         <path d="M405.784 62.6208H408.919L408.919 65.7562H405.784V62.6208Z" fill="#171717" />
         <path d="M402.649 62.6208H405.784V65.7562H402.649L402.649 62.6208Z" fill="#171717" />
         <path d="M399.514 62.6208H402.649L402.649 65.7562H399.514V62.6208Z" fill="#171717" />
-      </g>
-      <g opacity="0.51">
+      </motion.g>
+      <motion.g
+        opacity="0.51"
+        initial={{ y: 0, x: 100 }}
+        animate={{ y: 0, x: -100 }}
+        transition={{
+          repeat: Infinity,
+          duration: 7,
+          repeatType: 'reverse'
+        }}
+      >
         <path d="M15.6756 168.649H18.8108V171.784H15.6756V168.649Z" fill="#262626" />
         <path d="M9.40534 165.513H12.5405V168.648H9.40534V165.513Z" fill="#262626" />
         <path d="M6.27029 165.513H9.40534V168.648H6.27029V165.513Z" fill="#262626" />
@@ -2152,7 +2180,7 @@ export function Clouds({ className }: { className?: string }) {
         <path d="M87.7839 121.621H90.9189L90.919 124.756H87.7839V121.621Z" fill="#171717" />
         <path d="M84.6487 121.621H87.7839V124.756H84.6486L84.6487 121.621Z" fill="#171717" />
         <path d="M81.5136 121.621H84.6487L84.6486 124.756H81.5136V121.621Z" fill="#171717" />
-      </g>
+      </motion.g>
     </svg>
   );
 }

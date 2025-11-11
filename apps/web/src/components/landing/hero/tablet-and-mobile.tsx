@@ -1,4 +1,5 @@
 import { Illustrations } from '@/components/illustrations';
+import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
@@ -6,9 +7,12 @@ import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
 export function TabletAndMobileHero() {
   return (
     <div className="relative flex min-h-screen flex-col items-start justify-center gap-6 overflow-hidden md:items-center">
+      <div className="absolute top-14 left-12 z-20">
+        <Logos.Joysticked />
+      </div>
+
       <div className="absolute top-10 flex w-full flex-row items-center justify-between">
-        <Illustrations.Clouds />
-        <Illustrations.Clouds />
+        <Illustrations.Clouds className="w-full overflow-visible bg-transparent" />
       </div>
 
       <div className="relative z-10 flex w-fit flex-col gap-6 max-md:pl-10">
@@ -24,7 +28,7 @@ export function TabletAndMobileHero() {
 
         <div className="z-10 flex flex-col items-start gap-6 md:items-center">
           <Input
-            placeholder="kratos@godofwar.com"
+            placeholder="jarjarbinks@sith.com"
             className="h-8 w-60 bg-neutral-800 max-lg:rounded-lg"
           />
           <Button

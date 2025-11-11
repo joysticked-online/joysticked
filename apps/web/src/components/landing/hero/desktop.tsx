@@ -31,9 +31,9 @@ export function DesktopHero() {
       </div>
 
       <div
-        className="absolute bottom-0 left-0 origin-bottom-left flex flex-row items-end"
+        className="absolute bottom-0 left-0 flex origin-bottom-left flex-row items-end"
         style={{
-          transform: `scale(${scale})`,
+          transform: `scale(${scale})`
         }}
       >
         <Illustrations.Elephant />
