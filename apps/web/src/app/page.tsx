@@ -11,7 +11,7 @@ export default function Home() {
       </div>
 
       <div className="absolute bottom-0 flex max-w-screen flex-row items-end">
-        <Illustrations.Elephant className="-translate-y-[60%] absolute z-10 translate-x-[520%]" />
+        <Illustrations.Elephant />
 
         <div className="relative">
           <Illustrations.HalfPortal className="z-0" />
