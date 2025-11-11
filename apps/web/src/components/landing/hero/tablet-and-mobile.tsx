@@ -69,7 +69,7 @@ export function TabletAndMobileHero() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    className="h-8 w-60 bg-neutral-800 max-lg:rounded-lg"
+                    className="h-8 max-w-80 w-full pr-12 bg-neutral-800 max-lg:rounded-lg"
                   />
                   <FieldInfo field={field} />
                 </>
