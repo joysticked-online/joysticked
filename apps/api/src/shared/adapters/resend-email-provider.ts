@@ -7,7 +7,7 @@ export class ResendEmailProvider implements EmailProvider {
 
   async sendEmail(to: string, subject: string, body: string): Promise<void> {
     await this.resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: envs.RESEND_FROM_EMAIL,
       to,
       subject,
       html: body

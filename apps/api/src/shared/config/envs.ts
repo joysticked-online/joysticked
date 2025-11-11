@@ -9,7 +9,8 @@ function loadAppEnvs() {
   const schema = z.object({
     NODE_ENV: z.enum(['dev', 'prod']).default('dev'),
     PORT: z.coerce.number().default(3333),
-    RESEND_API_KEY: z.string()
+    RESEND_API_KEY: z.string(),
+    RESEND_FROM_EMAIL: z.email()
   });
 
   return schema.parse(Bun.env);
