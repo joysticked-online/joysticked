@@ -16,8 +16,7 @@ const redaction = localFont({
 
 export const metadata: Metadata = {
   title: 'Joysticked',
-  description:
-    'Track, rate, and share your gaming journey. joysticked is an open-source platform for game enthusiasts to log their experiences, discover new titles, and connect with fellow players.',
+  description: 'Play, rate & discover your next obsession',
   openGraph: {
     images: [
       {
@@ -27,6 +26,20 @@ export const metadata: Metadata = {
         alt: 'Joysticked Open Graph Image'
       }
     ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Joysticked',
+    description: 'Play, rate & discover your next obsession',
+    images: [
+      {
+        url: '/opengraph.png',
+        width: 639,
+        height: 415,
+        alt: 'Joysticked Open Graph Image'
+      }
+    ],
+    creator: '@usejoysticked'
   }
 };
 
@@ -37,6 +50,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script defer src="https://assets.onedollarstats.com/stonks.js" />
+      </head>
       <body className={`${geistSans.variable} ${redaction.variable} antialiased`}>
         <Toaster />
         {children}
