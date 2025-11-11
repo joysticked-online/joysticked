@@ -1,11 +1,13 @@
 import { Elysia } from 'elysia';
 import { ConflictError } from '../../errors/conflict-error';
 import { InternalServerError } from '../../errors/internal-server-error';
+import { RateLimitError } from '../../errors/rate-limit-error';
 
 export const errorHandler = new Elysia({ name: 'error-handler' })
   .error({
     CONFLICT: ConflictError,
-    INTERNAL_SERVER_ERROR: InternalServerError
+    INTERNAL_SERVER_ERROR: InternalServerError,
+    RATE_LIMIT_EXCEEDED: RateLimitError
   })
   .onError({ as: 'scoped' }, ({ error, code, status }) => {
     switch (code) {
@@ -14,6 +16,12 @@ export const errorHandler = new Elysia({ name: 'error-handler' })
       }
       case 'INTERNAL_SERVER_ERROR': {
         return status(500, {
+          code,
+          message: error.message
+        });
+      }
+      case 'RATE_LIMIT_EXCEEDED': {
+        return status(429, {
           code,
           message: error.message
         });

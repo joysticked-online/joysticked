@@ -17,7 +17,8 @@ function loadAppEnvs() {
 
 function loadDbEnvs() {
   const schema = z.object({
-    DATABASE_URL: z.url()
+    DATABASE_URL: z.url(),
+    REDIS_URL: z.url()
   });
 
   return schema.parse(process.env);

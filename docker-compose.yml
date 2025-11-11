@@ -12,8 +12,19 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 5s
 
+  joysticked-redis:
+    image: redis:7-alpine
+    container_name: joysticked-redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   default:

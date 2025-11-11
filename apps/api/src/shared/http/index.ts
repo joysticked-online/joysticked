@@ -5,9 +5,11 @@ import { z } from 'zod';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { errorHandler } from './middlewares/error-handler';
+import { rateLimitMiddleware } from './middlewares/rate-limitter';
 
 const app = new Elysia()
   .use(errorHandler)
+  .use(rateLimitMiddleware)
   .use(
     openapi({
       path: '/swagger',
@@ -16,7 +18,7 @@ const app = new Elysia()
       }
     })
   )
-  .use([waitlistRouter])
+  .use(waitlistRouter)
   .listen(envs.app.PORT, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );
