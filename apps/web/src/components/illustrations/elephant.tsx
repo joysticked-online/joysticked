@@ -816,34 +816,73 @@ const ELEPHANTS = {
 
 export function Elephant() {
   const [stepIndex, setStepIndex] = useState(0);
+  const [isJumping, setIsJumping] = useState(false);
 
-  const steps = useMemo(
-    () => [ELEPHANTS.STEP_ONE, ELEPHANTS.STEP_TWO, ELEPHANTS.STEP_THREE, ELEPHANTS.JUMPING],
+  const walkingSteps = useMemo(
+    () => [ELEPHANTS.STEP_ONE, ELEPHANTS.STEP_TWO, ELEPHANTS.STEP_THREE],
     []
   );
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStepIndex((prev) => (prev + 1) % 4);
-    }, 300);
+    // Animation cycle: 3 seconds total
+    // y: [-50, 0, -100, -10] over 1.5s
+    // The jump peak (y=-100) happens at ~1s into the cycle
+    // Show JUMPING sprite from 0.75s to 1.25s (centered around peak)
+
+    const runCycle = () => {
+      // Start not jumping
+      setIsJumping(false);
+
+      // Start jumping at 0.75s
+      setTimeout(() => {
+        setIsJumping(true);
+      }, 750);
+
+      // Stop jumping at 1.25s
+      setTimeout(() => {
+        setIsJumping(false);
+      }, 1250);
+    };
+
+    // Run immediately
+    runCycle();
+
+    // Repeat every 3 seconds
+    const interval = setInterval(runCycle, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Walking animation - only when not jumping
+    const interval = setInterval(() => {
+      if (!isJumping) {
+        setStepIndex((prev) => (prev + 1) % 3);
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [isJumping]);
+
   return (
     <motion.div
-      whileInView={{ x: [-550, 1100], y: [-50, 0, -100, -10] }}
+      initial={{ x: -550, y: -50 }}
+      animate={{ x: 1100, y: [-50, 0, -100, -10] }}
       transition={{
         repeat: Infinity,
+        repeatType: 'loop',
         ease: 'easeOut',
         duration: 3,
         y: {
-          duration: 1.5
+          duration: 1.5,
+          repeat: Infinity,
+          repeatType: 'loop',
+          repeatDelay: 1.5
         }
       }}
       className="-translate-y-[60%] absolute z-10 translate-x-[520%]"
     >
-      {steps[stepIndex]}
+      {isJumping ? ELEPHANTS.JUMPING : walkingSteps[stepIndex]}
     </motion.div>
   );
 }
