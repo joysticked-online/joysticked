@@ -8,7 +8,8 @@ export const envs = {
 function loadAppEnvs() {
   const schema = z.object({
     NODE_ENV: z.enum(['dev', 'prod']).default('dev'),
-    PORT: z.coerce.number().default(3333)
+    PORT: z.coerce.number().default(3333),
+    RESEND_API_KEY: z.string()
   });
 
   return schema.parse(Bun.env);
