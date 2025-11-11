@@ -10,6 +10,7 @@ import {
   Text
 } from '@react-email/components';
 import type { ReactNode } from 'react';
+import { envs } from '../../../config/envs';
 
 type BaseLayoutProps = {
   preview: ReactNode;
@@ -75,7 +76,7 @@ export function WaitlistEmailFooter() {
       <Text className="m-0 mt-20 text-center font-light text-[10px] leading-tight">
         You're receiving this email because you signed <br /> up on Joysticked waitlist.{' '}
         <Link
-          href="https://example.com/unsubscribe"
+          href={`https://${envs.app.CLIENT_URL}/unsubscribe`}
           className="font-normal text-[#fafafa] underline underline-offset-2"
         >
           Unsubscribe

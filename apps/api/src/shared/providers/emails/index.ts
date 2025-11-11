@@ -1,9 +1,10 @@
 import { render } from '@react-email/render';
 import type { ReactElement } from 'react';
 import { Resend } from 'resend';
+
 import { envs } from '../../config/envs';
-import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 import { InternalServerError } from '../../errors/internal-server-error';
+import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 
 type EmailTemplate = 'waitlist-welcome';
 
