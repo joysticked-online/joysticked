@@ -2,6 +2,7 @@ import { version } from '../package.json';
 
 import type { IGDBAPIResponse } from '../types';
 import type { InternalApiClient } from './internal/api-client';
+import { charactersMethods } from './methods/characters';
 import { gamesMethods } from './methods/games';
 
 export class IGDB {
@@ -12,6 +13,7 @@ export class IGDB {
   private readonly api: InternalApiClient;
 
   readonly games: ReturnType<typeof gamesMethods>;
+  readonly characters: ReturnType<typeof charactersMethods>;
 
   constructor({
     client_id,
@@ -43,6 +45,7 @@ export class IGDB {
     };
 
     this.games = gamesMethods(this.api);
+    this.characters = charactersMethods(this.api);
   }
 
   private async request<T>(
