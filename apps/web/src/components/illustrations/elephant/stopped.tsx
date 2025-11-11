@@ -1,4 +1,4 @@
-export function Stopped() {
+export function Stopped({ className }: { className?: string }) {
   return (
     <svg
       width="102"
@@ -6,6 +6,7 @@ export function Stopped() {
       viewBox="0 0 66 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <path d="M0 30H6V36H0V30Z" fill="#262626" />
       <path d="M12 30H18V36H12V30Z" fill="#262626" />
