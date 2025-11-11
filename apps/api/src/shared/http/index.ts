@@ -4,8 +4,10 @@ import { z } from 'zod';
 
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
+import { errorHandler } from './middlewares/error-handler';
 
 const app = new Elysia()
+  .use(errorHandler)
   .use(
     openapi({
       path: '/swagger',

@@ -1,10 +1,25 @@
+'use client';
+
+import { useForm } from '@tanstack/react-form';
 import { Illustrations } from '@/components/illustrations';
 import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
+import { joinWaitlist } from '@/actions/join-waitlist';
+import { FieldInfo } from '@/components/forms/field-info';
+import { waitlistSchema } from '@/lib/schemas/waitlist';
 
 export function TabletAndMobileHero() {
+  const form = useForm({
+    defaultValues: {
+      email: ''
+    },
+    onSubmit: async ({ value }) => {
+      await joinWaitlist(value.email);
+    }
+  });
+
   return (
     <div className="relative flex min-h-screen flex-col items-start justify-center gap-6 overflow-hidden md:items-center">
       <div className="absolute top-14 left-12 z-20">
@@ -26,18 +41,55 @@ export function TabletAndMobileHero() {
           </p>
         </div>
 
-        <div className="z-10 flex flex-col items-start gap-6 md:items-center">
-          <Input
-            placeholder="jarjarbinks@sith.com"
-            className="h-8 w-60 bg-neutral-800 max-lg:rounded-lg"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          className="z-10 flex flex-col items-start gap-6 md:items-center"
+        >
+          <div className="flex flex-col items-start gap-2 md:items-center">
+            <form.Field
+              name="email"
+              validators={{
+                onChange: ({ value }) => {
+                  const result = waitlistSchema.shape.email.safeParse(value);
+                  if (result.success) return undefined;
+                  return result.error?.issues?.[0]?.message || 'Invalid email';
+                }
+              }}
+              children={(field) => (
+                <>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="email"
+                    placeholder="jarjarbinks@sith.com"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="h-8 w-60 bg-neutral-800 max-lg:rounded-lg"
+                  />
+                  <FieldInfo field={field} />
+                </>
+              )}
+            />
+          </div>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                variant="default"
+                disabled={!canSubmit}
+                className="h-8 w-1/2 font-geist-sans font-semibold max-md:rounded-lg md:h-fit md:w-1/3 md:font-bold"
+              >
+                {isSubmitting ? 'Joining...' : 'Join our waitlist'}
+              </Button>
+            )}
           />
-          <Button
-            variant="default"
-            className="h-8 w-1/2 font-geist-sans font-semibold max-md:rounded-lg md:h-fit md:w-1/3 md:font-bold"
-          >
-            Join our waitlist
-          </Button>
-        </div>
+        </form>
       </div>
 
       <div className="w-full">

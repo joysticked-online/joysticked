@@ -12,7 +12,7 @@ function loadAppEnvs() {
     PORT: z.coerce.number().default(3333)
   });
 
-  return schema.parse(Bun.env);
+  return schema.parse(process.env);
 }
 
 function loadDbEnvs() {
@@ -20,7 +20,7 @@ function loadDbEnvs() {
     DATABASE_URL: z.url()
   });
 
-  return schema.parse(Bun.env);
+  return schema.parse(process.env);
 }
 
 function loadServicesEnvs() {
@@ -29,5 +29,5 @@ function loadServicesEnvs() {
     EMAIL_DOMAIN: z.string()
   });
 
-  return schema.parse(Bun.env);
+  return schema.parse(process.env);
 }

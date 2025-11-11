@@ -1,7 +1,8 @@
-import { InternalServerError } from 'elysia';
 import type { Database } from '../../../shared/database';
 import { createWaitListRepository } from '../../../shared/database/repositories/waitlist-repository';
 import { executeTransaction } from '../../../shared/database/transaction';
+import { ConflictError } from '../../../shared/errors/conflict-error';
+import { InternalServerError } from '../../../shared/errors/internal-server-error';
 import { emailService } from '../../../shared/providers/emails';
 
 export async function joinWaitlistUseCase(db: Database, { email }: { email: string }) {
@@ -9,7 +10,7 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
 
   const existingEntry = await waitlistRepository.findEntryByEmail(email);
   if (existingEntry) {
-    throw new Error('Email already exists in waitlist');
+    throw new ConflictError('Email already exists in waitlist');
   }
 
   return executeTransaction(db, async (tx) => {

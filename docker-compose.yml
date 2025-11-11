@@ -1,17 +1,21 @@
-version: '3.8'
-
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: joysticked
-      POSTGRES_USER: joysticked
-      POSTGRES_PASSWORD: joysticked
+  joysticked-postgres:
+    image: postgres:17
+    container_name: joysticked-postgres
+    env_file:
+      - ./apps/api/.env
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: joysticked-network
+    external: false

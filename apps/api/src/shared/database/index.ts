@@ -22,7 +22,7 @@ export function getDatabase(options?: { standalone?: boolean; maxConnections?: n
     sql = queryClient = queryClient || postgres(envs.db.DATABASE_URL, config);
   }
 
-  return drizzle(sql, { schema: schemas });
+  return drizzle(sql, { logger: envs.app.NODE_ENV !== 'prod', schema: schemas });
 }
 
 export const db = getDatabase();

@@ -1,6 +1,6 @@
 import { desc, eq, sql } from 'drizzle-orm';
 
-import { InternalServerError } from 'elysia';
+import { InternalServerError } from '../../errors/internal-server-error';
 import type { Database } from '..';
 import { waitlists } from '../schemas/waitlists';
 import type { Transaction } from '../transaction';
@@ -19,7 +19,7 @@ class WaitListRepository {
   async createEntry(email: string, tx?: Transaction) {
     const entry = await (tx ?? this.db).insert(waitlists).values({ email }).returning();
 
-    if (!entry[0]) throw new InternalServerError();
+    if (!entry[0]) throw new InternalServerError('Failed to create waitlist entry');
 
     return entry[0];
   }

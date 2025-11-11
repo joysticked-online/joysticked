@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { Resend } from 'resend';
 import { envs } from '../../config/envs';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
+import { InternalServerError } from '../../errors/internal-server-error';
 
 type EmailTemplate = 'waitlist-welcome';
 
@@ -87,7 +88,13 @@ class EmailService {
 
       return result;
     } catch (error) {
-      throw new Error(`Email sending failed: ${(error as Error).message}`);
+      const isErrorInstance = error instanceof Error;
+
+      if (!isErrorInstance) {
+        throw new InternalServerError((error as Error).message);
+      }
+
+      throw new InternalServerError(`Email sending failed`);
     }
   }
 }
