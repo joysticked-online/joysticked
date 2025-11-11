@@ -1,19 +1,34 @@
 {
   "name": "@joysticked/api",
   "version": "0.1.0",
+  "type": "module",
+  "main": "src/shared/http/index.ts",
+  "types": "src/shared/http/index.ts",
   "scripts": {
-    "dev": "bun run --watch src/shared/http/index.ts"
+    "dev": "bun run --watch src/shared/http/index.ts",
+    "db:generate": "drizzle-kit generate --name",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "email:dev": "email dev --dir src/shared/providers/emails/templates"
   },
   "dependencies": {
+    "@elysiajs/openapi": "1.4.11",
+    "@react-email/components": "1.0.0",
+    "@react-email/render": "2.0.0",
+    "@types/react": "19.2.2",
+    "bunlimit": "^0.1.4",
     "drizzle-orm": "0.44.7",
     "elysia": "1.4.15",
     "postgres": "3.4.7",
+    "react": "19.2.0",
+    "resend": "6.4.2",
     "zod": "4.1.12"
   },
   "devDependencies": {
-    "bun-types": "1.3.2",
+    "@react-email/preview-server": "5.0.1",
     "@types/bun": "1.3.2",
-    "drizzle-kit": "0.31.6"
-  },
-  "module": "src/index.js"
+    "bun-types": "1.3.2",
+    "drizzle-kit": "0.31.6",
+    "react-email": "5.0.1"
+  }
 }

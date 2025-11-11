@@ -1,11 +1,17 @@
 'use client';
 
+import { useForm } from '@tanstack/react-form';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+import { joinWaitlist } from '@/actions/join-waitlist';
+import { FieldInfo } from '@/components/forms/field-info';
 import { Illustrations } from '@/components/illustrations';
 import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
+import { waitlistSchema } from '@/lib/schemas/waitlist';
 
 const ORIGINAL_WIDTH = 1600;
 
@@ -23,6 +29,19 @@ export function DesktopHero() {
     window.addEventListener('resize', updateScale);
     return () => window.removeEventListener('resize', updateScale);
   }, []);
+
+  const form = useForm({
+    defaultValues: {
+      email: ''
+    },
+    onSubmit: async ({ value }) => {
+      const { error } = await joinWaitlist(value.email);
+
+      if (error) {
+        return toast.error(error);
+      }
+    }
+  });
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden">
@@ -65,12 +84,55 @@ export function DesktopHero() {
         </p>
       </div>
 
-      <div className="z-10 flex flex-col items-center gap-7">
-        <Input placeholder="kratos@godofwar.com" className="w-80 bg-neutral-800" />
-        <Button variant="default" className="w-2/3 py-1 font-bold font-geist-sans">
-          Join our waitlist
-        </Button>
-      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="z-10 flex flex-col items-center gap-7"
+      >
+        <div className="flex flex-col items-center gap-2">
+          <form.Field
+            name="email"
+            validators={{
+              onChange: ({ value }) => {
+                const result = waitlistSchema.shape.email.safeParse(value);
+                if (result.success) return undefined;
+                return result.error?.issues?.[0]?.message || 'Invalid email';
+              }
+            }}
+            children={(field) => (
+              <>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  type="email"
+                  placeholder="kratos@godofwar.com"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  className="max-w-80 w-full pr-12 bg-neutral-800"
+                />
+                <FieldInfo field={field} />
+              </>
+            )}
+          />
+        </div>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              variant="default"
+              disabled={!canSubmit}
+              className="w-2/3 py-1 font-bold font-geist-sans"
+            >
+              {isSubmitting ? 'Joining...' : 'Join our waitlist'}
+            </Button>
+          )}
+        />
+      </form>
     </div>
   );
 }

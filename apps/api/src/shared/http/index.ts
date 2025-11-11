@@ -1,9 +1,26 @@
+import openapi from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
+import { z } from 'zod';
 
-import { envs } from '@/shared/config/envs';
+import { waitlistRouter } from '../../modules/waitlist/router';
+import { envs } from '../config/envs';
+import { errorHandler } from './middlewares/error-handler';
+import { rateLimitMiddleware } from './middlewares/rate-limitter';
 
-const app = new Elysia().listen(envs.app.PORT, ({ port, hostname }) =>
-  console.log(`Server running on port http://${hostname}:${port}`)
-);
+const app = new Elysia()
+  .use(errorHandler)
+  .use(rateLimitMiddleware)
+  .use(
+    openapi({
+      path: '/swagger',
+      mapJsonSchema: {
+        zod: z.toJSONSchema
+      }
+    })
+  )
+  .use(waitlistRouter)
+  .listen(envs.app.PORT, ({ port, hostname }) =>
+    console.log(`Server running on port http://${hostname}:${port}`)
+  );
 
 export type App = typeof app;
