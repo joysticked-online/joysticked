@@ -824,37 +824,26 @@ export function Elephant() {
   );
 
   useEffect(() => {
-    // Animation cycle: 3 seconds total
-    // y: [-50, 0, -100, -10] over 1.5s
-    // The jump peak (y=-100) happens at ~1s into the cycle
-    // Show JUMPING sprite from 0.75s to 1.25s (centered around peak)
-
     const runCycle = () => {
-      // Start not jumping
       setIsJumping(false);
 
-      // Start jumping at 0.75s
       setTimeout(() => {
         setIsJumping(true);
-      }, 750);
+      }, 500);
 
-      // Stop jumping at 1.25s
       setTimeout(() => {
         setIsJumping(false);
-      }, 1250);
+      }, 1005);
     };
 
-    // Run immediately
     runCycle();
 
-    // Repeat every 3 seconds
     const interval = setInterval(runCycle, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Walking animation - only when not jumping
     const interval = setInterval(() => {
       if (!isJumping) {
         setStepIndex((prev) => (prev + 1) % 3);
