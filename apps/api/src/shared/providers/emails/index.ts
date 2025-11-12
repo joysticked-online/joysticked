@@ -105,10 +105,6 @@ class EmailService {
     idempotencyKey,
     audienceId
   }: SendEmailParams & { audienceId: string }) {
-    const domain = this.getEmailDomain();
-    const config = this.getTemplateConfig(template);
-    const html = await render(config.component);
-
     let contact: Awaited<ReturnType<typeof this.client.contacts.create>>['data'] | null = null;
 
     try {
@@ -119,22 +115,7 @@ class EmailService {
         })
       ).data;
 
-      const result = await this.client.emails.send(
-        {
-          to: [to],
-          from: this.getSenderEmail(config.senderType),
-          subject: config.subject,
-          html,
-          replyTo: `no-reply@${domain}`
-        },
-        {
-          idempotencyKey
-        }
-      );
-
-      if (!result.data?.id) {
-        throw new Error('Failed to send email');
-      }
+      const result = await this.sendEmail({ to, template, idempotencyKey });
 
       return result;
     } catch (error) {
@@ -142,13 +123,7 @@ class EmailService {
         await this.client.contacts.remove({ id: contact.id, audienceId });
       }
 
-      const isErrorInstance = error instanceof Error;
-
-      if (!isErrorInstance) {
-        throw new InternalServerError((error as Error).message);
-      }
-
-      throw new InternalServerError(`Email sending failed`);
+      throw error;
     }
   }
 }
