@@ -20,6 +20,8 @@ jobs:
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          version: 1.3.2
 
       - name: Cache Bun dependencies
         uses: actions/cache@v4
@@ -35,7 +37,7 @@ jobs:
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
-          version: latest
+          version: 2.3.4
 
       - name: Run Biome
-        run: biome ci --since=main
+        run: biome ci --changed --since=origin/main
