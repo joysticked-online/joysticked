@@ -1,7 +1,12 @@
 {
-  "$schema": "https://railway.com/railway.schema.json",
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "api.dockerfile"
+  },
+  "deploy": {
+    "startCommand": "/bin/sh -c \"bun run db:migrate && exec ./server\"",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
   }
 }

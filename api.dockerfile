@@ -11,7 +11,7 @@ RUN bun install --frozen-lockfile
 COPY ./packages/igdb ./packages/igdb
 COPY ./apps/api ./apps/api
 
-EXPOSE 3333
+EXPOSE 8080
 
 WORKDIR /app/apps/api
 RUN bun install --frozen-lockfile
