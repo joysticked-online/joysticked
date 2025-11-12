@@ -1,8 +1,8 @@
+import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createWaitListRepository } from '../../../shared/database/repositories/waitlist-repository';
 import { executeTransaction } from '../../../shared/database/transaction';
 import { ConflictError } from '../../../shared/errors/conflict-error';
-import { InternalServerError } from '../../../shared/errors/internal-server-error';
 import { emailService } from '../../../shared/providers/emails';
 
 export async function joinWaitlistUseCase(db: Database, { email }: { email: string }) {
@@ -16,12 +16,11 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
   return executeTransaction(db, async (tx) => {
     const entry = await waitlistRepository.create(email, tx);
 
-    const { error } = await emailService.sendEmail({
+    await emailService.sendEmailAndAddToAudience({
       to: email,
-      template: 'waitlist-welcome'
+      template: 'waitlist-welcome',
+      audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
     });
-
-    if (error) throw new InternalServerError('Failed to send email');
 
     return { entry };
   });
