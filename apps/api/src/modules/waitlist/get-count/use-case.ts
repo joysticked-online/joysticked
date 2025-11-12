@@ -4,5 +4,5 @@ import { createWaitListRepository } from '../../../shared/database/repositories/
 export async function getWaitlistCount(db: Database) {
   const waitlistRepository = createWaitListRepository(db);
 
-  return await waitlistRepository.getEntriesCount();
+  return await waitlistRepository.getCount();
 }
