@@ -35,7 +35,9 @@ class WaitListRepository {
   }
 
   async getEntriesCount() {
-    const count = await this.db.select({ count: sql<number>`count(*)` }).from(waitlists);
+    const count = await this.db
+      .select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(waitlists);
 
     return count[0].count;
   }
