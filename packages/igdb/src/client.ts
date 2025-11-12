@@ -4,6 +4,7 @@ import type { IGDBAPIResponse } from '../types';
 import type { InternalApiClient } from './internal/api-client';
 import { charactersMethods } from './methods/characters';
 import { gamesMethods } from './methods/games';
+import { platformsMethods } from './methods/plataform';
 
 export class IGDB {
   private readonly client_id: string;
@@ -14,6 +15,7 @@ export class IGDB {
 
   readonly games: ReturnType<typeof gamesMethods>;
   readonly characters: ReturnType<typeof charactersMethods>;
+  readonly platforms: ReturnType<typeof platformsMethods>;
 
   constructor({
     client_id,
@@ -46,6 +48,7 @@ export class IGDB {
 
     this.games = gamesMethods(this.api);
     this.characters = charactersMethods(this.api);
+    this.platforms = platformsMethods(this.api);
   }
 
   private async request<T>(
