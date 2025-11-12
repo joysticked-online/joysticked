@@ -9,7 +9,8 @@
     "db:generate": "drizzle-kit generate --name",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "email:dev": "email dev --dir src/shared/providers/emails/templates"
+    "email:dev": "email dev --dir src/shared/providers/emails/templates",
+    "build": "bun build --compile ./src/shared/http/index.ts --minify-whitespace --minify-syntax --outfile ./server"
   },
   "dependencies": {
     "@elysiajs/openapi": "1.4.11",
