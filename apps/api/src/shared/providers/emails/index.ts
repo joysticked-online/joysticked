@@ -98,6 +98,34 @@ class EmailService {
       throw new InternalServerError(`Email sending failed`);
     }
   }
+
+  public async sendEmailAndAddToAudience({
+    to,
+    template,
+    idempotencyKey,
+    audienceId
+  }: SendEmailParams & { audienceId: string }) {
+    let contact: Awaited<ReturnType<typeof this.client.contacts.create>>['data'] | null = null;
+
+    try {
+      contact = (
+        await this.client.contacts.create({
+          email: to,
+          audienceId
+        })
+      ).data;
+
+      const result = await this.sendEmail({ to, template, idempotencyKey });
+
+      return result;
+    } catch (error) {
+      if (contact) {
+        await this.client.contacts.remove({ id: contact.id, audienceId });
+      }
+
+      throw error;
+    }
+  }
 }
 
 export const emailService = EmailService.getInstance();

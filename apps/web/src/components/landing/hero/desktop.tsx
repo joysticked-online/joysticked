@@ -102,6 +102,7 @@ export function DesktopHero() {
                 return result.error?.issues?.[0]?.message || 'Invalid email';
               }
             }}
+            // biome-ignore lint/correctness/noChildrenProp: its how tanstack form works
             children={(field) => (
               <>
                 <Input
@@ -121,6 +122,7 @@ export function DesktopHero() {
         </div>
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
+          // biome-ignore lint/correctness/noChildrenProp: its how tanstack form works
           children={([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
