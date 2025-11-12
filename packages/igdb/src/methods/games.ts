@@ -199,7 +199,7 @@ export function gamesMethods(client: InternalApiClient) {
       const body = buildQuery(options);
       return client.post(`/games`, body);
     },
-    async time_to_beat<const T extends readonly TimeToBeatField[]>(
+    async timeToBeat<const T extends readonly TimeToBeatField[]>(
       options: HasDuplicates<T> extends true ? never : QueryOptions<T>
     ): Promise<IGDBAPIResponse<Pick<TimeToBeat, T[number]>[]>> {
       const body = buildQuery(options);
