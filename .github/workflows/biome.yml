@@ -15,11 +15,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Biome CLI
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            bun-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
           version: latest
 
-      - name: Run Biome on changed files
+      - name: Run Biome
         run: biome ci --changed
