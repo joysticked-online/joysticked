@@ -1,4 +1,6 @@
 import { Clouds } from './clouds';
+import { Dragon } from './dragon';
+import { DragonMobile } from './dragon-mobile';
 import { Elephant } from './elephant';
 import { Jumping as JumpingElephant } from './elephant/jumping';
 import { StepOne as StepOneElephant } from './elephant/step-one';
@@ -12,6 +14,8 @@ import { FlowerTwo } from './flower-two';
 import { HalfPortal } from './half-portal';
 import { Ladder } from './ladder';
 import { LeftFloor } from './left-floor';
+import { Mage } from './mage';
+import { MageMobile } from './mage-mobile';
 import { Pipe } from './pipe';
 import { RightFloor } from './right-floor';
 import { TopFloor } from './top-floor';
@@ -33,5 +37,9 @@ export const Illustrations = {
   JumpingElephant,
   Ladder,
   TopFloor,
-  Clouds
+  Clouds,
+  Dragon,
+  DragonMobile,
+  Mage,
+  MageMobile
 };
