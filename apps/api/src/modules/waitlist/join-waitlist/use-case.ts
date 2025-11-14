@@ -9,6 +9,7 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
   const waitlistRepository = createWaitListRepository(db);
 
   const existingEntry = await waitlistRepository.findByEmail(email);
+
   if (existingEntry) {
     throw new ConflictError('Email already exists in waitlist');
   }
@@ -16,11 +17,11 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
   return executeTransaction(db, async (tx) => {
     const entry = await waitlistRepository.create(email, tx);
 
-    await emailService.sendEmailAndAddToAudience({
-      to: email,
-      template: 'waitlist-welcome',
-      audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
-    });
+    // await emailService.sendEmailAndAddToAudience({
+    //   to: email,
+    //   template: 'waitlist-welcome',
+    //   audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
+    // });
 
     return { entry };
   });

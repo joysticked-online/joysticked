@@ -1,8 +1,10 @@
+import { QueryProvider } from '@/components/providers/query-client-provider';
+import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import localFont from 'next/font/local';
+import { NuqsAdapter } from 'nuqs/adapters/next';
 import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -54,8 +56,12 @@ export default function RootLayout({
         <script defer src="https://assets.onedollarstats.com/stonks.js" />
       </head>
       <body className={`${geistSans.variable} ${redaction.variable} antialiased`}>
-        <Toaster />
-        {children}
+        <QueryProvider>
+          <NuqsAdapter>
+            <Toaster />
+            {children}
+          </NuqsAdapter>
+        </QueryProvider>
       </body>
     </html>
   );

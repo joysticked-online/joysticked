@@ -12,6 +12,7 @@ import { Flower } from './flower';
 import { FlowerThree } from './flower-three';
 import { FlowerTwo } from './flower-two';
 import { HalfPortal } from './half-portal';
+import { BrokenHeart, FullHeart, HalfHeart } from './heart';
 import { Ladder } from './ladder';
 import { LeftFloor } from './left-floor';
 import { Pipe } from './pipe';
@@ -38,4 +39,7 @@ export const Illustrations = {
   Clouds,
   FloorWaitlist,
   Flag
+  BrokenHeart,
+  HalfHeart,
+  FullHeart
 };

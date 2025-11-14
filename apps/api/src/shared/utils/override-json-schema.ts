@@ -3,8 +3,11 @@ import type { ZodType } from 'zod';
 export function overrideJSONSchema<T extends ZodType>(
   schema: T,
   toJSONSchema: () => unknown | undefined
-) {
-  schema._zod.toJSONSchema = toJSONSchema;
+): T {
+  const result = Object.create(Object.getPrototypeOf(schema));
+  Object.assign(result, schema);
 
-  return schema;
+  result._zod = { ...schema._zod, toJSONSchema };
+
+  return result;
 }
