@@ -17,7 +17,7 @@ export default function Login() {
   if (!isMuted) return null;
 
   if (isTabletOrMobile) {
-    return <TabletAndMobileAuth />;
+    return <TabletAndMobileAuth  />;
   }
   return <DesktopAuth />;
 }

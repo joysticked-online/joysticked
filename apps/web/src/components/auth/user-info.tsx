@@ -7,7 +7,7 @@ export function UserInfo() {
   const { data: session, isPending } = useSession();
 
   if (isPending) {
-    return <div>Carregando...</div>;
+    return <div>Loading...</div>;
   }
 
   if (!session) {

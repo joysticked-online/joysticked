@@ -3,8 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { signIn } from '@/lib/auth-client';
 import { Icons } from '../icons';
+import { cn } from '@/lib/utils';
 
-export function SignInButtons() {
+export function SignInButtons({ className }: { className?: string }) {
   const handleGoogleSignIn = async () => {
     await signIn.social({
       provider: 'google',
@@ -20,25 +21,25 @@ export function SignInButtons() {
   };
 
   return (
-    <div className="relative z-50 flex w-[220px] flex-col gap-4">
+    <div className={cn("relative z-50 flex w-[220px]  flex-col gap-4", className)} >
       <Button
         onClick={handleGoogleSignIn}
         variant="default"
         type="button"
-        className="relative z-50 h-8.5 gap-3 rounded-[14px] text-center"
+        className="relative z-50  gap-3 rounded-[14px] text-center"
       >
         <Icons.GoogleIcon />
-        <span className="font-geist-sans font-semibold text-xl">Google</span>
+        <span className="font-geist-sans  text-xl">Google</span>
       </Button>
 
       <Button
         onClick={handleDiscordSignIn}
         variant="default"
         type="button"
-        className="relative z-50 h-8.5 gap-3 rounded-[14px] text-center"
+        className="relative z-50  gap-3 rounded-[14px] text-center"
       >
         <Icons.DiscordIcon />
-        <span className="font-geist-sans font-semibold text-xl">Discord</span>
+        <span className="font-geist-sans text-xl">Discord</span>
       </Button>
     </div>
   );

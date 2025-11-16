@@ -96,8 +96,17 @@ export function OtpVerificationForm({
   });
 
 
-  const slotClassName = "w-14 h-20 md:w-14 md:h-24 border-none text-center bg-[#44403c]/[30%] text-2xl font-semibold !rounded-full  text-white  flex items-center justify-center";
+  const slotClassName = cn(
+    "w-10.5 h-20 md:w-12 md:h-20 border-none text-center",
+    "bg-[#44403c]/[30%] text-2xl font-semibold !rounded-[16px] text-white",
+    "flex items-center justify-center",
 
+    //remove border otp code
+    "data-[active=true]:border-none",
+    "data-[active=true]:ring-0",
+    "data-[active=true]:outline-none",
+    "[&>div[class*='ring-']]:hidden"
+  );
   const erroSlots = hasError ? "border-red-500 bg-red-850/20" : "border-neutral-700";
   return (
     <form
@@ -119,17 +128,17 @@ export function OtpVerificationForm({
               if (!value) return undefined;
 
               if (value.length < OTP_LENGTH) {
-                return `Digite todos os ${OTP_LENGTH} dígitos`;
+                return `Enter all ${OTP_LENGTH} digits`;
               }
 
               const result = otpVerificationSchema.shape.otp.safeParse(value);
               if (result.success) return undefined;
-              return result.error?.issues?.[0]?.message || 'Código inválido';
+              return result.error?.issues?.[0]?.message || 'Invalid code';
             }
           }}
           children={(field) => (
             <>
-              <div className="relative flex flex-col items-center gap-2">
+              <div className="relative flex flex-col items-center  ">
                 <InputOTP
                   maxLength={OTP_LENGTH}
                   value={field.state.value}
@@ -169,7 +178,7 @@ export function OtpVerificationForm({
 
                   </InputOTPGroup>
 
-                  <InputOTPSeparator/>
+                  <InputOTPSeparator className="bg-zinc-700 w-4"/>
 
                   <InputOTPGroup
                   className={cn( "gap-2",
@@ -201,8 +210,8 @@ export function OtpVerificationForm({
               </div>
 
               <div className="flex flex-col items-center justify-center gap-1">
-                <span className="font-semibold  font-geist-sans ">Please enter the one-time password sent </span>
-                <span className="font-semibold  font-geist-sans">to your e-mail.</span>
+                <span className=" font-geist-sans text-sm font-semibold ">Please enter the one-time password sent </span>
+                <span className=" font-geist-sans text-sm font-semibold">to your e-mail.</span>
               </div>
 
             </>
@@ -217,7 +226,7 @@ export function OtpVerificationForm({
             type="submit"
             variant="default"
             disabled={!canSubmit || otpForm.state.values.otp.length !== OTP_LENGTH}
-            className="relative z-50 w-3/7 cursor-pointer rounded-[14px] font-bold font-geist-sans text-sm"
+            className="relative z-50 w-3/8 cursor-pointer rounded-[14px] font-bold font-geist-sans text-sm"
           >
             {isSubmitting ? (
               <>

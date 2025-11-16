@@ -20,7 +20,7 @@ export function useVerifyCode() {
     const otpSentAt = sessionStorage.getItem('otpSentAt');
 
     if (!storedEmail) {
-      toast.error('Sessão expirada. Por favor, insira seu email novamente.');
+      toast.error('Session expired. Please enter your email again');
       router.push('/login');
       return;
     }
@@ -54,9 +54,9 @@ export function useVerifyCode() {
       });
       sessionStorage.setItem('otpSentAt', Date.now().toString());
       startCooldown();
-      toast.success('Um novo código foi enviado.');
+      toast.success('A new code has been sent.');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Não foi possível reenviar o código.';
+      const message = error instanceof Error ? error.message : 'Could not resend the code.';
       toast.error(message);
     }
   };

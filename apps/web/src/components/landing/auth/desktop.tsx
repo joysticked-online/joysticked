@@ -11,8 +11,7 @@ export function DesktopAuth() {
       <div className="absolute top-15">
         <Logos.Joysticked />
       </div>
-
-      <h1 className="font-redaction text-7xl">Start Now</h1>
+      <h1 className="w-fit max-w-4xl text-center font-redaction text-7xl transform scale-y-[1.2]">Start Now</h1>
 
       <div className="relative z-50 mt-10 flex flex-col items-center gap-4">
         <SignInButtons />

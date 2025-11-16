@@ -19,11 +19,11 @@ type EmailInputFormProps = {
   redirectToVerifyPage?: boolean;
 };
 
-export function EmailInputForm({ 
-  className, 
-  onSuccess, 
+export function EmailInputForm({
+  className,
+  onSuccess,
   onStartCooldown,
-  redirectToVerifyPage = false 
+  redirectToVerifyPage = false
 }: EmailInputFormProps) {
   const router = useRouter();
   const emailForm = useForm({
@@ -101,7 +101,7 @@ export function EmailInputForm({
             type="submit"
             variant="default"
             disabled={!canSubmit}
-            className="relative z-50 w-3/4 cursor-pointer rounded-[14px] font-bold font-geist-sans text-sm"
+            className="relative z-50 h-7 cursor-pointer rounded-[14px] px-6 font-geist-sans text-sm"
           >
             {isSubmitting ? (
               <>
@@ -109,7 +109,7 @@ export function EmailInputForm({
                 Sending...
               </>
             ) : (
-              'Send Code'
+              'Send me a OTP'
             )}
           </Button>
         )}
@@ -117,4 +117,3 @@ export function EmailInputForm({
     </form>
   );
 }
-
