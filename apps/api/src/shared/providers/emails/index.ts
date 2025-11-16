@@ -5,12 +5,20 @@ import { Resend } from 'resend';
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
+import AuthEmailOTPTemplate from './templates/auth-email-otp';
 
-type EmailTemplate = 'waitlist-welcome';
+type EmailTemplate = 'waitlist-welcome' | 'auth-email-otp';
+
+type TemplatePayload = {
+  otp?: string;
+  type?: 'sign-in' | 'email-verification' 
+  expiresInMinutes?: number;
+};
 
 type SendEmailParams = {
   to: string;
   template: EmailTemplate;
+  payload?: TemplatePayload;
   idempotencyKey?: string;
 };
 
@@ -48,10 +56,15 @@ class EmailService {
 
   private getSenderEmail(type: string = 'hello'): string {
     const domain = this.getEmailDomain();
+    
+    if (domain.includes('@')) {
+      return `Joysticked <${domain}>`;
+    }
+    
     return `Joysticked <${type}@${domain}>`;
   }
 
-  private getTemplateConfig(template: EmailTemplate): TemplateConfig {
+  private getTemplateConfig(template: EmailTemplate, payload?: TemplatePayload): TemplateConfig {
     switch (template) {
       case 'waitlist-welcome':
         return {
@@ -59,24 +72,54 @@ class EmailService {
           component: WelcomeToTheWaitlistTemplate(),
           senderType: 'hello'
         };
+
+        case 'auth-email-otp': {
+          if (!payload?.otp || !payload.type) {
+            throw new InternalServerError('Missing OTP payload for auth email template');
+          }
+
+          const subjects: Record<
+            NonNullable<TemplatePayload['type']>,
+            string
+          > = {
+            'sign-in': 'Your Joysticked sign-in code',
+            'email-verification': 'Verify your Joysticked email'
+          };
+
+          const subject = subjects[payload.type];
+
+          return {
+            subject,
+            component: AuthEmailOTPTemplate({
+              otp: payload.otp,
+              type: payload.type,
+              expiresInMinutes: payload.expiresInMinutes ?? 5
+            }),
+            senderType: 'auth'
+          };
+        }
+
       default:
         throw new Error(`Unknown email template: ${template}`);
     }
   }
 
-  public async sendEmail({ to, template, idempotencyKey }: SendEmailParams) {
+  public async sendEmail({ to, template, payload, idempotencyKey }: SendEmailParams) {
     const domain = this.getEmailDomain();
-    const config = this.getTemplateConfig(template);
+    const config = this.getTemplateConfig(template, payload);
     const html = await render(config.component);
 
+
     try {
+      const replyToDomain = domain.includes('@') ? domain.split('@')[1] : domain;
+
       const result = await this.client.emails.send(
         {
           to: [to],
           from: this.getSenderEmail(config.senderType),
           subject: config.subject,
           html,
-          replyTo: `no-reply@${domain}`
+          replyTo: `no-reply@${replyToDomain}`
         },
         {
           idempotencyKey

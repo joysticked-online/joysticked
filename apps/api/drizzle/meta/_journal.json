@@ -8,6 +8,13 @@
       "when": 1762884777469,
       "tag": "20251111181257_base_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1763052905909,
+      "tag": "20251113165505_base_auth_schema",
+      "breakpoints": true
     }
   ]
 }
