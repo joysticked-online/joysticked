@@ -1,9 +1,11 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
+import confetti from 'canvas-confetti';
+import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { AnimatePresence } from 'motion/react';
+
 import { joinWaitlist } from '@/actions/join-waitlist';
 import { FieldInfo } from '@/components/forms/field-info';
 import { Illustrations } from '@/components/illustrations';
@@ -28,6 +30,13 @@ export function TabletAndMobileHero() {
   const markAsJoined = () => {
     localStorage.setItem('alreadyJoinedWaitlist', 'true');
     setAlreadyJoinedWaitlist(true);
+
+    // Trigger confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   };
 
   const form = useForm({

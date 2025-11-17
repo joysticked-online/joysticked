@@ -1,6 +1,8 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
+import confetti from 'canvas-confetti';
+import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -13,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
 import { waitlistSchema } from '@/lib/schemas/waitlist';
 import { SuccessfulWaitlist } from './successful-waitlist';
-import { AnimatePresence } from 'motion/react';
 
 const ORIGINAL_WIDTH = 1600;
 
@@ -43,6 +44,13 @@ export function DesktopHero() {
   const markAsJoined = () => {
     localStorage.setItem('alreadyJoinedWaitlist', 'true');
     setAlreadyJoinedWaitlist(true);
+
+    // Trigger confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   };
 
   const form = useForm({
