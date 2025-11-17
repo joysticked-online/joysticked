@@ -38,7 +38,7 @@ export const Illustrations = {
   TopFloor,
   Clouds,
   FloorWaitlist,
-  Flag
+  Flag,
   BrokenHeart,
   HalfHeart,
   FullHeart
