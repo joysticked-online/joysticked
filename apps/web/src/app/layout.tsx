@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import localFont from 'next/font/local';
-import { NuqsAdapter } from 'nuqs/adapters/next';
-import { QueryProvider } from '@/components/providers/query-client-provider';
-import { Toaster } from '@/components/ui/sonner';
-import './globals.css';
+
 import { Providers } from '@/components/providers';
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
