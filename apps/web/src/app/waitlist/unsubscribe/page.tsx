@@ -5,11 +5,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useEffect, useState } from 'react';
-
+import { toast } from 'sonner';
 import { Illustrations } from '@/components/illustrations';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
-import { toast } from 'sonner';
 
 const opacitySequence = [50, 100];
 

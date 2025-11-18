@@ -4,8 +4,8 @@ import { Resend } from 'resend';
 
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
-import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
+import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 
 type EmailTemplate = 'waitlist-welcome';
 
