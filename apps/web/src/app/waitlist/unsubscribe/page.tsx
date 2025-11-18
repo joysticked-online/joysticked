@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Illustrations } from '@/components/illustrations';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 const opacitySequence = [50, 100];
 
@@ -34,11 +35,38 @@ export default function UnsubscribeFromWaitlistPage() {
 
   const { data, isPending } = useQuery({
     queryKey: ['unsubscribe', email],
-    queryFn: async () => await api.waitlist['join-date'].get({ query: { email: email! } }),
-    enabled: !!email || !isMounted
+    enabled: !!email || !isMounted,
+    async queryFn() {
+      return await api.waitlist['join-date'].get({ query: { email: email! } });
+    }
+  });
+
+  const { mutate: burryMyWaitlistSpot } = useMutation({
+    async mutationFn() {
+      const { data, error } = await api.waitlist.unsubscribe.post({ email: email! });
+
+      if (error) {
+        throw new Error(error.value.message);
+      }
+
+      return data;
+    },
+    onSuccess() {
+      toast.success('You have been unsubscribed!');
+      router.push('/');
+    },
+    onError() {
+      toast.error('Failed to unsubscribe!');
+    }
   });
 
   if (!isMounted || isPending || !data?.data) return null;
+
+  function rescureMySpot() {
+    toast.success('Your spot has been resurrected!');
+    router.push('/');
+    return;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden">
@@ -65,10 +93,12 @@ export default function UnsubscribeFromWaitlistPage() {
         </div>
 
         <div className="flex gap-4">
-          <Button className="w-fit" variant="outline">
+          <Button className="w-fit" variant="outline" onClick={rescureMySpot}>
             Resurrect my spot
           </Button>
-          <Button className="w-fit">Bury my waitlist spot</Button>
+          <Button className="w-fit" onClick={burryMyWaitlistSpot}>
+            Bury my waitlist spot
+          </Button>
         </div>
       </div>
     </div>

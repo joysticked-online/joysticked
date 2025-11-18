@@ -28,6 +28,10 @@ class WaitListRepository {
     await this.db.delete(waitlists).where(eq(waitlists.id, id));
   }
 
+  async deleteByEmail(email: string, tx?: Transaction) {
+    await (tx ?? this.db).delete(waitlists).where(eq(waitlists.email, email));
+  }
+
   async getAll() {
     const entries = await this.db.select().from(waitlists).orderBy(desc(waitlists.joinedAt));
 

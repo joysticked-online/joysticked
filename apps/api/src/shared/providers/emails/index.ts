@@ -5,6 +5,7 @@ import { Resend } from 'resend';
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
+import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
 
 type EmailTemplate = 'waitlist-welcome';
 
@@ -125,6 +126,16 @@ class EmailService {
 
       throw error;
     }
+  }
+
+  public async removeFromAudience({ email, audienceId }: { email: string; audienceId: string }) {
+    const contact = await this.client.contacts.get({ email, audienceId });
+
+    if (!contact.data) {
+      throw new ResourceNotFoundError(`Contact not found for email: ${email}`);
+    }
+
+    await this.client.contacts.remove({ id: contact.data.id, audienceId });
   }
 }
 

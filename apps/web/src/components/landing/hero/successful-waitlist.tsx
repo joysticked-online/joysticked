@@ -13,7 +13,7 @@ export function SuccessfulWaitlist() {
         duration: 0.5,
         ease: [0.22, 1, 0.36, 1]
       }}
-      className="relative flex min-h-screen w-full flex-col items-center justify-center"
+      className="absolute w-full bg-background relative flex min-h-screen w-full flex-col items-center justify-center"
     >
       <Illustrations.Clouds className="absolute top-10 flex w-full flex-row items-center justify-between lg:hidden" />
 

@@ -43,7 +43,7 @@ export function TabletAndMobileHero() {
     defaultValues: {
       email: ''
     },
-    onSubmit: async ({ value }) => {
+    async onSubmit({ value }) {
       const { error } = await joinWaitlist(value.email);
 
       if (error) {
