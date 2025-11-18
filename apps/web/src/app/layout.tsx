@@ -5,6 +5,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next';
 import { QueryProvider } from '@/components/providers/query-client-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
+import { Providers } from '@/components/providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -56,12 +57,7 @@ export default function RootLayout({
         <script defer src="https://assets.onedollarstats.com/stonks.js" />
       </head>
       <body className={`${geistSans.variable} ${redaction.variable} antialiased`}>
-        <QueryProvider>
-          <NuqsAdapter>
-            <Toaster />
-            {children}
-          </NuqsAdapter>
-        </QueryProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
