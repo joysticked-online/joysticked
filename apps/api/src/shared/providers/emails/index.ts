@@ -52,12 +52,12 @@ class EmailService {
     return `Joysticked <${type}@${domain}>`;
   }
 
-  private getTemplateConfig(template: EmailTemplate): TemplateConfig {
+  private getTemplateConfig(template: EmailTemplate, { email }: { email: string }): TemplateConfig {
     switch (template) {
       case 'waitlist-welcome':
         return {
           subject: 'Welcome to the Joysticked Waitlist',
-          component: WelcomeToTheWaitlistTemplate(),
+          component: WelcomeToTheWaitlistTemplate({ email }),
           senderType: 'hello'
         };
       default:
@@ -67,7 +67,7 @@ class EmailService {
 
   public async sendEmail({ to, template, idempotencyKey }: SendEmailParams) {
     const domain = this.getEmailDomain();
-    const config = this.getTemplateConfig(template);
+    const config = this.getTemplateConfig(template, { email: to });
     const html = await render(config.component);
 
     try {

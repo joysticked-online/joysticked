@@ -1,13 +1,11 @@
 import { Container, Preview, Text } from '@react-email/components';
 import BaseLayout, { EmailHeader, textStyles, WaitlistEmailFooter } from './base-layout';
+import { envs } from '../../../../shared/config/envs';
 
-export default function WelcomeToTheWaitlistTemplate() {
+export default function WelcomeToTheWaitlistTemplate({ email }: { email: string }) {
   return (
     <BaseLayout preview={<Preview>Welcome to the Joysticked Waitlist</Preview>}>
-      <EmailHeader>
-        Thank you for <br />
-        joining our waitlist!
-      </EmailHeader>
+      <EmailHeader url={'https://i.imgur.com/FbSuAw9.png'} alt={'Joysticked Clouds'} />
 
       <Container className="mb-8">
         <Text className={textStyles.semibold}>
@@ -24,7 +22,7 @@ export default function WelcomeToTheWaitlistTemplate() {
         </Text>
       </Container>
 
-      <WaitlistEmailFooter />
+      <WaitlistEmailFooter clientUrl={envs.app.CLIENT_URL} email={email} />
     </BaseLayout>
   );
 }
