@@ -95,7 +95,7 @@ export default function UnsubscribeFromWaitlistPage() {
           <Button className="w-fit" variant="outline" onClick={rescureMySpot}>
             Resurrect my spot
           </Button>
-          <Button className="w-fit" onClick={burryMyWaitlistSpot}>
+          <Button className="w-fit" onClick={() => burryMyWaitlistSpot()}>
             Bury my waitlist spot
           </Button>
         </div>
@@ -103,3 +103,4 @@ export default function UnsubscribeFromWaitlistPage() {
     </div>
   );
 }
+
