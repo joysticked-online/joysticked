@@ -2,12 +2,12 @@ import { z } from 'zod';
 
 import { overrideJSONSchema } from '../utils/override-json-schema';
 
-const datetime = z.iso.datetime();
+const datetime = z.union([z.iso.datetime(), z.date()]);
 
 export const zDate = overrideJSONSchema(
-  z.codec(datetime, z.date(), {
+  z.codec(datetime, datetime, {
     decode: (isoString) => new Date(isoString),
-    encode: (date) => date.toISOString()
+    encode: (date) => new Date(date).toISOString()
   }),
-  () => z.toJSONSchema(datetime)
+  () => z.toJSONSchema(z.iso.datetime())
 );

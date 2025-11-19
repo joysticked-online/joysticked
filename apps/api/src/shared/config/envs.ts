@@ -28,6 +28,7 @@ function loadDbEnvs() {
 function loadServicesEnvs() {
   const schema = z.object({
     RESEND_API_KEY: z.string(),
+    RESEND_WAITLIST_AUDIENCE_ID: z.string(),
     EMAIL_DOMAIN: z.string()
   });
 

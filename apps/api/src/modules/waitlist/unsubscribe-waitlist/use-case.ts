@@ -2,27 +2,18 @@ import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createWaitListRepository } from '../../../shared/database/repositories/waitlist-repository';
 import { executeTransaction } from '../../../shared/database/transaction';
-import { ConflictError } from '../../../shared/errors/conflict-error';
 import { emailService } from '../../../shared/providers/emails';
+import type { UnsubscribeFromWaitlist } from './schemas';
 
-export async function joinWaitlistUseCase(db: Database, { email }: { email: string }) {
+export async function unsubscribeFromWaitlistUseCase(db: Database, data: UnsubscribeFromWaitlist) {
   const waitlistRepository = createWaitListRepository(db);
 
-  const existingEntry = await waitlistRepository.findByEmail(email);
-
-  if (existingEntry) {
-    throw new ConflictError('Email already exists in waitlist');
-  }
-
   return executeTransaction(db, async (tx) => {
-    const entry = await waitlistRepository.create(email, tx);
+    await waitlistRepository.deleteByEmail(data.email, tx);
 
-    await emailService.sendEmailAndAddToAudience({
-      to: email,
-      template: 'waitlist-welcome',
+    await emailService.removeFromAudience({
+      email: data.email,
       audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
     });
-
-    return { entry };
   });
 }

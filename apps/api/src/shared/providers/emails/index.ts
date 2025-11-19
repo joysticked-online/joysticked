@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
+import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 
 type EmailTemplate = 'waitlist-welcome';
@@ -97,6 +98,44 @@ class EmailService {
 
       throw new InternalServerError(`Email sending failed`);
     }
+  }
+
+  public async sendEmailAndAddToAudience({
+    to,
+    template,
+    idempotencyKey,
+    audienceId
+  }: SendEmailParams & { audienceId: string }) {
+    let contact: Awaited<ReturnType<typeof this.client.contacts.create>>['data'] | null = null;
+
+    try {
+      contact = (
+        await this.client.contacts.create({
+          email: to,
+          audienceId
+        })
+      ).data;
+
+      const result = await this.sendEmail({ to, template, idempotencyKey });
+
+      return result;
+    } catch (error) {
+      if (contact) {
+        await this.client.contacts.remove({ id: contact.id, audienceId });
+      }
+
+      throw error;
+    }
+  }
+
+  public async removeFromAudience({ email, audienceId }: { email: string; audienceId: string }) {
+    const contact = await this.client.contacts.get({ email, audienceId });
+
+    if (!contact.data) {
+      throw new ResourceNotFoundError(`Contact not found for email: ${email}`);
+    }
+
+    await this.client.contacts.remove({ id: contact.data.id, audienceId });
   }
 }
 

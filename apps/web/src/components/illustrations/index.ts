@@ -6,10 +6,13 @@ import { StepThree as StepThreeElephant } from './elephant/step-three';
 import { StepTwo as StepTwoElephant } from './elephant/step-two';
 import { Stopped as StoppedElephant } from './elephant/stopped';
 import { StoppedTwo as StoppedElephantTwo } from './elephant/stopped-two';
+import { Flag } from './flag';
+import { FloorWaitlist } from './floor-waitlist';
 import { Flower } from './flower';
 import { FlowerThree } from './flower-three';
 import { FlowerTwo } from './flower-two';
 import { HalfPortal } from './half-portal';
+import { BrokenHeart, FullHeart, HalfHeart } from './heart';
 import { Ladder } from './ladder';
 import { LeftFloor } from './left-floor';
 import { Pipe } from './pipe';
@@ -33,5 +36,10 @@ export const Illustrations = {
   JumpingElephant,
   Ladder,
   TopFloor,
-  Clouds
+  Clouds,
+  FloorWaitlist,
+  Flag,
+  BrokenHeart,
+  HalfHeart,
+  FullHeart
 };

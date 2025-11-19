@@ -8,7 +8,7 @@ import type { Transaction } from '../transaction';
 class WaitListRepository {
   constructor(private readonly db: Database) {}
 
-  async findEntryByEmail(email: string) {
+  async findByEmail(email: string) {
     const opt = await this.db.select().from(waitlists).where(eq(waitlists.email, email));
 
     if (!opt[0]) return null;
@@ -16,7 +16,7 @@ class WaitListRepository {
     return opt[0];
   }
 
-  async createEntry(email: string, tx?: Transaction) {
+  async create(email: string, tx?: Transaction) {
     const entry = await (tx ?? this.db).insert(waitlists).values({ email }).returning();
 
     if (!entry[0]) throw new InternalServerError('Failed to create waitlist entry');
@@ -24,18 +24,24 @@ class WaitListRepository {
     return entry[0];
   }
 
-  async deleteEntry(id: number) {
+  async delete(id: number) {
     await this.db.delete(waitlists).where(eq(waitlists.id, id));
   }
 
-  async getAllEntries() {
+  async deleteByEmail(email: string, tx?: Transaction) {
+    await (tx ?? this.db).delete(waitlists).where(eq(waitlists.email, email));
+  }
+
+  async getAll() {
     const entries = await this.db.select().from(waitlists).orderBy(desc(waitlists.joinedAt));
 
     return entries;
   }
 
-  async getEntriesCount() {
-    const count = await this.db.select({ count: sql<number>`count(*)` }).from(waitlists);
+  async getCount() {
+    const count = await this.db
+      .select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(waitlists);
 
     return count[0].count;
   }

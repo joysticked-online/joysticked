@@ -1,3 +1,5 @@
+import { logger } from '@bogeychan/elysia-logger';
+import cors from '@elysiajs/cors';
 import openapi from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 import { z } from 'zod';
@@ -8,6 +10,12 @@ import { errorHandler } from './middlewares/error-handler';
 import { rateLimitMiddleware } from './middlewares/rate-limitter';
 
 const app = new Elysia()
+  .use(cors())
+  .use(
+    logger({
+      level: 'info'
+    })
+  )
   .use(errorHandler)
   .use(rateLimitMiddleware)
   .use(

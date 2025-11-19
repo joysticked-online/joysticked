@@ -13,15 +13,18 @@
     "build": "bun build --compile ./src/shared/http/index.ts --minify-whitespace --minify-syntax --outfile ./server"
   },
   "dependencies": {
+    "@bogeychan/elysia-logger": "^0.1.10",
+    "@elysiajs/cors": "^1.4.0",
     "@elysiajs/openapi": "1.4.11",
     "@react-email/components": "1.0.0",
     "@react-email/render": "2.0.0",
     "@types/react": "19.2.2",
     "bunlimit": "^0.1.4",
     "drizzle-orm": "0.44.7",
-    "elysia": "1.4.15",
+    "elysia": "1.4.13",
     "postgres": "3.4.7",
     "react": "19.2.0",
+    "react-dom": "19.2.0",
     "resend": "6.4.2",
     "zod": "4.1.12"
   },

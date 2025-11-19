@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import localFont from 'next/font/local';
+
+import { Providers } from '@/components/providers';
 import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -54,8 +55,7 @@ export default function RootLayout({
         <script defer src="https://assets.onedollarstats.com/stonks.js" />
       </head>
       <body className={`${geistSans.variable} ${redaction.variable} antialiased`}>
-        <Toaster />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
