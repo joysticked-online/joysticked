@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Illustrations } from '@/components/illustrations';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { api } from '@/lib/api';
 
 const opacitySequence = [50, 100];
 
-export default function UnsubscribeFromWaitlistPage() {
+function UnsubscribeContent() {
   const [opacityIndex, setOpacityIndex] = useState<number>(0);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [email] = useQueryState('email');
@@ -104,3 +104,10 @@ export default function UnsubscribeFromWaitlistPage() {
   );
 }
 
+export default function UnsubscribeFromWaitlistPage() {
+  return (
+    <Suspense fallback={null}>
+      <UnsubscribeContent />
+    </Suspense>
+  );
+}
