@@ -1,7 +1,7 @@
 import {
-  Font,
   Body,
   Container,
+  Font,
   Head,
   Html,
   Img,
@@ -54,7 +54,7 @@ export default function BaseLayout({ preview, children }: BaseLayoutProps) {
 }
 
 export function EmailHeader({ url, alt }: { url: string; alt: string }) {
-  return <Img src={url} alt={alt} className="w-full mx-auto max-w-[302px]" />;
+  return <Img src={url} alt={alt} className="mx-auto w-full max-w-[302px]" />;
 }
 
 export function WaitlistEmailFooter({ clientUrl, email }: { clientUrl: string; email: string }) {

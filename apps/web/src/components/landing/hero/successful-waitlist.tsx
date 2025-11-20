@@ -21,7 +21,7 @@ export function SuccessfulWaitlist() {
         <Logos.Joysticked className="absolute md:top-14" />
       </div>
 
-      <div className="flex flex-col items-start justify-center gap-4 px-10 md:px-10 md:text-center md:items-center">
+      <div className="flex flex-col items-start justify-center gap-4 px-10 md:items-center md:px-10 md:text-center">
         <h1 className="flex-wrap pl-2 text-left font-redaction text-5xl md:text-center md:text-8xl">
           Checkpoint Reached
         </h1>

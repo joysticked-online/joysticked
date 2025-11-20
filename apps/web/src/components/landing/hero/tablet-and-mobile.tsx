@@ -2,7 +2,6 @@
 
 import { useForm } from '@tanstack/react-form';
 import confetti from 'canvas-confetti';
-import { AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 

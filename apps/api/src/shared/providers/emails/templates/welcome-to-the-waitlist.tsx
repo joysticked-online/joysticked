@@ -1,6 +1,6 @@
 import { Container, Preview, Text } from '@react-email/components';
-import BaseLayout, { EmailHeader, textStyles, WaitlistEmailFooter } from './base-layout';
 import { envs } from '../../../../shared/config/envs';
+import BaseLayout, { EmailHeader, textStyles, WaitlistEmailFooter } from './base-layout';
 
 export default function WelcomeToTheWaitlistTemplate({ email }: { email: string }) {
   return (
