@@ -57,14 +57,14 @@ export function EmailHeader({ url, alt }: { url: string; alt: string }) {
   return <Img src={url} alt={alt} className="mx-auto w-full max-w-[302px]" />;
 }
 
-export function WaitlistEmailFooter({ clientUrl, email }: { clientUrl: string; email: string }) {
+export function WaitlistEmailFooter({ clientUrl, id }: { clientUrl: string; id: string }) {
   return (
     <Container className="mt-auto w-full p-5">
       <Img src={BRAND.assets.logo.url} alt={BRAND.assets.logo.alt} className="mx-auto mb-4 w-12" />
       <Text className="m-0 mt-20 text-center font-light text-[10px] leading-tight">
         You're receiving this email because you signed <br /> up on Joysticked waitlist.{' '}
         <Link
-          href={`${clientUrl}/waitlist/unsubscribe?email=${email}`}
+          href={`${clientUrl}/waitlist/unsubscribe?id=${id}`}
           className="font-normal text-[#fafafa] underline underline-offset-2"
         >
           Unsubscribe

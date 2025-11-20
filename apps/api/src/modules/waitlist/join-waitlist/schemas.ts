@@ -6,7 +6,7 @@ export const joinWaitlistBodySchema = z.object({
 });
 
 export const joinWaitlistSuccessResponseSchema = z.object({
-  id: z.number(),
+  id: z.uuid(),
   email: z.email(),
   joinedAt: zDate
 });

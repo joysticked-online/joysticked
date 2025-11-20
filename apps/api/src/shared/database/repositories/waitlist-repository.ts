@@ -16,6 +16,14 @@ class WaitListRepository {
     return opt[0];
   }
 
+  async findById(id: string) {
+    const opt = await this.db.select().from(waitlists).where(eq(waitlists.id, id));
+
+    if (!opt[0]) return null;
+
+    return opt[0];
+  }
+
   async create(email: string, tx?: Transaction) {
     const entry = await (tx ?? this.db).insert(waitlists).values({ email }).returning();
 
@@ -24,7 +32,7 @@ class WaitListRepository {
     return entry[0];
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     await this.db.delete(waitlists).where(eq(waitlists.id, id));
   }
 

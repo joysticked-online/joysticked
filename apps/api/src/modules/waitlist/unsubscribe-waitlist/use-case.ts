@@ -9,10 +9,10 @@ export async function unsubscribeFromWaitlistUseCase(db: Database, data: Unsubsc
   const waitlistRepository = createWaitListRepository(db);
 
   return executeTransaction(db, async (tx) => {
-    await waitlistRepository.deleteByEmail(data.email, tx);
+    await waitlistRepository.deleteByEmail(data.id, tx);
 
     await emailService.removeFromAudience({
-      email: data.email,
+      id: data.id,
       audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
     });
   });
