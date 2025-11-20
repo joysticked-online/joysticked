@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { errorHandler } from './middlewares/error-handler';
-import { rateLimitMiddleware } from './middlewares/rate-limitter';
 
 const app = new Elysia()
   .use(cors())
@@ -17,7 +16,6 @@ const app = new Elysia()
     })
   )
   .use(errorHandler)
-  .use(rateLimitMiddleware)
   .use(
     openapi({
       path: '/swagger',
