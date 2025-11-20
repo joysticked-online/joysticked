@@ -10,7 +10,7 @@ export const getWaitlistJoinDateRouter = new Elysia().use(databaseMiddleware).ge
   '/join-date',
   async ({ db, status, query }) => {
     const joinDate = await getWaitlistJoinDateUseCase(db, {
-      email: query.email
+      id: query.id
     });
 
     return status(200, { joinDate });

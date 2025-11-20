@@ -19,6 +19,7 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
 
     await emailService.sendEmailAndAddToAudience({
       to: email,
+      id: entry.id,
       template: 'waitlist-welcome',
       audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
     });

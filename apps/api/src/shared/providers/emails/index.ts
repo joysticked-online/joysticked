@@ -15,6 +15,7 @@ type SendEmailParams = {
   to: string;
   template: EmailTemplate;
   idempotencyKey?: string;
+  id: string;
 };
 
 type TemplateConfig = {
@@ -54,12 +55,12 @@ class EmailService {
     return `Joysticked <${type}@${domain}>`;
   }
 
-  private getTemplateConfig(template: EmailTemplate, { email }: { email: string }): TemplateConfig {
+  private getTemplateConfig(template: EmailTemplate, { id }: { id: string }): TemplateConfig {
     switch (template) {
       case 'waitlist-welcome':
         return {
           subject: 'Welcome to the Joysticked Waitlist',
-          component: WelcomeToTheWaitlistTemplate({ email }),
+          component: WelcomeToTheWaitlistTemplate({ id }),
           senderType: 'hello'
         };
       default:
@@ -67,9 +68,9 @@ class EmailService {
     }
   }
 
-  public async sendEmail({ to, template, idempotencyKey }: SendEmailParams) {
+  public async sendEmail({ to, template, idempotencyKey, id }: SendEmailParams) {
     const domain = this.getEmailDomain();
-    const config = this.getTemplateConfig(template, { email: to });
+    const config = this.getTemplateConfig(template, { id });
     const html = await render(config.component);
 
     try {
@@ -106,8 +107,9 @@ class EmailService {
     to,
     template,
     idempotencyKey,
-    audienceId
-  }: SendEmailParams & { audienceId: string }) {
+    audienceId,
+    id
+  }: SendEmailParams & { audienceId: string; id: string }) {
     let contact: Awaited<ReturnType<typeof this.client.contacts.create>>['data'] | null = null;
 
     try {
@@ -118,7 +120,7 @@ class EmailService {
         })
       ).data;
 
-      const result = await this.sendEmail({ to, template, idempotencyKey });
+      const result = await this.sendEmail({ to, template, idempotencyKey, id });
 
       return result;
     } catch (error) {
@@ -130,14 +132,14 @@ class EmailService {
     }
   }
 
-  public async removeFromAudience({ email, audienceId }: { email: string; audienceId: string }) {
-    const contact = await this.client.contacts.get({ email, audienceId });
+  public async removeFromAudience({ id, audienceId }: { id: string; audienceId: string }) {
+    const contact = await this.client.contacts.get({ id, audienceId });
 
     if (!contact.data) {
-      throw new ResourceNotFoundError(`Contact not found for email: ${email}`);
+      throw new ResourceNotFoundError(`Contact not found for id: ${id}`);
     }
 
-    await this.client.contacts.remove({ id: contact.data.id, audienceId });
+    await this.client.contacts.remove({ id, audienceId });
   }
 }
 

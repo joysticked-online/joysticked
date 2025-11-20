@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { zDate } from '../../../shared/schemas/zod-date';
 
 export const getWaitlistJoinDateQuerySchema = z.object({
-  email: z.email()
+  id: z.uuid()
 });
 
 export type GetWaitlistJoinDate = z.infer<typeof getWaitlistJoinDateQuerySchema>;

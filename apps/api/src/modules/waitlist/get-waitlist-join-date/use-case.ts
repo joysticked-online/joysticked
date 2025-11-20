@@ -6,7 +6,7 @@ import type { GetWaitlistJoinDate } from './schemas';
 export async function getWaitlistJoinDateUseCase(db: Database, data: GetWaitlistJoinDate) {
   const waitlistRepository = createWaitListRepository(db);
 
-  const waitlistEntry = await waitlistRepository.findByEmail(data.email);
+  const waitlistEntry = await waitlistRepository.findByEmail(data.id);
 
   if (!waitlistEntry) {
     throw new ResourceNotFoundError('Waitlist entry not found');

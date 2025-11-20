@@ -15,13 +15,13 @@ export function SuccessfulWaitlist() {
       }}
       className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background"
     >
-      <Illustrations.Clouds className="absolute top-10 flex w-full flex-row items-center justify-between lg:hidden" />
+      <Illustrations.Clouds className="absolute top-10 z-0 flex w-full flex-row items-center justify-between lg:hidden" />
 
       <div className="absolute top-14 left-12 z-20 md:left-1/2 md:flex md:flex-col md:items-center md:justify-center">
         <Logos.Joysticked className="absolute md:top-14" />
       </div>
 
-      <div className="flex flex-col items-start justify-center gap-4 px-10 md:items-center md:px-10 md:text-center">
+      <div className="z-20 flex flex-col items-start justify-center gap-4 px-10 md:items-center md:px-10 md:text-center">
         <h1 className="flex-wrap pl-2 text-left font-redaction text-5xl md:text-center md:text-8xl">
           Checkpoint Reached
         </h1>
@@ -44,7 +44,7 @@ export function SuccessfulWaitlist() {
       </div>
 
       <div className="absolute bottom-0 flex w-full flex-col items-center justify-center">
-        <Illustrations.Flag className="relative z-10 w-32" />
+        <Illustrations.Flag className="relative z-0 w-32" />
         <Illustrations.FloorWaitlist className="relative z-0 w-full" />
       </div>
     </motion.div>

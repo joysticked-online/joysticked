@@ -15,7 +15,7 @@ const opacitySequence = [50, 100];
 function UnsubscribeContent() {
   const [opacityIndex, setOpacityIndex] = useState<number>(0);
   const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [email] = useQueryState('email');
+  const [id] = useQueryState('id');
   const router = useRouter();
 
   useEffect(() => {
@@ -30,19 +30,19 @@ function UnsubscribeContent() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!isMounted && !email) router.push('/');
+  if (!isMounted && !id) router.push('/');
 
   const { data, isPending } = useQuery({
-    queryKey: ['unsubscribe', email],
-    enabled: !!email || !isMounted,
+    queryKey: ['unsubscribe', id],
+    enabled: !!id || !isMounted,
     async queryFn() {
-      return await api.waitlist['join-date'].get({ query: { email: email! } });
+      return await api.waitlist['join-date'].get({ query: { id: id! } });
     }
   });
 
   const { mutate: burryMyWaitlistSpot } = useMutation({
     async mutationFn() {
-      const { data, error } = await api.waitlist.unsubscribe.post({ email: email! });
+      const { data, error } = await api.waitlist.unsubscribe.post({ id: id! });
 
       if (error) {
         throw new Error(error.value.message);

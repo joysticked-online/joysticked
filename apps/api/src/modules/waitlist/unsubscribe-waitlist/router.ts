@@ -6,11 +6,11 @@ import { unsubscribeFromWaitlistUseCase } from './use-case';
 export const unsubscribeWaitlistRouter = new Elysia().use(databaseMiddleware).post(
   '/unsubscribe',
   async ({ body, db, status }) => {
-    await unsubscribeFromWaitlistUseCase(db, { email: body.email });
+    await unsubscribeFromWaitlistUseCase(db, { id: body.id });
 
     return status(204);
   },
   {
-    body: z.object({ email: z.email() })
+    body: z.object({ id: z.uuid() })
   }
 );

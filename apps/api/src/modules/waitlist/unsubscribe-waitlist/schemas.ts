@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const unsubscribeFromWaitlistSchema = z.object({
-  email: z.email()
+  id: z.uuid()
 });
 
 export type UnsubscribeFromWaitlist = z.infer<typeof unsubscribeFromWaitlistSchema>;
