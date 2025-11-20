@@ -11,6 +11,6 @@ export const unsubscribeWaitlistRouter = new Elysia().use(databaseMiddleware).po
     return status(204);
   },
   {
-    body: z.object({ id: z.string() })
+    body: z.object({ id: z.uuid() })
   }
 );
