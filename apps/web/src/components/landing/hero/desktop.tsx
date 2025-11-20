@@ -25,7 +25,7 @@ export function DesktopHero() {
 
   useEffect(() => {
     setIsMounted(true);
-    const hasAlreadyJoined = localStorage.getItem('alreadyJoinedWaitlist') !== 'true';
+    const hasAlreadyJoined = localStorage.getItem('alreadyJoinedWaitlist') === 'true';
     setAlreadyJoinedWaitlist(hasAlreadyJoined);
   }, []);
 
