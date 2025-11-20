@@ -142,7 +142,7 @@ export function DesktopHero() {
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    className="w-full max-w-80 border-none bg-neutral-800 pr-12"
+                    className="w-full max-w-80 border-none bg-neutral-800"
                   />
                   <FieldInfo field={field} />
                 </>

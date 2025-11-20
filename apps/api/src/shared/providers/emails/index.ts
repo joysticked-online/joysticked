@@ -1,3 +1,5 @@
+// Import react-dom/server before @react-email/render to ensure it's bundled correctly
+import 'react-dom/server';
 import { render } from '@react-email/render';
 import type { ReactElement } from 'react';
 import { Resend } from 'resend';
@@ -140,3 +142,4 @@ class EmailService {
 }
 
 export const emailService = EmailService.getInstance();
+
