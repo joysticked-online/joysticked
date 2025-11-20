@@ -1,10 +1,9 @@
+import { fixedWindow } from 'bunlimit';
 import { Elysia } from 'elysia';
-
 import { databaseMiddleware } from '../../../shared/http/middlewares/database';
+import { rateLimitMiddleware } from '../../../shared/http/middlewares/rate-limitter';
 import { joinWaitlistBodySchema, joinWaitlistSuccessResponseSchema } from './schemas';
 import { joinWaitlistUseCase } from './use-case';
-import { rateLimitMiddleware } from '../../../shared/http/middlewares/rate-limitter';
-import { fixedWindow } from 'bunlimit';
 
 export const joinWaitlistRouter = new Elysia()
   .use(rateLimitMiddleware({ strategy: fixedWindow(5, 120), key: 'join-waitlist' }))
