@@ -2,9 +2,9 @@
 
 import { useForm } from '@tanstack/react-form';
 import confetti from 'canvas-confetti';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 
 import { joinWaitlist } from '@/actions/join-waitlist';
 import { FieldInfo } from '@/components/forms/field-info';

@@ -2,9 +2,9 @@
 
 import { useForm } from '@tanstack/react-form';
 import confetti from 'canvas-confetti';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 
 import { joinWaitlist } from '@/actions/join-waitlist';
 import { FieldInfo } from '@/components/forms/field-info';
@@ -158,7 +158,7 @@ export function DesktopHero() {
                 type="submit"
                 variant="default"
                 disabled={!canSubmit}
-                className="font-bold w-[135px] font-geist-sans flex gap-2"
+                className="flex w-[135px] gap-2 font-bold font-geist-sans"
               >
                 {isSubmitting ? <Loader2 className="animate-spin" /> : 'Join our waitlist'}
               </Button>
