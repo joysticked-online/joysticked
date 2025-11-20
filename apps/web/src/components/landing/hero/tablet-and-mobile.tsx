@@ -4,6 +4,7 @@ import { useForm } from '@tanstack/react-form';
 import confetti from 'canvas-confetti';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 import { joinWaitlist } from '@/actions/join-waitlist';
 import { FieldInfo } from '@/components/forms/field-info';
@@ -60,7 +61,7 @@ export function TabletAndMobileHero() {
     <>
       {alreadyJoinedWaitlist && <SuccessfulWaitlist />}
       <div className="relative flex min-h-screen flex-col items-start justify-center gap-6 overflow-hidden md:items-center">
-        <div className="absolute top-14 left-12 z-20">
+        <div className="absolute top-14 left-6 z-20">
           <Logos.Joysticked />
         </div>
 
@@ -125,7 +126,7 @@ export function TabletAndMobileHero() {
                   disabled={!canSubmit}
                   className="h-8 w-1/2 font-geist-sans font-semibold max-md:rounded-lg md:h-fit md:w-1/3 md:font-bold"
                 >
-                  {isSubmitting ? 'Joining...' : 'Join our waitlist'}
+                  {isSubmitting ? <Loader2 className="animate-spin" /> : 'Join our waitlist'}
                 </Button>
               )}
             />
