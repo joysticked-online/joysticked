@@ -17,7 +17,6 @@ const app = new Elysia()
     })
   )
   .use(errorHandler)
-  .use(rateLimitMiddleware)
   .use(
     openapi({
       path: '/swagger',
