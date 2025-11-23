@@ -6,7 +6,7 @@ import {
   type HealthCheckResult,
   type HealthStatus,
   healthCheckResponseSchema
-} from '../schemas/zod-date';
+} from '../schemas/zod-health';
 
 export const healthCheck = new Elysia().get(
   '/health',
