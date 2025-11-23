@@ -15,13 +15,6 @@ export const healthCheck = new Elysia().get('/health', async ({ status }) => {
   const checks: Record<string, HealthCheckResult> = {};
   let overallStatus: HealthStatus = 'ok';
   const startTime = Date.now();
-  const apiResponseTime = Date.now() - startTime;
-
-  checks.api = {
-    name: 'api',
-    status: 'ok',
-    responseTime: apiResponseTime
-  };
 
   const dbStartTime = Date.now();
 
@@ -70,6 +63,12 @@ export const healthCheck = new Elysia().get('/health', async ({ status }) => {
   }
 
   const totalReposponseTime = Date.now() - startTime;
+
+  checks.api = {
+    name: 'api',
+    status: 'ok',
+    responseTime: totalReposponseTime
+  };
 
   const httpStatus = overallStatus === 'ok' ? 200 : 503;
 
