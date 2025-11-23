@@ -1,4 +1,5 @@
 import z from 'zod';
+import { zDate } from './zod-date';
 
 export const healthStatusSchema = z.enum(['ok', 'error', 'unknown']);
 
@@ -11,7 +12,7 @@ export const healthCheckResultSchema = z.object({
 
 export const healthCheckResponseSchema = z.object({
   status: healthStatusSchema,
-  timestamp: z.string().datetime(),
+  timestamp: zDate,
   uptime: z.number(),
   responseTime: z.number(),
   checks: z.array(healthCheckResultSchema),
