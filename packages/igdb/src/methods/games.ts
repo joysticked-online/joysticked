@@ -170,6 +170,27 @@ export interface Game {
   websites: number[];
 }
 
+export type TimeToBeatField =
+  | 'checksum'
+  | 'completely'
+  | 'count'
+  | 'created_at'
+  | 'gamed_id'
+  | 'hastily'
+  | 'normally'
+  | 'updated_at';
+
+export interface TimeToBeat {
+  checksum: string;
+  completely: number;
+  count: number;
+  created_at: string;
+  gamed_id: number;
+  hastily: number;
+  normally: number;
+  updated_at: string;
+}
+
 export function gamesMethods(client: InternalApiClient) {
   return {
     async list<const T extends readonly GameField[]>(
@@ -178,9 +199,15 @@ export function gamesMethods(client: InternalApiClient) {
       const body = buildQuery(options);
       return client.post(`/games`, body);
     },
+    async timeToBeat<const T extends readonly TimeToBeatField[]>(
+      options: HasDuplicates<T> extends true ? never : QueryOptions<T>
+    ): Promise<IGDBAPIResponse<Pick<TimeToBeat, T[number]>[]>> {
+      const body = buildQuery(options);
+      return client.post(`/game_time_to_beats`, body);
+    },
 
     async genres<const T extends readonly GenreField[]>(
-      options: HasDuplicates<T> extends true ? never : { fields: T }
+      options: HasDuplicates<T> extends true ? never : QueryOptions<T>
     ): Promise<IGDBAPIResponse<Pick<Game, T[number]>[]>> {
       const body = buildQuery(options);
       return client.post(`/genres`, body);
