@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
-import { errorHandler } from './middlewares/error-handler';
 import { healthCheck } from './health-check';
+import { errorHandler } from './middlewares/error-handler';
 
 const app = new Elysia()
   .use(cors())
@@ -18,7 +18,7 @@ const app = new Elysia()
   )
   .use(errorHandler)
   .use(healthCheck)
-  
+
   .use(
     openapi({
       path: '/swagger',
