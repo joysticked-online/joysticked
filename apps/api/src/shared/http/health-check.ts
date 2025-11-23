@@ -11,15 +11,16 @@ interface HealthCheckResult {
   error?: string;
 }
 
-export const healthCheck = new Elysia().get('/health', async ({ set }) => {
+export const healthCheck = new Elysia().get('/health', async ({ status }) => {
   const checks: Record<string, HealthCheckResult> = {};
   let overallStatus: HealthStatus = 'ok';
   const startTime = Date.now();
-
+  const apiResponseTime = Date.now() - startTime;
+  
   checks.api = {
     name: 'api',
     status: 'ok',
-    responseTime: 0
+    responseTime: apiResponseTime
   };
 
   const dbStartTime = Date.now();
@@ -83,6 +84,6 @@ export const healthCheck = new Elysia().get('/health', async ({ set }) => {
     })
   };
 
-  set.status = httpStatus;
-  return response;
+  return status(httpStatus, response);
+ 
 });
