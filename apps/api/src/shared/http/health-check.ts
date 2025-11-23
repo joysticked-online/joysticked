@@ -16,7 +16,7 @@ export const healthCheck = new Elysia().get('/health', async ({ status }) => {
   let overallStatus: HealthStatus = 'ok';
   const startTime = Date.now();
   const apiResponseTime = Date.now() - startTime;
-  
+
   checks.api = {
     name: 'api',
     status: 'ok',
@@ -85,5 +85,4 @@ export const healthCheck = new Elysia().get('/health', async ({ status }) => {
   };
 
   return status(httpStatus, response);
- 
 });
