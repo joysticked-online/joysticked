@@ -4,10 +4,10 @@ import openapi from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 import { z } from 'zod';
 
+import { usersRouter } from '../../modules/users/router';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { errorHandler } from './middlewares/error-handler';
-import { usersRouter } from '../../modules/users/router';
 
 const app = new Elysia()
   .use(cors())
