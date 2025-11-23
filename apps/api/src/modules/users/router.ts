@@ -1,6 +1,9 @@
 import { Elysia } from 'elysia';
+
 import { checkEmailAvailabilityRouter } from './check-email-availability/router';
+import { requestEmailValidationRouter } from './request-email-validation/router';
 
 export const usersRouter = new Elysia({ prefix: '/users', tags: ['user'] }).use([
-  checkEmailAvailabilityRouter
+  checkEmailAvailabilityRouter,
+  requestEmailValidationRouter
 ]);
