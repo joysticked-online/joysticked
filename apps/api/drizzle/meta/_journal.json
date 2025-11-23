@@ -15,6 +15,13 @@
       "when": 1763604608958,
       "tag": "20251120021008_uuid",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763865624158,
+      "tag": "20251123024024_add_user_schema",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { errorHandler } from './middlewares/error-handler';
+import { usersRouter } from '../../modules/users/router';
 
 const app = new Elysia()
   .use(cors())
@@ -24,7 +25,7 @@ const app = new Elysia()
       }
     })
   )
-  .use(waitlistRouter)
+  .use([waitlistRouter, usersRouter])
   .listen(envs.app.PORT, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );
