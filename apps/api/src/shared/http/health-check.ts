@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+
 import { db } from '../database';
 import { redis } from '../providers/redis';
 import {
@@ -20,6 +21,7 @@ export const healthCheck = new Elysia().get(
     try {
       await db.execute('SELECT 1');
       const dbResponseTime = Date.now() - dbStartTime;
+
       checks.database = {
         name: 'database',
         status: 'ok',
@@ -31,6 +33,7 @@ export const healthCheck = new Elysia().get(
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknown error'
       };
+
       overallStatus = 'error';
     }
 
@@ -58,6 +61,7 @@ export const healthCheck = new Elysia().get(
         status: 'error',
         error: error instanceof Error ? error.message : 'Unknow Error'
       };
+
       overallStatus = 'error';
     }
 
@@ -71,16 +75,16 @@ export const healthCheck = new Elysia().get(
 
     const httpStatus = overallStatus === 'ok' ? 200 : 503;
 
-    const response: HealthCheckResponse = {
+    const response = {
       status: overallStatus,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       uptime: process.uptime(),
       responseTime: totalReposponseTime,
       checks: Object.values(checks),
       ...(overallStatus === 'error' && {
         message: 'One or more services are unhealthy'
       })
-    };
+    } satisfies HealthCheckResponse;
 
     return status(httpStatus, response);
   },
