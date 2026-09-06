@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
 import { waitlistSchema } from '@/lib/schemas/waitlist';
+import Link from 'next/link';
 import { SuccessfulWaitlist } from './successful-waitlist';
 
 export function TabletAndMobileHero() {
@@ -61,8 +62,14 @@ export function TabletAndMobileHero() {
     <>
       {alreadyJoinedWaitlist && <SuccessfulWaitlist />}
       <div className="relative flex min-h-screen flex-col items-start justify-center gap-6 overflow-hidden md:items-center">
-        <div className="absolute top-14 left-6 z-20">
+        <div className="absolute top-14 left-6 right-6 z-20 flex items-center justify-between">
           <Logos.Joysticked />
+          <Link
+            href="/auth"
+            className="rounded-xl border border-border bg-card/60 px-3.5 py-1.5 font-geist-sans text-xs font-medium text-foreground backdrop-blur-sm transition-all hover:bg-card hover:border-input"
+          >
+            Sign in
+          </Link>
         </div>
 
         <div className="absolute top-10 flex w-full flex-row items-center justify-between">

@@ -7,16 +7,24 @@ import { Resend } from 'resend';
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
 import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
+import MagicLinkTemplate from './templates/magic-link';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 
-type EmailTemplate = 'waitlist-welcome';
+export type EmailTemplate = 'waitlist-welcome' | 'magic-link';
 
-type SendEmailParams = {
-  to: string;
-  template: EmailTemplate;
-  idempotencyKey?: string;
-  id: string;
-};
+export type SendEmailParams =
+  | {
+      to: string;
+      template: 'waitlist-welcome';
+      idempotencyKey?: string;
+      id: string;
+    }
+  | {
+      to: string;
+      template: 'magic-link';
+      idempotencyKey?: string;
+      link: string;
+    };
 
 type TemplateConfig = {
   subject: string;
@@ -55,35 +63,41 @@ class EmailService {
     return `Joysticked <${type}@${domain}>`;
   }
 
-  private getTemplateConfig(template: EmailTemplate, { id }: { id: string }): TemplateConfig {
-    switch (template) {
+  private getTemplateConfig(params: SendEmailParams): TemplateConfig {
+    switch (params.template) {
       case 'waitlist-welcome':
         return {
           subject: 'Welcome to the Joysticked Waitlist',
-          component: WelcomeToTheWaitlistTemplate({ id }),
+          component: WelcomeToTheWaitlistTemplate({ id: params.id }),
+          senderType: 'hello'
+        };
+      case 'magic-link':
+        return {
+          subject: 'Your Magic Link for Joysticked',
+          component: MagicLinkTemplate({ link: params.link }),
           senderType: 'hello'
         };
       default:
-        throw new Error(`Unknown email template: ${template}`);
+        throw new Error(`Unknown email template: ${(params as SendEmailParams).template}`);
     }
   }
 
-  public async sendEmail({ to, template, idempotencyKey, id }: SendEmailParams) {
+  public async sendEmail(params: SendEmailParams) {
     const domain = this.getEmailDomain();
-    const config = this.getTemplateConfig(template, { id });
+    const config = this.getTemplateConfig(params);
     const html = await render(config.component);
 
     try {
       const result = await this.client.emails.send(
         {
-          to: [to],
+          to: [params.to],
           from: this.getSenderEmail(config.senderType),
           subject: config.subject,
           html,
           replyTo: `no-reply@${domain}`
         },
         {
-          idempotencyKey
+          idempotencyKey: params.idempotencyKey
         }
       );
 
@@ -109,7 +123,13 @@ class EmailService {
     idempotencyKey,
     audienceId,
     id
-  }: SendEmailParams & { audienceId: string; id: string }) {
+  }: {
+    to: string;
+    template: 'waitlist-welcome';
+    idempotencyKey?: string;
+    audienceId: string;
+    id: string;
+  }) {
     let contact: Awaited<ReturnType<typeof this.client.contacts.create>>['data'] | null = null;
 
     try {

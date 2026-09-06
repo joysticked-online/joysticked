@@ -4,6 +4,9 @@ import openapi from '@elysiajs/openapi';
 import { Elysia } from 'elysia';
 import { z } from 'zod';
 
+import { authRouter } from '../../modules/auth/router';
+import { gamesRouter } from '../../modules/games/router';
+import { profileRouter } from '../../modules/profile/router';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { healthCheck } from './health-check';
@@ -28,6 +31,9 @@ const app = new Elysia()
     })
   )
   .use(waitlistRouter)
+  .use(profileRouter)
+  .use(authRouter)
+  .use(gamesRouter)
   .listen(envs.app.PORT, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );

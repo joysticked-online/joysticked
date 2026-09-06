@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LANDING_PAGE_COPY } from '@/constants/landing-page-copy';
 import { waitlistSchema } from '@/lib/schemas/waitlist';
+import Link from 'next/link';
 import { SuccessfulWaitlist } from './successful-waitlist';
 
 const ORIGINAL_WIDTH = 1600;
@@ -75,8 +76,14 @@ export function DesktopHero() {
     <>
       {alreadyJoinedWaitlist && <SuccessfulWaitlist />}
       <div className="relative flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden">
-        <div className="absolute top-15">
+        <div className="absolute top-15 flex w-full items-center justify-center px-12">
           <Logos.Joysticked />
+          <Link
+            href="/auth"
+            className="absolute right-12 rounded-xl border border-border bg-card/60 px-4 py-2 font-geist-sans text-xs font-medium text-foreground backdrop-blur-sm transition-all hover:bg-card hover:border-input"
+          >
+            Sign in
+          </Link>
         </div>
 
         <div
