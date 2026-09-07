@@ -1,0 +1,366 @@
+import { eq } from 'drizzle-orm';
+import { Elysia } from 'elysia';
+import z from 'zod';
+
+import { envs } from '../../shared/config/envs';
+import { createOAuthAccountRepository } from '../../shared/database/repositories/oauth-account-repository';
+import { createUserRepository } from '../../shared/database/repositories/user-repository';
+import { users } from '../../shared/database/schemas/users';
+import { executeTransaction } from '../../shared/database/transaction';
+import { authMiddleware } from '../../shared/http/middlewares/auth';
+import { databaseMiddleware } from '../../shared/http/middlewares/database';
+import { createSession } from '../../shared/providers/session';
+import { steamService } from '../../shared/providers/steam/steam-service';
+
+export const steamRouter = new Elysia({ prefix: '/steam' })
+  .use(databaseMiddleware)
+  .use(authMiddleware)
+
+  /**
+   * Link Steam account directly using SteamID64, Custom URL, or profile link
+   */
+  .post(
+    '/link',
+    async ({ body, db, userId, status }) => {
+      if (!userId) {
+        return status(401, { message: 'Unauthorized' });
+      }
+
+      const input = body.steamUrlOrId.trim();
+      const steamId = await steamService.resolveVanityUrl(input);
+
+      if (!steamId) {
+        return status(400, {
+          message:
+            'Não foi possível encontrar a conta Steam. Verifique o link ou SteamID informado.'
+        });
+      }
+
+      const summary = await steamService.getPlayerSummary(steamId);
+      const userRepo = createUserRepository(db);
+      const user = await userRepo.findById(userId);
+
+      if (!user) {
+        return status(404, { message: 'Usuário não encontrado' });
+      }
+
+      const currentSocials = user.socials || {};
+      const updatedSocials = {
+        ...currentSocials,
+        steam: summary?.personaName || input,
+        steamId,
+        steamPublic: body.isPublic ?? currentSocials.steamPublic ?? true
+      };
+
+      await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+
+      return status(200, {
+        success: true,
+        steamId,
+        personaName: summary?.personaName || input,
+        avatarUrl: summary?.avatarUrl || '',
+        steamPublic: updatedSocials.steamPublic
+      });
+    },
+    {
+      body: z.object({
+        steamUrlOrId: z.string().min(1),
+        isPublic: z.boolean().optional().default(true)
+      })
+    }
+  )
+
+  /**
+   * Unlink Steam account
+   */
+  .post('/unlink', async ({ db, userId, status }) => {
+    if (!userId) {
+      return status(401, { message: 'Unauthorized' });
+    }
+
+    const userRepo = createUserRepository(db);
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      return status(404, { message: 'Usuário não encontrado' });
+    }
+
+    const currentSocials = user.socials || {};
+    const updatedSocials = {
+      ...currentSocials,
+      steam: null,
+      steamId: null,
+      steamPublic: null
+    };
+
+    await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+
+    return status(200, { success: true });
+  })
+
+  /**
+   * Update Steam visibility privacy toggle
+   */
+  .patch(
+    '/privacy',
+    async ({ body, db, userId, status }) => {
+      if (!userId) {
+        return status(401, { message: 'Unauthorized' });
+      }
+
+      const userRepo = createUserRepository(db);
+      const user = await userRepo.findById(userId);
+
+      if (!user) {
+        return status(404, { message: 'Usuário não encontrado' });
+      }
+
+      const currentSocials = user.socials || {};
+      const updatedSocials = {
+        ...currentSocials,
+        steamPublic: body.steamPublic
+      };
+
+      await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+
+      return status(200, { success: true, steamPublic: body.steamPublic });
+    },
+    {
+      body: z.object({
+        steamPublic: z.boolean()
+      })
+    }
+  )
+
+  /**
+   * Get Steam achievements and user completion status for a game AppID or slug
+   */
+  .get(
+    '/achievements/:identifier',
+    async ({ params, query, db, userId, status }) => {
+      let targetSteamId = query.steamId;
+
+      if (!targetSteamId && userId) {
+        const userRepo = createUserRepository(db);
+        const user = await userRepo.findById(userId);
+        targetSteamId = user?.socials?.steamId || undefined;
+      }
+
+      const KNOWN_SLUGS: Record<string, number> = {
+        'elden-ring': 1245620,
+        'cyberpunk-2077': 1091500,
+        'the-witcher-3-wild-hunt': 292030,
+        'hollow-knight': 367520,
+        balatro: 2379780,
+        'red-dead-redemption-2': 1174180,
+        'god-of-war': 1593500,
+        'baldurs-gate-3': 1086940,
+        'monster-hunter-world': 582010,
+        'sekiro-shadows-die-twice': 814380,
+        hades: 1145360,
+        celeste: 504230
+      };
+
+      const raw = params.identifier.trim();
+      let resolvedAppId: number | null = /^\d+$/.test(raw)
+        ? parseInt(raw, 10)
+        : (KNOWN_SLUGS[raw.toLowerCase()] ?? null);
+
+      if (!resolvedAppId) {
+        resolvedAppId = await steamService.searchAppId(raw);
+      }
+
+      if (!resolvedAppId) {
+        return status(404, {
+          message: 'Jogo não encontrado na loja da Steam.',
+          achievements: [],
+          totalCount: 0
+        });
+      }
+
+      const result = await steamService.getGameAchievementsWithStatus(resolvedAppId, targetSteamId);
+
+      if (!result || result.achievements.length === 0) {
+        return status(200, {
+          appId: resolvedAppId,
+          gameName: result?.gameName || raw,
+          achievedCount: 0,
+          totalCount: 0,
+          progressPercent: 0,
+          isConnected: Boolean(targetSteamId),
+          isGameDetailsPrivate: result?.isGameDetailsPrivate || false,
+          achievements: []
+        });
+      }
+
+      return status(200, result);
+    },
+    {
+      params: z.object({
+        identifier: z.string()
+      }),
+      query: z.object({
+        steamId: z.string().optional()
+      })
+    }
+  )
+
+  /**
+   * Get Steam owned games & playtimes
+   */
+  .get(
+    '/games',
+    async ({ query, db, userId, status }) => {
+      let targetSteamId = query.steamId;
+
+      if (!targetSteamId && userId) {
+        const userRepo = createUserRepository(db);
+        const user = await userRepo.findById(userId);
+        targetSteamId = user?.socials?.steamId || undefined;
+      }
+
+      if (!targetSteamId) {
+        return status(404, { message: 'Nenhuma conta Steam vinculada.' });
+      }
+
+      const games = await steamService.getOwnedGames(targetSteamId);
+      return status(200, { games });
+    },
+    {
+      query: z.object({
+        steamId: z.string().optional()
+      })
+    }
+  );
+
+export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
+  .use(databaseMiddleware)
+  .use(authMiddleware)
+
+  /**
+   * Redirect to Steam OpenID Login
+   */
+  .get(
+    '/',
+    ({ query, redirect, cookie }) => {
+      if (query.returnTo) {
+        cookie.steam_return_to.set({
+          value: query.returnTo,
+          httpOnly: true,
+          path: '/',
+          maxAge: 600
+        });
+      }
+
+      const returnUrl = `${envs.auth.AUTH_CALLBACK_URL}/auth/steam/callback`;
+      const callbackOrigin = new URL(envs.auth.AUTH_CALLBACK_URL);
+      const realm = `${callbackOrigin.protocol}//${callbackOrigin.host}/`;
+      const openIdUrl = steamService.createOpenIdUrl(returnUrl, realm);
+
+      return redirect(openIdUrl, 302);
+    },
+    {
+      query: z.object({
+        returnTo: z.string().optional()
+      })
+    }
+  )
+
+  /**
+   * Steam OpenID Callback
+   */
+  .get('/callback', async ({ query, db, userId, redirect, cookie }) => {
+    const returnTarget = (cookie.steam_return_to?.value as string) || '/profile';
+    cookie.steam_return_to?.remove();
+    const dest = returnTarget.startsWith('/')
+      ? `${envs.app.CLIENT_URL}${returnTarget}`
+      : returnTarget;
+    const finalRedirect = dest.includes('?')
+      ? `${dest}&steam=connected`
+      : `${dest}?steam=connected`;
+
+    const queryParams: Record<string, string> = {};
+    for (const [k, v] of Object.entries(query)) {
+      if (typeof v === 'string') queryParams[k] = v;
+    }
+
+    const steamId = await steamService.verifyOpenIdCallback(queryParams);
+
+    if (!steamId) {
+      const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
+      return redirect(errDest, 302);
+    }
+
+    const summary = await steamService.getPlayerSummary(steamId);
+    const userRepo = createUserRepository(db);
+    const oauthRepo = createOAuthAccountRepository(db);
+
+    // If already logged in, link Steam to current user
+    if (userId) {
+      const user = await userRepo.findById(userId);
+      if (user) {
+        const currentSocials = user.socials || {};
+        const updatedSocials = {
+          ...currentSocials,
+          steam: summary?.personaName || steamId,
+          steamId,
+          steamPublic: currentSocials.steamPublic ?? true
+        };
+
+        await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+      }
+      return redirect(finalRedirect, 302);
+    }
+
+    // If not logged in, find or create OAuth account
+    const result = await executeTransaction(db, async (tx) => {
+      const existingAccount = await oauthRepo.findByProvider('steam', steamId);
+
+      let targetUserId: string;
+      if (existingAccount) {
+        targetUserId = existingAccount.userId;
+      } else {
+        const newUser = await userRepo.createWithoutEmail(tx);
+        targetUserId = newUser.id;
+
+        if (summary) {
+          await (tx ?? db)
+            .update(users)
+            .set({
+              displayName: summary.personaName || undefined,
+              avatarUrl: summary.avatarUrl || undefined,
+              socials: {
+                steam: summary.personaName || steamId,
+                steamId,
+                steamPublic: true
+              }
+            })
+            .where(eq(users.id, targetUserId));
+        }
+
+        await oauthRepo.create(
+          {
+            provider: 'steam',
+            providerId: steamId,
+            userId: targetUserId
+          },
+          tx
+        );
+      }
+
+      const sessionToken = await createSession(targetUserId);
+      return { sessionToken };
+    });
+
+    if (result?.sessionToken) {
+      cookie.session.set({
+        value: result.sessionToken,
+        httpOnly: true,
+        secure: envs.app.NODE_ENV === 'prod',
+        sameSite: 'lax',
+        path: '/'
+      });
+    }
+
+    return redirect(finalRedirect, 302);
+  });

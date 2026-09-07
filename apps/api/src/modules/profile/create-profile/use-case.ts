@@ -1,7 +1,7 @@
-import { ConflictError } from '../../../shared/errors/conflict-error';
 import type { Database } from '../../../shared/database';
 import { createProfileRepository } from '../../../shared/database/repositories/profile-repository';
 import { executeTransaction } from '../../../shared/database/transaction';
+import { ConflictError } from '../../../shared/errors/conflict-error';
 
 type CreateProfileInput = {
   username: string;

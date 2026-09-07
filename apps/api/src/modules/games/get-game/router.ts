@@ -121,10 +121,15 @@ export const getGameRouter = new Elysia().get(
       console.warn('Could not fetch activities from db:', err);
     }
 
+    const similarGames = game.similarGames || [];
+    const recommendedGames = await igdbProvider.getRecommendedGames(game, 8);
+
     return {
       game,
       reviews,
-      activities
+      activities,
+      similarGames,
+      recommendedGames
     };
   },
   {

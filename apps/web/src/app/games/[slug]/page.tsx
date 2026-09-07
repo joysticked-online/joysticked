@@ -1,7 +1,7 @@
-import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getGameDetails } from '@/lib/games';
+import { notFound } from 'next/navigation';
 import { GameDetailView } from '@/components/game/game-detail-view';
+import { getGameDetails } from '@/lib/games';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { game } = data;
   return {
     title: `${game.name} (${game.releaseYear || 'Jogo'}) | Joysticked`,
-    description: game.summary || `Confira detalhes, avaliações e onde jogar ${game.name} no Joysticked.`,
+    description:
+      game.summary || `Confira detalhes, avaliações e onde jogar ${game.name} no Joysticked.`,
     openGraph: {
       title: game.name,
       description: game.summary || '',
@@ -42,6 +43,8 @@ export default async function GamePage({ params }: Props) {
       game={data.game}
       initialReviews={data.reviews || []}
       initialActivities={data.activities || []}
+      similarGames={data.similarGames || []}
+      recommendedGames={data.recommendedGames || []}
     />
   );
 }

@@ -21,7 +21,7 @@ type ProfileTabsProps = {
 
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
-    <div className="flex items-center gap-1 overflow-x-auto border-b border-white/[0.04] pb-3">
+    <div className="flex items-center gap-1 overflow-x-auto border-white/[0.04] border-b pb-3">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -32,10 +32,10 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
             type="button"
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              'relative flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 active:scale-[0.96]',
+              'relative flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-xs transition-colors duration-150 active:scale-[0.96]',
               isActive
-                ? 'text-black font-semibold'
-                : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+                ? 'font-semibold text-black'
+                : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
             )}
           >
             {isActive && (

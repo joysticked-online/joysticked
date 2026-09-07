@@ -4,17 +4,15 @@ import { db } from '../../../shared/database';
 import { gameActivities, gameReviews } from '../../../shared/database/schemas';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 
-export const createReviewRouter = new Elysia()
-  .use(authMiddleware)
-  .post(
-    '/:slug/reviews',
-    async ({ params, body, userId, set }) => {
-      const { slug } = params;
+export const createReviewRouter = new Elysia().use(authMiddleware).post(
+  '/:slug/reviews',
+  async ({ params, body, userId, set }) => {
+    const { slug } = params;
 
-      if (!userId) {
-        set.status = 401;
-        return { message: 'Você precisa estar logado para avaliar.' };
-      }
+    if (!userId) {
+      set.status = 401;
+      return { message: 'Você precisa estar logado para avaliar.' };
+    }
 
     const { gameId, gameTitle, rating, reviewText, platform, hoursPlayed } = body;
 
@@ -40,7 +38,9 @@ export const createReviewRouter = new Elysia()
         gameTitle,
         userId,
         type: 'rated',
-        detail: reviewText ? `Avaliou com ${rating} estrelas: "${reviewText.substring(0, 80)}..."` : `Avaliou com ${rating} estrelas`,
+        detail: reviewText
+          ? `Avaliou com ${rating} estrelas: "${reviewText.substring(0, 80)}..."`
+          : `Avaliou com ${rating} estrelas`,
         platform: platform || null
       });
 

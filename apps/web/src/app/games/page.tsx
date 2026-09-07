@@ -1,14 +1,32 @@
 import type { Metadata } from 'next';
-import { getPopularGames } from '@/lib/games';
+import {
+  getDiscoverGames,
+  getPopularGames,
+  getPopularNewReleases,
+  getTopRatedGames
+} from '@/lib/games';
 import { GamesExplorerView } from './games-explorer-view';
 
 export const metadata: Metadata = {
   title: 'Explorar Jogos | Joysticked',
-  description: 'Descubra jogos populares, busque títulos pelo IGDB, veja plataformas disponíveis e compartilhe suas avaliações.'
+  description:
+    'Descubra jogos populares, busque títulos pelo IGDB, veja plataformas disponíveis e compartilhe suas avaliações.'
 };
 
 export default async function GamesPage() {
-  const popularGames = await getPopularGames(18);
+  const [popularGames, topRatedGames, newReleases, discoverData] = await Promise.all([
+    getPopularGames(28),
+    getTopRatedGames(28),
+    getPopularNewReleases(28),
+    getDiscoverGames({ limit: 28, offset: 0 })
+  ]);
 
-  return <GamesExplorerView initialPopularGames={popularGames} />;
+  return (
+    <GamesExplorerView
+      initialPopularGames={popularGames}
+      initialTopRatedGames={topRatedGames}
+      initialUpcomingGames={newReleases}
+      initialDiscoverGames={discoverData.games}
+    />
+  );
 }

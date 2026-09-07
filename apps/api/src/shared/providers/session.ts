@@ -3,6 +3,9 @@ import { redis } from './redis';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const SESSION_PREFIX = 'session:';
 
+// In-memory fallback if Redis is down
+const inMemorySessions = new Map<string, { userId: string; expiresAt: number }>();
+
 /** Generates a cryptographically random 64-character hex token */
 function generateSessionToken(): string {
   const bytes = new Uint8Array(32);
@@ -18,7 +21,15 @@ function generateSessionToken(): string {
  */
 export async function createSession(userId: string): Promise<string> {
   const token = generateSessionToken();
-  await redis.set(`${SESSION_PREFIX}${token}`, userId, 'EX', SESSION_TTL_SECONDS);
+  try {
+    await redis.set(`${SESSION_PREFIX}${token}`, userId, 'EX', SESSION_TTL_SECONDS);
+  } catch {
+    console.warn('[Session] Redis unavailable, using in-memory session fallback');
+  }
+  inMemorySessions.set(token, {
+    userId,
+    expiresAt: Date.now() + SESSION_TTL_SECONDS * 1000
+  });
   return token;
 }
 
@@ -27,13 +38,33 @@ export async function createSession(userId: string): Promise<string> {
  * Returns the userId if the session exists and is valid, null otherwise.
  */
 export async function getSession(token: string): Promise<string | null> {
-  const userId = await redis.get(`${SESSION_PREFIX}${token}`);
-  return userId ?? null;
+  try {
+    const userId = await redis.get(`${SESSION_PREFIX}${token}`);
+    if (userId) return userId;
+  } catch {
+    // Redis offline
+  }
+
+  const mem = inMemorySessions.get(token);
+  if (mem) {
+    if (Date.now() > mem.expiresAt) {
+      inMemorySessions.delete(token);
+      return null;
+    }
+    return mem.userId;
+  }
+
+  return null;
 }
 
 /**
  * Deletes a session from Redis — used on logout.
  */
 export async function deleteSession(token: string): Promise<void> {
-  await redis.del(`${SESSION_PREFIX}${token}`);
+  try {
+    await redis.del(`${SESSION_PREFIX}${token}`);
+  } catch {
+    // Redis offline
+  }
+  inMemorySessions.delete(token);
 }

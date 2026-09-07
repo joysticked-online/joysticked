@@ -12,11 +12,7 @@ import { CollectionTab } from '@/components/profile/tabs/collection-tab';
 import { ListsTab } from '@/components/profile/tabs/lists-tab';
 import { ReviewsTab } from '@/components/profile/tabs/reviews-tab';
 import { StatsTab } from '@/components/profile/tabs/stats-tab';
-import {
-  GAME_CATALOG_LOOKUP,
-  type Profile,
-  type Tab
-} from '@/components/profile/types';
+import { GAME_CATALOG_LOOKUP, type Profile, type Tab } from '@/components/profile/types';
 import { useAuth } from '@/hooks/use-auth';
 
 export function PublicProfileView({ profile }: { profile: Profile }) {
@@ -31,9 +27,7 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
   const genres = profile.preferences?.genres || [];
   const likedGameIds = profile.preferences?.likedGames || [];
 
-  const userLikedGames = likedGameIds
-    .map((id) => GAME_CATALOG_LOOKUP[id])
-    .filter(Boolean);
+  const userLikedGames = likedGameIds.map((id) => GAME_CATALOG_LOOKUP[id]).filter(Boolean);
 
   const displayGames =
     userLikedGames.length > 0 ? userLikedGames : Object.values(GAME_CATALOG_LOOKUP);
@@ -48,7 +42,7 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
 
       {/* ── Main Layout Container ── */}
       <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 md:px-8">
-        <div className="relative -mt-20 md:-mt-28 grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <div className="-mt-20 md:-mt-28 relative grid grid-cols-1 gap-10 lg:grid-cols-12">
           {/* ── LEFT COLUMN: Centered Player Profile Card ── */}
           <ProfileSidebar
             profile={profile}
@@ -64,27 +58,25 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
             {/* Dynamic Tab Views */}
             <AnimatePresence mode="wait" initial={false}>
               {activeTab === 'activity' && (
-                <ActivityTab
-                  key="activity"
-                  displayGames={displayGames}
-                  displayName={displayName}
-                />
+                <ActivityTab key="activity" displayGames={displayGames} displayName={displayName} />
               )}
 
               {activeTab === 'collection' && (
                 <CollectionTab key="collection" displayGames={displayGames} />
               )}
 
-              {activeTab === 'lists' && (
-                <ListsTab key="lists" displayGames={displayGames} />
-              )}
+              {activeTab === 'lists' && <ListsTab key="lists" displayGames={displayGames} />}
 
-              {activeTab === 'reviews' && (
-                <ReviewsTab key="reviews" displayGames={displayGames} />
-              )}
+              {activeTab === 'reviews' && <ReviewsTab key="reviews" displayGames={displayGames} />}
 
               {activeTab === 'stats' && (
-                <StatsTab key="stats" genres={genres} />
+                <StatsTab
+                  key="stats"
+                  genres={genres}
+                  displayGames={displayGames}
+                  profile={profile}
+                  isOwnProfile={isOwnProfile}
+                />
               )}
             </AnimatePresence>
           </div>

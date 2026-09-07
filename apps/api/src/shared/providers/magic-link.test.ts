@@ -13,7 +13,6 @@ process.env.SESSION_SECRET = '12345678901234567890123456789012';
 process.env.AUTH_CALLBACK_URL = 'http://localhost:8080';
 
 import { consumeMagicLinkToken, createMagicLinkToken } from './magic-link';
-import { redis } from './redis';
 
 describe('magic-link provider', () => {
   const memoryStore = new Map<string, string>();

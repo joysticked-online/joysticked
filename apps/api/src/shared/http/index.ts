@@ -6,14 +6,22 @@ import { z } from 'zod';
 
 import { authRouter } from '../../modules/auth/router';
 import { gamesRouter } from '../../modules/games/router';
+import { homeRouter } from '../../modules/home/router';
 import { profileRouter } from '../../modules/profile/router';
+import { steamAuthRouter, steamRouter } from '../../modules/steam/router';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
 import { healthCheck } from './health-check';
 import { errorHandler } from './middlewares/error-handler';
 
 const app = new Elysia()
-  .use(cors())
+  .use(
+    cors({
+      origin: [envs.app.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3000'],
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+    })
+  )
   .use(
     logger({
       level: 'info'
@@ -30,10 +38,14 @@ const app = new Elysia()
       }
     })
   )
+  .use(homeRouter)
   .use(waitlistRouter)
   .use(profileRouter)
   .use(authRouter)
   .use(gamesRouter)
+  .use(steamRouter)
+  .use(steamAuthRouter)
+
   .listen(envs.app.PORT, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );

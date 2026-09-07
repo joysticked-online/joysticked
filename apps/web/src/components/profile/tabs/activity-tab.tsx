@@ -1,17 +1,8 @@
 'use client';
 
-import {
-  BookmarkPlus,
-  CheckCircle2,
-  Gamepad2,
-  Heart,
-  ListPlus,
-  Star,
-  Trophy
-} from 'lucide-react';
+import { BookmarkPlus, Gamepad2, Heart, ListPlus, Star, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 
-import { cn } from '@/lib/utils';
 import type { ProfileGame } from '../types';
 
 type ActivityTabProps = {
@@ -28,57 +19,77 @@ type ActivityItem = {
   platform?: string;
 };
 
-export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
-  const activities: ActivityItem[] = [
-    {
-      id: 'act-1',
-      type: 'played',
-      gameTitle: 'Elden Ring',
-      detail: '142h registradas • Platinado',
-      timeAgo: 'há 2 horas',
-      platform: 'PC / Steam'
-    },
-    {
-      id: 'act-2',
-      type: 'rated',
-      gameTitle: "Baldur's Gate 3",
-      detail: 'Avaliou com 5.0 estrelas',
-      timeAgo: 'ontem',
-      platform: 'PC / Steam'
-    },
-    {
-      id: 'act-3',
-      type: 'liked',
-      gameTitle: 'Cyberpunk 2077',
-      detail: 'Curtiu o jogo',
-      timeAgo: 'há 2 dias',
-      platform: 'PS5'
-    },
-    {
-      id: 'act-4',
-      type: 'added_list',
-      gameTitle: 'Hollow Knight',
-      detail: 'Adicionou à lista "Obras-Primas Absolutas"',
-      timeAgo: 'há 4 dias',
-      platform: 'Steam Deck'
-    },
-    {
-      id: 'act-5',
-      type: 'completed',
-      gameTitle: 'God of War Ragnarök',
-      detail: 'História principal concluída • 48h',
-      timeAgo: 'há 1 semana',
-      platform: 'PS5'
-    },
-    {
-      id: 'act-6',
-      type: 'backlog',
-      gameTitle: 'The Legend of Zelda: Tears of the Kingdom',
-      detail: 'Adicionou à fila de espera',
-      timeAgo: 'há 2 semanas',
-      platform: 'Switch'
-    }
-  ];
+export function ActivityTab({ displayGames, displayName: _displayName }: ActivityTabProps) {
+  const activities: ActivityItem[] =
+    displayGames && displayGames.length > 0
+      ? displayGames.slice(0, 6).map((g, idx) => ({
+          id: `act-${g.id}`,
+          type: (idx % 4 === 0
+            ? 'played'
+            : idx % 4 === 1
+              ? 'rated'
+              : idx % 4 === 2
+                ? 'completed'
+                : 'liked') as ActivityItem['type'],
+          gameTitle: g.title,
+          detail: g.userRating
+            ? `Avaliou com ${g.userRating.toFixed(1)} estrelas`
+            : g.hoursPlayed
+              ? `${g.hoursPlayed}h registradas`
+              : 'Adicionado à coleção',
+          timeAgo: idx === 0 ? 'há 2 horas' : idx === 1 ? 'ontem' : `há ${idx + 1} dias`,
+          platform: g.platforms?.[0] || 'PC / Consoles'
+        }))
+      : [
+          {
+            id: 'act-1',
+            type: 'played',
+            gameTitle: 'Elden Ring',
+            detail: '142h registradas • Platinado',
+            timeAgo: 'há 2 horas',
+            platform: 'PC / Steam'
+          },
+          {
+            id: 'act-2',
+            type: 'rated',
+            gameTitle: "Baldur's Gate 3",
+            detail: 'Avaliou com 5.0 estrelas',
+            timeAgo: 'ontem',
+            platform: 'PC / Steam'
+          },
+          {
+            id: 'act-3',
+            type: 'liked',
+            gameTitle: 'Cyberpunk 2077',
+            detail: 'Curtiu o jogo',
+            timeAgo: 'há 2 dias',
+            platform: 'PS5'
+          },
+          {
+            id: 'act-4',
+            type: 'added_list',
+            gameTitle: 'Hollow Knight',
+            detail: 'Adicionou à lista "Obras-Primas Absolutas"',
+            timeAgo: 'há 4 dias',
+            platform: 'Steam Deck'
+          },
+          {
+            id: 'act-5',
+            type: 'completed',
+            gameTitle: 'God of War Ragnarök',
+            detail: 'História principal concluída • 48h',
+            timeAgo: 'há 1 semana',
+            platform: 'PS5'
+          },
+          {
+            id: 'act-6',
+            type: 'backlog',
+            gameTitle: 'The Legend of Zelda: Tears of the Kingdom',
+            detail: 'Adicionou à fila de espera',
+            timeAgo: 'há 2 semanas',
+            platform: 'Switch'
+          }
+        ];
 
   const EVENT_CONFIG = {
     played: {
@@ -139,16 +150,14 @@ export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
                     {act.gameTitle}
                   </span>
                 </p>
-                {act.detail && (
-                  <p className="text-[11px] text-neutral-500">{act.detail}</p>
-                )}
+                {act.detail && <p className="text-[11px] text-neutral-500">{act.detail}</p>}
               </div>
             </div>
 
             {/* Right: Platform + Time */}
             <div className="flex items-center gap-2.5 text-[11px] text-neutral-500">
               {act.platform && (
-                <span className="hidden sm:inline-block rounded bg-white/[0.03] px-2 py-0.5 text-[10px] text-neutral-400">
+                <span className="hidden rounded bg-white/[0.03] px-2 py-0.5 text-[10px] text-neutral-400 sm:inline-block">
                   {act.platform}
                 </span>
               )}

@@ -2,11 +2,11 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import { HeartCrack } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Illustrations } from '@/components/illustrations';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 
@@ -69,10 +69,19 @@ function UnsubscribeContent() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-7 overflow-hidden">
-      <div className="flex gap-6 text-neutral-800">
-        <Illustrations.HalfHeart rightSideOpacity={opacitySequence[opacityIndex] / 100} />
-        <Illustrations.BrokenHeart opacity={opacitySequence[opacityIndex] / 100} />
-        <Illustrations.BrokenHeart opacity={opacitySequence[opacityIndex] / 100} />
+      <div className="flex gap-6 text-neutral-600">
+        <HeartCrack
+          className="size-16 transition-opacity duration-300"
+          style={{ opacity: opacitySequence[opacityIndex] / 100 }}
+        />
+        <HeartCrack
+          className="size-16 transition-opacity duration-300"
+          style={{ opacity: opacitySequence[opacityIndex] / 100 }}
+        />
+        <HeartCrack
+          className="size-16 transition-opacity duration-300"
+          style={{ opacity: opacitySequence[opacityIndex] / 100 }}
+        />
       </div>
 
       <div className="flex flex-col items-center justify-center gap-7">

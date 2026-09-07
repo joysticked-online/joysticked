@@ -75,10 +75,7 @@ class UserRepository {
    * or when an OAuth provider returns a verified email.
    */
   async setEmailVerified(id: string, tx?: Transaction) {
-    await (tx ?? this.db)
-      .update(users)
-      .set({ emailVerified: true })
-      .where(eq(users.id, id));
+    await (tx ?? this.db).update(users).set({ emailVerified: true }).where(eq(users.id, id));
   }
 
   /**

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Star, Link as LinkIcon, Check, Plus, LucideIcon } from 'lucide-react';
+import { Check, Heart, Link as LinkIcon, Star } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import type React from 'react';
+import { useState } from 'react';
 
 /* =========================================================================
    1. FAVORITE BUTTON (Amicro btn-5: Pulse & Fill Micro-transition)
@@ -35,10 +36,10 @@ export function FavoriteMicroButton({
         backgroundColor: isFavorite
           ? 'rgba(255, 255, 255, 0.12)'
           : isHovered
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.04)'
+            ? 'rgba(255, 255, 255, 0.08)'
+            : 'rgba(255, 255, 255, 0.04)'
       }}
-      className={`relative inline-flex h-9 items-center justify-center rounded-full border border-white/15 text-xs font-medium text-neutral-200 backdrop-blur-md transition-colors duration-200 select-none cursor-pointer focus:outline-hidden ${className}`}
+      className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden ${className}`}
     >
       <div className="relative flex items-center justify-center">
         <motion.div
@@ -50,19 +51,15 @@ export function FavoriteMicroButton({
         >
           <Heart
             className={`size-3.5 transition-colors duration-200 ${
-              isFavorite
-                ? 'fill-white text-white'
-                : isHovered
-                ? 'text-white'
-                : 'text-neutral-400'
+              isFavorite ? 'fill-white text-white' : isHovered ? 'text-white' : 'text-neutral-400'
             }`}
           />
         </motion.div>
       </div>
       <motion.span
         layout
-        className={`ml-2 text-xs font-medium tracking-tight whitespace-nowrap transition-colors duration-200 ${
-          isFavorite ? 'text-white font-semibold' : 'text-neutral-300'
+        className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
+          isFavorite ? 'font-semibold text-white' : 'text-neutral-300'
         }`}
       >
         {isFavorite ? 'Favorito' : 'Favoritar'}
@@ -104,12 +101,12 @@ export function CopyLinkMicroButton({ onCopy, className = '' }: CopyLinkMicroBut
         backgroundColor: copied
           ? 'rgba(255, 255, 255, 0.12)'
           : isHovered
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.04)'
+            ? 'rgba(255, 255, 255, 0.08)'
+            : 'rgba(255, 255, 255, 0.04)'
       }}
-      className={`relative inline-flex h-9 items-center justify-center rounded-full border border-white/15 text-xs font-medium text-neutral-200 backdrop-blur-md transition-colors duration-200 select-none cursor-pointer focus:outline-hidden ${className}`}
+      className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden ${className}`}
     >
-      <div className="relative size-3.5 flex items-center justify-center shrink-0">
+      <div className="relative flex size-3.5 shrink-0 items-center justify-center">
         <AnimatePresence mode="popLayout" initial={false}>
           {!copied ? (
             <motion.div
@@ -139,8 +136,8 @@ export function CopyLinkMicroButton({ onCopy, className = '' }: CopyLinkMicroBut
 
       <motion.span
         layout
-        className={`ml-2 text-xs font-medium tracking-tight whitespace-nowrap transition-colors duration-200 ${
-          copied ? 'text-white font-semibold' : 'text-neutral-300'
+        className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
+          copied ? 'font-semibold text-white' : 'text-neutral-300'
         }`}
       >
         {copied ? 'Copiado!' : 'Copiar link'}
@@ -172,13 +169,11 @@ export function ReviewMicroButton({ onClick, className = '' }: ReviewMicroButton
       animate={{
         paddingLeft: isHovered ? 16 : 14,
         paddingRight: isHovered ? 16 : 14,
-        backgroundColor: isHovered
-          ? 'rgba(255, 255, 255, 0.08)'
-          : 'rgba(255, 255, 255, 0.04)'
+        backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)'
       }}
-      className={`relative inline-flex h-9 items-center justify-center rounded-full border border-white/15 text-xs font-medium text-neutral-200 backdrop-blur-md transition-colors duration-200 select-none cursor-pointer focus:outline-hidden ${className}`}
+      className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden ${className}`}
     >
-      <div className="relative size-3.5 flex items-center justify-center shrink-0">
+      <div className="relative flex size-3.5 shrink-0 items-center justify-center">
         <AnimatePresence mode="popLayout" initial={false}>
           {!isHovered ? (
             <motion.div
@@ -200,7 +195,7 @@ export function ReviewMicroButton({ onClick, className = '' }: ReviewMicroButton
               transition={{ type: 'spring', stiffness: 600, damping: 25 }}
               className="flex items-center justify-center"
             >
-              <Star className="size-3.5 text-white fill-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
+              <Star className="size-3.5 fill-white text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -208,7 +203,7 @@ export function ReviewMicroButton({ onClick, className = '' }: ReviewMicroButton
 
       <motion.span
         layout
-        className="ml-2 text-xs font-medium tracking-tight whitespace-nowrap text-neutral-300 group-hover:text-white"
+        className="ml-2 whitespace-nowrap font-medium text-neutral-300 text-xs tracking-tight group-hover:text-white"
       >
         Avaliar
       </motion.span>

@@ -24,7 +24,7 @@ export default function MagicLinkTemplate({
         <Section className="my-6 text-center">
           <Button
             href={link}
-            className="rounded-xl bg-[#fafafa] px-6 py-3 text-center text-xs font-semibold text-[#171717] no-underline"
+            className="rounded-xl bg-[#fafafa] px-6 py-3 text-center font-semibold text-[#171717] text-xs no-underline"
           >
             Sign in to Joysticked
           </Button>

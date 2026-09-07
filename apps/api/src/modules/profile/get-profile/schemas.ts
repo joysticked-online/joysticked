@@ -6,6 +6,8 @@ export const profileSocialsSchema = z.object({
   twitch: z.string().nullable().optional(),
   discord: z.string().nullable().optional(),
   steam: z.string().nullable().optional(),
+  steamId: z.string().nullable().optional(),
+  steamPublic: z.boolean().nullable().optional(),
   instagram: z.string().nullable().optional()
 });
 

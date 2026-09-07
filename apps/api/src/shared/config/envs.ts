@@ -32,7 +32,8 @@ function loadServicesEnvs() {
     RESEND_WAITLIST_AUDIENCE_ID: z.string().optional().default(''),
     EMAIL_DOMAIN: z.string().optional().default('delivered@resend.dev'),
     TWITCH_CLIENT_ID: z.string().optional(),
-    TWITCH_CLIENT_SECRET: z.string().optional()
+    TWITCH_CLIENT_SECRET: z.string().optional(),
+    STEAM_API_KEY: z.string().optional()
   });
 
   return schema.parse(process.env);
@@ -51,4 +52,3 @@ function loadAuthEnvs() {
 
   return schema.parse(process.env);
 }
-

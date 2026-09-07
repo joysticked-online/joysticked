@@ -20,8 +20,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
     playing: displayGames.filter((g) => g.status.toLowerCase().includes('jogando')).length,
     completed: displayGames.filter(
       (g) =>
-        g.status.toLowerCase().includes('concluído') ||
-        g.status.toLowerCase().includes('platin')
+        g.status.toLowerCase().includes('concluído') || g.status.toLowerCase().includes('platin')
     ).length,
     backlog: displayGames.filter((g) => g.status.toLowerCase().includes('fila')).length
   };
@@ -56,10 +55,10 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
               type="button"
               onClick={() => setCollectionFilter(f.id)}
               className={cn(
-                'relative flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors duration-150 active:scale-[0.96]',
+                'relative flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-xs transition-colors duration-150 active:scale-[0.96]',
                 isActive
-                  ? 'text-black font-semibold'
-                  : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+                  ? 'font-semibold text-black'
+                  : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
               )}
             >
               {isActive && (
@@ -77,7 +76,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                 <span>{f.label}</span>
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.2 text-[9px] font-bold transition-colors',
+                    'rounded-full px-1.5 py-0.2 font-bold text-[9px] transition-colors',
                     isActive ? 'bg-black/15 text-black' : 'bg-white/[0.06] text-neutral-400'
                   )}
                 >
@@ -91,12 +90,12 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
 
       {/* Pure Edge-to-Edge Poster Grid (Letterboxd / Plotwist Style) */}
       {filteredCollection.length > 0 ? (
-        <div className="grid grid-cols-3 gap-3.5 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-4">
+        <div className="grid grid-cols-3 gap-3.5 sm:grid-cols-4 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {filteredCollection.map((item) => (
             <Link
               key={item.id}
               href={`/games/${item.id}`}
-              className="group relative flex flex-col space-y-1.5 cursor-pointer focus:outline-hidden"
+              className="group relative flex cursor-pointer flex-col space-y-1.5 focus:outline-hidden"
             >
               {/* Poster Image */}
               <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-neutral-900 shadow-md ring-1 ring-white/10 transition-all duration-200 group-hover:ring-white/25">
@@ -108,7 +107,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
 
                 {/* Rating Badge */}
                 {item.rating && (
-                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 backdrop-blur-md">
+                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded bg-black/75 px-1.5 py-0.5 font-bold text-[9px] text-amber-400 backdrop-blur-md">
                     <Star className="size-2.5 fill-current" />
                     <span>{item.rating.toFixed(1)}</span>
                   </div>
@@ -117,7 +116,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
 
               {/* Title & Metadata */}
               <div className="space-y-0.5 px-0.5">
-                <h4 className="truncate font-medium text-xs text-white transition-colors group-hover:text-indigo-400">
+                <h4 className="truncate font-medium text-white text-xs transition-colors group-hover:text-indigo-400">
                   {item.title}
                 </h4>
                 <p className="truncate text-[10px] text-neutral-500">

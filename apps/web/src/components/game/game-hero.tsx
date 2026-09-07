@@ -1,36 +1,43 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import {
-  Star,
-  Check,
-  Plus,
-  Clock,
-  CheckCircle2,
   BookmarkPlus,
-  Gamepad2,
+  Check,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Clock,
+  Gamepad2,
+  PenLine,
+  Plus,
+  Star,
   X
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'motion/react';
 import {
-  FavoriteMicroButton,
   CopyLinkMicroButton,
+  FavoriteMicroButton,
   ReviewMicroButton
 } from '@/components/ui/micro-button';
-import { ADMIN_GAME_BANNERS } from '@/constants/admin-banners';
-import type { Game } from '@/lib/games';
+import type { Game, GameReview } from '@/lib/games';
 
 interface GameHeroProps {
   game: Game;
   onOpenReviewModal: () => void;
   bannerUrl?: string | null;
+  communityRating?: { average: string; count: number };
+  userReview?: GameReview | null;
 }
 
-export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) {
+export function GameHero({
+  game,
+  onOpenReviewModal,
+  bannerUrl,
+  communityRating,
+  userReview
+}: GameHeroProps) {
   const [inCollection, setInCollection] = useState(false);
   const [collectionStatus, setCollectionStatus] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -38,33 +45,36 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
   const [expandedSummary, setExpandedSummary] = useState(false);
   const [isCollectionHovered, setIsCollectionHovered] = useState(false);
 
-  // Admin banner override, custom selected banner, or IGDB banner
-  const bannerImage =
-    bannerUrl ||
-    ADMIN_GAME_BANNERS[game.slug] ||
-    ADMIN_GAME_BANNERS[String(game.id)] ||
-    game.bannerUrl ||
-    game.coverUrl;
+  // Use custom selected banner, IGDB banner, or fallback to cover
+  const bannerImage = bannerUrl || game.bannerUrl || game.coverUrl;
 
   const posterImage = game.coverUrl || game.bannerUrl;
 
   const handleStatusSelect = (status: string, label: string) => {
     if (collectionStatus === status) {
-      // Toggle off / unselect
       setInCollection(false);
       setCollectionStatus(null);
       setShowStatusMenu(false);
       toast.info(`"${game.name}" removido da sua lista.`);
     } else {
-      // Select
       setInCollection(true);
       setCollectionStatus(status);
       setShowStatusMenu(false);
       toast.success(`"${game.name}" marcado como "${label}"!`);
+
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = JSON.parse(localStorage.getItem('joysticked_played_games') || '[]');
+          if (!stored.includes(game.slug)) {
+            localStorage.setItem('joysticked_played_games', JSON.stringify([game.slug, ...stored]));
+          }
+          localStorage.setItem(`game_status_${game.slug}`, status);
+        } catch {}
+      }
     }
   };
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = (_e: React.MouseEvent) => {
     const next = !isFavorite;
     setIsFavorite(next);
     if (next) {
@@ -93,8 +103,8 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
 
   return (
     <div className="relative w-full">
-      {/* Cinematic Banner Background (Clear, high-res & properly visible) */}
-      <div className="relative mx-auto h-72 sm:h-84 md:h-[390px] w-full max-w-4xl overflow-hidden rounded-b-3xl bg-neutral-950">
+      {/* Cinematic Banner Background - A Little Bigger with Seamless Rich Fade */}
+      <div className="relative mx-auto h-48 w-full max-w-5xl overflow-hidden bg-neutral-950 sm:h-56 md:h-64 lg:h-72">
         {bannerImage ? (
           <>
             <img
@@ -102,30 +112,32 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
               alt={game.name}
               className="h-full w-full object-cover object-center brightness-90 transition-transform duration-700 hover:scale-105"
             />
-            {/* Smooth bottom fade into black */}
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent" />
+            {/* Top Subtle Vignette */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-neutral-950/70 via-neutral-950/30 to-transparent" />
+
+            {/* Seamless Bottom Fade Melting into Background */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-transparent sm:h-48 md:h-56" />
+
+            {/* Subtle Horizontal Edge Vignettes */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-neutral-950/40 via-transparent to-neutral-950/40" />
           </>
         ) : (
           <div className="h-full w-full bg-gradient-to-b from-neutral-900 to-neutral-950" />
         )}
       </div>
 
-      {/* Main Content Info overlapping the banner */}
-      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 -mt-36 sm:-mt-44 md:-mt-52 z-10">
-        <div className="flex flex-col md:flex-row gap-5 sm:gap-6 items-start">
-          {/* Overlapping Poster on the Left (Compact size) */}
+      {/* Main Content Info overlapping the banner - Moved down with generous fade */}
+      <div className="-mt-10 sm:-mt-14 md:-mt-16 relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row">
+          {/* Overlapping Poster on the Left */}
           <motion.div
             whileHover={{ y: -3, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="w-28 sm:w-36 md:w-38 flex-shrink-0 mx-auto md:mx-0"
+            className="mx-auto w-20 flex-shrink-0 sm:w-24 md:mx-0 md:w-28"
           >
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/15 bg-neutral-900 shadow-[0_12px_32px_rgba(0,0,0,0.9)]">
               {posterImage ? (
-                <img
-                  src={posterImage}
-                  alt={game.name}
-                  className="h-full w-full object-cover"
-                />
+                <img src={posterImage} alt={game.name} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-neutral-900 text-neutral-600">
                   <Gamepad2 className="size-8" />
@@ -137,7 +149,7 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
           {/* Right Details Stack */}
           <div className="flex-1 space-y-3 pt-0 sm:pt-2">
             {/* Release Date & Developer */}
-            <div className="flex items-center gap-2 text-xs font-medium text-neutral-400">
+            <div className="flex items-center gap-2 font-medium text-neutral-400 text-xs">
               {formattedDate && <span>{formattedDate}</span>}
               {game.developer && (
                 <>
@@ -148,44 +160,59 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+            <h1 className="font-extrabold text-2xl text-white tracking-tight sm:text-3xl md:text-4xl">
               {game.name}
             </h1>
 
-            {/* Genres & Score Row */}
+            {/* Genres, Score & Multi-Currency Price Row */}
             <div className="flex flex-wrap items-center gap-2">
               {game.genres?.map((genre) => (
                 <span
                   key={genre}
-                  className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-xs text-neutral-300"
+                  className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-neutral-300 text-xs"
                 >
                   {genre}
                 </span>
               ))}
 
+              {/* IGDB Score */}
               {(game.rating || game.aggregatedRating) && (
-                <span className="inline-flex items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-md">
+                <span className="inline-flex items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2 py-0.5 font-bold text-white text-xs backdrop-blur-md">
                   <Star className="size-3 fill-white text-white" />
                   <span>{(game.rating || game.aggregatedRating)?.toFixed(1)}</span>
-                  <span className="text-[10px] font-normal text-neutral-400">IGDB</span>
+                  <span className="font-normal text-[10px] text-neutral-400">IGDB</span>
+                </span>
+              )}
+
+              {/* Community Review Tag */}
+              {communityRating && communityRating.count > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.06] px-2 py-0.5 font-medium text-neutral-200 text-xs">
+                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                  <span className="font-bold text-white">{communityRating.average}</span>
+                  <span className="text-[10px] text-neutral-400">
+                    ({communityRating.count}{' '}
+                    {communityRating.count === 1 ? 'avaliação' : 'avaliações'})
+                  </span>
                 </span>
               )}
             </div>
 
             {/* Description / Synopsis */}
             {game.summary && (
-              <div className="text-xs sm:text-sm text-neutral-300 leading-relaxed max-w-2xl">
-                <p className={!expandedSummary ? 'line-clamp-3' : ''}>
-                  {game.summary}
-                </p>
+              <div className="max-w-2xl text-neutral-300 text-xs leading-relaxed sm:text-sm">
+                <p className={!expandedSummary ? 'line-clamp-3' : ''}>{game.summary}</p>
                 {game.summary.length > 200 && (
                   <button
                     type="button"
                     onClick={() => setExpandedSummary(!expandedSummary)}
-                    className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                    className="mt-1 inline-flex cursor-pointer items-center gap-1 font-medium text-neutral-400 text-xs transition-colors hover:text-white"
                   >
                     <span>{expandedSummary ? 'Mostrar menos' : 'Ler mais'}</span>
-                    {expandedSummary ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+                    {expandedSummary ? (
+                      <ChevronUp className="size-3" />
+                    ) : (
+                      <ChevronDown className="size-3" />
+                    )}
                   </button>
                 )}
               </div>
@@ -209,12 +236,12 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                     backgroundColor: inCollection
                       ? 'rgba(255, 255, 255, 0.12)'
                       : isCollectionHovered
-                      ? 'rgba(255, 255, 255, 0.08)'
-                      : 'rgba(255, 255, 255, 0.04)'
+                        ? 'rgba(255, 255, 255, 0.08)'
+                        : 'rgba(255, 255, 255, 0.04)'
                   }}
-                  className="relative inline-flex h-9 items-center justify-center rounded-full border border-white/15 text-xs font-medium text-neutral-200 backdrop-blur-md transition-colors duration-200 select-none cursor-pointer focus:outline-hidden"
+                  className="relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden"
                 >
-                  <div className="relative size-3.5 flex items-center justify-center shrink-0">
+                  <div className="relative flex size-3.5 shrink-0 items-center justify-center">
                     {inCollection ? (
                       <Check className="size-3.5 text-white" />
                     ) : (
@@ -223,8 +250,8 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                   </div>
                   <motion.span
                     layout
-                    className={`ml-2 text-xs font-medium tracking-tight whitespace-nowrap transition-colors duration-200 ${
-                      inCollection ? 'text-white font-semibold' : 'text-neutral-300'
+                    className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
+                      inCollection ? 'font-semibold text-white' : 'text-neutral-300'
                     }`}
                   >
                     {collectionStatus || 'Adicionar à lista'}
@@ -244,9 +271,9 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                       <button
                         type="button"
                         onClick={() => handleStatusSelect('Jogando', 'Jogando')}
-                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
+                        className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors ${
                           collectionStatus === 'Jogando'
-                            ? 'bg-white/15 text-white font-medium'
+                            ? 'bg-white/15 font-medium text-white'
                             : 'text-neutral-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -260,9 +287,9 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                       <button
                         type="button"
                         onClick={() => handleStatusSelect('Jogado', 'Jogado')}
-                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
+                        className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors ${
                           collectionStatus === 'Jogado'
-                            ? 'bg-white/15 text-white font-medium'
+                            ? 'bg-white/15 font-medium text-white'
                             : 'text-neutral-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -276,9 +303,9 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                       <button
                         type="button"
                         onClick={() => handleStatusSelect('Quero Jogar', 'Quero Jogar')}
-                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
+                        className={`flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-colors ${
                           collectionStatus === 'Quero Jogar'
-                            ? 'bg-white/15 text-white font-medium'
+                            ? 'bg-white/15 font-medium text-white'
                             : 'text-neutral-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -286,11 +313,13 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                           <BookmarkPlus className="size-3.5 text-neutral-400" />
                           <span>Quero Jogar</span>
                         </div>
-                        {collectionStatus === 'Quero Jogar' && <Check className="size-3 text-white" />}
+                        {collectionStatus === 'Quero Jogar' && (
+                          <Check className="size-3 text-white" />
+                        )}
                       </button>
 
                       {inCollection && (
-                        <div className="mt-1 pt-1 border-t border-white/10">
+                        <div className="mt-1 border-white/10 border-t pt-1">
                           <button
                             type="button"
                             onClick={() => {
@@ -299,7 +328,7 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                               setShowStatusMenu(false);
                               toast.info(`"${game.name}" removido da sua lista.`);
                             }}
-                            className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-[11px] text-neutral-400 hover:bg-white/10 hover:text-rose-300 transition-colors cursor-pointer"
+                            className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-1.5 text-left text-[11px] text-neutral-400 transition-colors hover:bg-white/10 hover:text-rose-300"
                           >
                             <X className="size-3" />
                             <span>Remover da lista</span>
@@ -311,13 +340,27 @@ export function GameHero({ game, onOpenReviewModal, bannerUrl }: GameHeroProps) 
                 </AnimatePresence>
               </div>
 
-              {/* 1. REVIEW BUTTON (Amicro btn-30: Star Color-Morph) */}
-              <ReviewMicroButton onClick={onOpenReviewModal} />
+              {/* 1. REVIEW BUTTON */}
+              {userReview ? (
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={onOpenReviewModal}
+                  className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 font-semibold text-white text-xs backdrop-blur-md transition-colors hover:bg-white/20"
+                >
+                  <Star className="size-3.5 fill-white text-white" />
+                  <span>Sua Nota: {userReview.rating}.0</span>
+                  <PenLine className="ml-0.5 size-3 text-neutral-400" />
+                </motion.button>
+              ) : (
+                <ReviewMicroButton onClick={onOpenReviewModal} />
+              )}
 
-              {/* 2. FAVORITE BUTTON (Amicro btn-5: Heart Pulse & Fill) */}
+              {/* 2. FAVORITE BUTTON */}
               <FavoriteMicroButton isFavorite={isFavorite} onToggle={toggleFavorite} />
 
-              {/* 3. COPY LINK BUTTON (Amicro btn-5 / btn-6: Morph Link -> Check) */}
+              {/* 3. COPY LINK BUTTON */}
               <CopyLinkMicroButton onCopy={handleCopyLink} />
             </div>
           </div>

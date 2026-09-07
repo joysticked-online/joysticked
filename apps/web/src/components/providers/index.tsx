@@ -1,3 +1,5 @@
+'use client';
+
 import { NuqsAdapter } from 'nuqs/adapters/next';
 import { FirstTimeOnboardingGuard } from '../onboarding/first-time-onboarding-guard';
 import { Toaster } from '../ui/sonner';

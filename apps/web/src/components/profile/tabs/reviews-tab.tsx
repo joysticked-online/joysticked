@@ -26,7 +26,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
       {reviewedGames.map((game) => (
         <article
           key={game.id}
-          className="group flex items-start gap-4 py-4 first:pt-0 last:pb-0 transition-colors"
+          className="group flex items-start gap-4 py-4 transition-colors first:pt-0 last:pb-0"
         >
           {/* Game Cover Thumbnail */}
           <Link
@@ -47,11 +47,11 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/games/${game.id}`}
-                    className="font-semibold text-sm text-white group-hover:text-indigo-400 transition-colors focus:outline-hidden"
+                    className="font-semibold text-sm text-white transition-colors focus:outline-hidden group-hover:text-indigo-400"
                   >
                     {game.title}
                   </Link>
-                  <span className="text-xs text-neutral-500">{game.year}</span>
+                  <span className="text-neutral-500 text-xs">{game.year}</span>
                 </div>
 
                 {/* Stars */}
@@ -67,7 +67,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
                       )}
                     />
                   ))}
-                  <span className="ml-1 text-[11px] font-medium text-neutral-400">
+                  <span className="ml-1 font-medium text-[11px] text-neutral-400">
                     {game.rating?.toFixed(1)}
                   </span>
                 </div>
@@ -80,9 +80,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
 
             {/* Review Content */}
             {game.reviewSnippet && (
-              <p className="text-xs leading-relaxed text-neutral-300">
-                {game.reviewSnippet}
-              </p>
+              <p className="text-neutral-300 text-xs leading-relaxed">{game.reviewSnippet}</p>
             )}
 
             {/* Platform / Hours Tag */}
@@ -93,9 +91,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
                 </span>
               )}
               {game.hours && (
-                <span className="text-[10px] text-neutral-500">
-                  {game.hours} registradas
-                </span>
+                <span className="text-[10px] text-neutral-500">{game.hours} registradas</span>
               )}
             </div>
           </div>

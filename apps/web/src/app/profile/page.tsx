@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Camera,
   Check,
-  Gamepad2,
   ImageIcon,
   Loader2,
   MessageSquare,
@@ -16,10 +15,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { FieldInfo } from '@/components/forms/field-info';
+import { SteamConnectionCard } from '@/components/profile/steam-connection-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
@@ -27,7 +27,7 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 type SocialField = {
-  key: 'twitter' | 'twitch' | 'discord' | 'steam' | 'instagram';
+  key: 'twitter' | 'twitch' | 'discord' | 'instagram';
   label: string;
   icon: typeof Twitter;
   placeholder: string;
@@ -57,11 +57,11 @@ const SOCIAL_FIELDS: SocialField[] = [
     prefix: 'discord/'
   },
   {
-    key: 'steam',
-    label: 'Steam',
-    icon: Gamepad2,
-    placeholder: 'customURL',
-    prefix: 'steam/'
+    key: 'instagram',
+    label: 'Instagram',
+    icon: Twitter,
+    placeholder: 'usuario',
+    prefix: 'instagram.com/'
   }
 ];
 
@@ -100,9 +100,33 @@ export default function ProfileSetupPage() {
   const [isNewProfile, setIsNewProfile] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [steamData, setSteamData] = useState<{
+    steam?: string | null;
+    steamId?: string | null;
+    steamPublic?: boolean | null;
+  }>({
+    steam: null,
+    steamId: null,
+    steamPublic: true
+  });
 
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
+  // Check for ?steam=connected in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('steam') === 'connected') {
+        toast.success('Conta Steam conectada com sucesso!');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('steam');
+        window.history.replaceState({}, '', url.toString());
+      } else if (params.get('steam') === 'error') {
+        toast.error('Falha ao autenticar com a Steam.');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('steam');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, []);
 
   const form = useForm({
     defaultValues: {
@@ -115,7 +139,6 @@ export default function ProfileSetupPage() {
         twitter: '',
         twitch: '',
         discord: '',
-        steam: '',
         instagram: ''
       }
     },
@@ -130,7 +153,9 @@ export default function ProfileSetupPage() {
           twitter: value.socials.twitter || null,
           twitch: value.socials.twitch || null,
           discord: value.socials.discord || null,
-          steam: value.socials.steam || null,
+          steam: steamData.steam || null,
+          steamId: steamData.steamId || null,
+          steamPublic: steamData.steamPublic ?? true,
           instagram: value.socials.instagram || null
         },
         preferences: {
@@ -192,8 +217,13 @@ export default function ProfileSetupPage() {
         form.setFieldValue('socials.twitter', user.socials?.twitter ?? '');
         form.setFieldValue('socials.twitch', user.socials?.twitch ?? '');
         form.setFieldValue('socials.discord', user.socials?.discord ?? '');
-        form.setFieldValue('socials.steam', user.socials?.steam ?? '');
         form.setFieldValue('socials.instagram', user.socials?.instagram ?? '');
+
+        setSteamData({
+          steam: user.socials?.steam ?? null,
+          steamId: (user.socials as any)?.steamId ?? null,
+          steamPublic: (user.socials as any)?.steamPublic ?? true
+        });
 
         if (user.preferences?.platforms) {
           setSelectedPlatforms(user.preferences.platforms);
@@ -240,7 +270,7 @@ export default function ProfileSetupPage() {
   return (
     <div className="relative min-h-screen bg-black font-geist-sans text-neutral-100 selection:bg-neutral-100 selection:text-black">
       {/* ── Liquid-Glass Floating Top Bar ── */}
-      <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <div className="pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-4">
         <header className="pointer-events-auto flex h-12 w-full max-w-4xl items-center justify-between rounded-full border border-white/10 bg-neutral-950/60 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur-2xl">
           <div className="flex items-center gap-3">
             <Button
@@ -253,7 +283,7 @@ export default function ProfileSetupPage() {
                 <ArrowLeft className="size-4" strokeWidth={1.5} />
               </Link>
             </Button>
-            <span className="font-semibold text-xs text-white">
+            <span className="font-semibold text-white text-xs">
               {isNewProfile ? 'Criar Perfil' : 'Editar Perfil'}
             </span>
           </div>
@@ -263,7 +293,7 @@ export default function ProfileSetupPage() {
               type="button"
               size="sm"
               onClick={() => form.handleSubmit()}
-              className="h-7.5 rounded-full px-4 text-xs font-medium transition-transform duration-150 ease-out active:scale-[0.96]"
+              className="h-7.5 rounded-full px-4 font-medium text-xs transition-transform duration-150 ease-out active:scale-[0.96]"
             >
               {saved ? (
                 <>
@@ -290,11 +320,11 @@ export default function ProfileSetupPage() {
                 <img
                   src={field.state.value}
                   alt="Banner do perfil"
-                  className="h-full w-full object-cover opacity-80 outline outline-1 -outline-offset-1 outline-white/10"
+                  className="-outline-offset-1 h-full w-full object-cover opacity-80 outline outline-1 outline-white/10"
                 />
               ) : (
                 <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-neutral-900/40 via-neutral-950/70 to-black">
-                  <div className="absolute -top-10 left-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[120px]" />
+                  <div className="-top-10 -translate-x-1/2 absolute left-1/3 h-72 w-72 rounded-full bg-indigo-500/10 blur-[120px]" />
                   <div className="flex flex-col items-center gap-2 text-neutral-500">
                     <ImageIcon className="size-6 opacity-40" strokeWidth={1.5} />
                     <span className="text-xs opacity-50">Nenhum banner personalizado</span>
@@ -312,7 +342,7 @@ export default function ProfileSetupPage() {
                   const url = prompt('Cole a URL da imagem para o banner:');
                   if (url) field.handleChange(url);
                 }}
-                className="absolute right-6 bottom-6 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-white shadow-lg backdrop-blur-md transition-all duration-150 ease-out hover:bg-black/80 active:scale-[0.96]"
+                className="absolute right-6 bottom-6 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-3.5 py-1.5 font-medium text-white text-xs shadow-lg backdrop-blur-md transition-all duration-150 ease-out hover:bg-black/80 active:scale-[0.96]"
               >
                 <Camera className="size-3.5" strokeWidth={1.5} />
                 <span>Alterar banner</span>
@@ -325,7 +355,7 @@ export default function ProfileSetupPage() {
       {/* ── Main Form Content ── */}
       <div className="mx-auto max-w-3xl px-4 pb-28 md:px-8">
         {/* Avatar + Title Row */}
-        <div className="relative -mt-16 md:-mt-20 mb-8 flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
+        <div className="-mt-16 md:-mt-20 relative mb-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
           <form.Field name="avatarUrl">
             {(field) => (
               <div className="relative shrink-0">
@@ -334,7 +364,7 @@ export default function ProfileSetupPage() {
                     <img
                       src={field.state.value}
                       alt="Avatar"
-                      className="h-full w-full rounded-full object-cover outline outline-1 -outline-offset-1 outline-white/10"
+                      className="-outline-offset-1 h-full w-full rounded-full object-cover outline outline-1 outline-white/10"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-tr from-neutral-900 via-indigo-950 to-neutral-800 font-bold text-2xl text-white">
@@ -359,7 +389,7 @@ export default function ProfileSetupPage() {
           </form.Field>
 
           <div className="mb-2 space-y-0.5">
-            <h1 className="font-bold text-xl text-white tracking-tight md:text-2xl">
+            <h1 className="font-bold text-white text-xl tracking-tight md:text-2xl">
               {isNewProfile ? 'Configure seu Perfil' : 'Personalizar Perfil'}
             </h1>
             <p className="text-neutral-400 text-xs">
@@ -386,7 +416,7 @@ export default function ProfileSetupPage() {
               <form.Field name="displayName">
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="displayName" className="font-medium text-xs text-neutral-300">
+                    <label htmlFor="displayName" className="font-medium text-neutral-300 text-xs">
                       Nome de exibição
                     </label>
                     <Input
@@ -417,7 +447,7 @@ export default function ProfileSetupPage() {
               >
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="username" className="font-medium text-xs text-neutral-300">
+                    <label htmlFor="username" className="font-medium text-neutral-300 text-xs">
                       Nome de usuário (@handle)
                     </label>
                     <div className="relative flex items-center">
@@ -457,7 +487,7 @@ export default function ProfileSetupPage() {
                 {(field) => (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label htmlFor="bio" className="font-medium text-xs text-neutral-300">
+                      <label htmlFor="bio" className="font-medium text-neutral-300 text-xs">
                         Bio
                       </label>
                       <span className="text-[11px] text-neutral-500 tabular-nums">
@@ -492,7 +522,7 @@ export default function ProfileSetupPage() {
             <div className="space-y-5 rounded-3xl bg-neutral-950/40 p-6 backdrop-blur-xl">
               {/* Platforms */}
               <div className="space-y-2">
-                <span className="block font-medium text-xs text-neutral-300">
+                <span className="block font-medium text-neutral-300 text-xs">
                   Plataformas que você joga
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -505,7 +535,7 @@ export default function ProfileSetupPage() {
                         type="button"
                         onClick={() => togglePlatform(platform.id)}
                         className={cn(
-                          'rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150 ease-out active:scale-[0.96]',
+                          'rounded-full px-3.5 py-1.5 font-medium text-xs transition-all duration-150 ease-out active:scale-[0.96]',
                           isSelected
                             ? 'bg-white text-black shadow-md'
                             : 'border border-white/[0.05] bg-white/[0.02] text-neutral-400 hover:border-white/10 hover:text-white'
@@ -520,7 +550,7 @@ export default function ProfileSetupPage() {
 
               {/* Genres */}
               <div className="space-y-2">
-                <span className="block font-medium text-xs text-neutral-300">
+                <span className="block font-medium text-neutral-300 text-xs">
                   Gêneros favoritos
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -533,7 +563,7 @@ export default function ProfileSetupPage() {
                         type="button"
                         onClick={() => toggleGenre(genre)}
                         className={cn(
-                          'rounded-full px-3 py-1 text-xs font-medium transition-all duration-150 ease-out active:scale-[0.96]',
+                          'rounded-full px-3 py-1 font-medium text-xs transition-all duration-150 ease-out active:scale-[0.96]',
                           isSelected
                             ? 'bg-indigo-500 text-white shadow-md'
                             : 'border border-white/[0.03] bg-white/[0.015] text-neutral-400 hover:border-white/[0.08] hover:text-white'
@@ -561,7 +591,7 @@ export default function ProfileSetupPage() {
                     <div className="space-y-1.5">
                       <label
                         htmlFor={`social-${key}`}
-                        className="flex items-center gap-1.5 font-medium text-xs text-neutral-300"
+                        className="flex items-center gap-1.5 font-medium text-neutral-300 text-xs"
                       >
                         <Icon className="size-3.5 text-neutral-400" strokeWidth={1.5} />
                         {label}
@@ -586,6 +616,21 @@ export default function ProfileSetupPage() {
                 </form.Field>
               ))}
             </div>
+
+            {/* Steam Integration Card */}
+            <div className="pt-2">
+              <SteamConnectionCard
+                steam={steamData.steam}
+                steamId={steamData.steamId}
+                steamPublic={steamData.steamPublic}
+                onUpdate={(data) => {
+                  setSteamData((prev) => ({
+                    ...prev,
+                    ...data
+                  }));
+                }}
+              />
+            </div>
           </section>
 
           {/* Bottom Save Action Button */}
@@ -595,7 +640,7 @@ export default function ProfileSetupPage() {
                 type="submit"
                 size="lg"
                 disabled={!canSubmit || isSubmitting}
-                className="h-12 w-full rounded-full text-xs font-medium transition-transform duration-150 ease-out active:scale-[0.96]"
+                className="h-12 w-full rounded-full font-medium text-xs transition-transform duration-150 ease-out active:scale-[0.96]"
               >
                 {isSubmitting ? (
                   <>

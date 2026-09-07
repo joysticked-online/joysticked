@@ -1,25 +1,14 @@
-'use client';
+import type { Metadata } from 'next';
+import { HomeView } from '@/components/home/home-view';
+import { getHomeFeed } from '@/lib/games';
 
-import { useEffect, useState } from 'react';
-import { useMediaQuery } from 'usehooks-ts';
+export const metadata: Metadata = {
+  title: 'Início | Joysticked',
+  description: 'Visão geral de suas atividades e tendências no Joysticked.'
+};
 
-import { DesktopHero } from '@/components/landing/hero/desktop';
-import { TabletAndMobileHero } from '@/components/landing/hero/tablet-and-mobile';
+export default async function HomePage() {
+  const initialData = await getHomeFeed();
 
-export default function Home() {
-  const [isMuted, setIsMuted] = useState(false);
-
-  const isTabletOrMobile = useMediaQuery('(max-width: 1024px)');
-
-  useEffect(() => {
-    setIsMuted(true);
-  }, []);
-
-  if (!isMuted) return null;
-
-  if (isTabletOrMobile) {
-    return <TabletAndMobileHero />;
-  }
-
-  return <DesktopHero />;
+  return <HomeView initialData={initialData} />;
 }

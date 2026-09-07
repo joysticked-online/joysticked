@@ -1,0 +1,167 @@
+'use client';
+
+import { Edit3, Gamepad2, Monitor, Reply, Smartphone, Star, ThumbsUp } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
+import type { GameReview } from '@/lib/games';
+
+interface GameReviewCardProps {
+  review: GameReview;
+  isMine: boolean;
+  isLiked: boolean;
+  onToggleLike: (reviewId: string) => void;
+  onEdit?: (review: GameReview) => void;
+}
+
+function getPlatformIcon(name: string) {
+  const lower = name.toLowerCase();
+  if (
+    lower.includes('pc') ||
+    lower.includes('windows') ||
+    lower.includes('mac') ||
+    lower.includes('linux')
+  ) {
+    return <Monitor className="size-3.5" />;
+  }
+  if (lower.includes('ios') || lower.includes('android')) {
+    return <Smartphone className="size-3.5" />;
+  }
+  return <Gamepad2 className="size-3.5" />;
+}
+
+export function GameReviewCard({
+  review,
+  isMine,
+  isLiked,
+  onToggleLike,
+  onEdit
+}: GameReviewCardProps) {
+  return (
+    <div
+      className={`space-y-3 rounded-2xl p-4 transition-colors sm:p-5 ${
+        isMine ? 'bg-white/[0.02]' : 'bg-white/[0.02]'
+      }`}
+    >
+      {/* Author row */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {/* User Avatar */}
+          <Link
+            href={`/${review.user?.username || ''}`}
+            className="size-8.5 shrink-0 overflow-hidden rounded-full bg-neutral-800"
+          >
+            {review.user?.avatarUrl ? (
+              <img
+                src={review.user.avatarUrl}
+                alt={review.user.username}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center font-bold text-neutral-300 text-xs">
+                {review.user?.username?.[0]?.toUpperCase() || 'U'}
+              </div>
+            )}
+          </Link>
+
+          {/* Name + Stars + Date */}
+          <div className="space-y-0.5 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/${review.user?.username || ''}`}
+                className="font-bold text-white hover:underline"
+              >
+                {review.user?.displayName || review.user?.username}
+              </Link>
+
+              {isMine && (
+                <span className="rounded-md bg-white/15 px-1.5 py-0.2 font-semibold text-[10px] text-neutral-200">
+                  Você
+                </span>
+              )}
+
+              {/* Star Rating */}
+              <div className="flex items-center gap-0.5 text-white">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star
+                    key={s}
+                    className={`size-3 ${
+                      s <= review.rating ? 'fill-white text-white' : 'text-neutral-700'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+              <span>
+                {new Date(review.createdAt).toLocaleDateString('pt-BR', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric'
+                })}
+              </span>
+              {review.hoursPlayed && (
+                <>
+                  <span>•</span>
+                  <span>{review.hoursPlayed}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Platform Tag */}
+          {review.platform && (
+            <span className="hidden items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-neutral-300 sm:inline-flex">
+              {getPlatformIcon(review.platform)}
+              <span>{review.platform}</span>
+            </span>
+          )}
+
+          {/* Edit Action for Author */}
+          {isMine && onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(review)}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 font-medium text-[11px] text-neutral-300 transition-colors hover:bg-white hover:text-black"
+            >
+              <Edit3 className="size-3" />
+              <span>Editar</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Review Text */}
+      {review.reviewText && (
+        <div className="whitespace-pre-line pt-0.5 text-neutral-300 text-xs leading-relaxed sm:text-sm">
+          {review.reviewText}
+        </div>
+      )}
+
+      {/* Social Actions Row */}
+      <div className="flex items-center gap-4 border-white/[0.04] border-t pt-2 text-neutral-500 text-xs">
+        <button
+          type="button"
+          onClick={() => onToggleLike(review.id)}
+          className={`inline-flex cursor-pointer items-center gap-1.5 transition-colors ${
+            isLiked ? 'font-semibold text-white' : 'hover:text-neutral-300'
+          }`}
+        >
+          <ThumbsUp className={`size-3 ${isLiked ? 'fill-white text-white' : ''}`} />
+          <span>Curtir {review.likesCount > 0 ? `(${review.likesCount})` : ''}</span>
+        </button>
+        <span>•</span>
+        <button
+          type="button"
+          onClick={() => toast.info('Respostas em breve!')}
+          className="inline-flex cursor-pointer items-center gap-1 transition-colors hover:text-neutral-300"
+        >
+          <Reply className="size-3" />
+          <span>Responder</span>
+        </button>
+      </div>
+    </div>
+  );
+}

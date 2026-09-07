@@ -1,10 +1,10 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
+import { ArrowLeft, CheckCircle2, Loader2, Mail, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, Loader2, Mail, RefreshCw } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -83,8 +83,8 @@ function AuthContent() {
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background px-4 py-12">
       {/* Background ambient lighting */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/5 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-40 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-white/5 blur-[140px]" />
+      <div className="-top-40 -z-10 -translate-x-1/2 pointer-events-none absolute left-1/2 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="-bottom-40 -z-10 -translate-x-1/2 pointer-events-none absolute left-1/2 h-[500px] w-[500px] rounded-full bg-white/5 blur-[140px]" />
 
       {/* Brand Header */}
       <div className="mb-8 flex flex-col items-center gap-3">
@@ -107,10 +107,10 @@ function AuthContent() {
               className="flex flex-col gap-6"
             >
               <div className="flex flex-col gap-1.5 text-center">
-                <h1 className="font-redaction text-3xl font-medium tracking-tight text-foreground md:text-4xl">
+                <h1 className="font-medium font-redaction text-3xl text-foreground tracking-tight md:text-4xl">
                   Level Up
                 </h1>
-                <p className="font-geist-sans text-xs text-muted-foreground md:text-sm">
+                <p className="font-geist-sans text-muted-foreground text-xs md:text-sm">
                   Log in or create your account to track, rate, and review games.
                 </p>
               </div>
@@ -119,7 +119,7 @@ function AuthContent() {
               <div className="flex flex-col gap-2.5">
                 <a
                   href={googleAuthUrl}
-                  className="inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-input bg-input/20 px-4 font-geist-sans text-sm font-medium text-foreground transition-all hover:bg-input/40 hover:border-input/80 active:scale-[0.99]"
+                  className="inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-input bg-input/20 px-4 font-geist-sans font-medium text-foreground text-sm transition-all hover:border-input/80 hover:bg-input/40 active:scale-[0.99]"
                 >
                   <Logos.Google className="size-4" />
                   Continue with Google
@@ -127,7 +127,7 @@ function AuthContent() {
 
                 <a
                   href={discordAuthUrl}
-                  className="inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-input bg-input/20 px-4 font-geist-sans text-sm font-medium text-foreground transition-all hover:bg-input/40 hover:border-input/80 active:scale-[0.99]"
+                  className="inline-flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-input bg-input/20 px-4 font-geist-sans font-medium text-foreground text-sm transition-all hover:border-input/80 hover:bg-input/40 active:scale-[0.99]"
                 >
                   <Logos.Discord className="size-4 text-[#5865F2]" />
                   Continue with Discord
@@ -136,8 +136,8 @@ function AuthContent() {
 
               {/* Divider */}
               <div className="relative flex items-center justify-center">
-                <div className="w-full border-t border-border" />
-                <span className="absolute bg-card px-3 font-geist-sans text-xs uppercase tracking-wider text-muted-foreground">
+                <div className="w-full border-border border-t" />
+                <span className="absolute bg-card px-3 font-geist-sans text-muted-foreground text-xs uppercase tracking-wider">
                   or email
                 </span>
               </div>
@@ -165,12 +165,12 @@ function AuthContent() {
                     <div className="space-y-1.5">
                       <label
                         htmlFor="email"
-                        className="font-geist-sans text-xs font-medium text-foreground"
+                        className="font-geist-sans font-medium text-foreground text-xs"
                       >
                         Email Address
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Mail className="-translate-y-1/2 absolute top-1/2 left-3.5 size-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"
@@ -228,18 +228,18 @@ function AuthContent() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <h2 className="font-redaction text-2xl font-medium text-foreground md:text-3xl">
+                <h2 className="font-medium font-redaction text-2xl text-foreground md:text-3xl">
                   Check Your Inbox
                 </h2>
-                <p className="font-geist-sans text-xs text-muted-foreground md:text-sm">
+                <p className="font-geist-sans text-muted-foreground text-xs md:text-sm">
                   We've sent a magic sign-in link to:
                 </p>
-                <p className="font-geist-sans font-medium text-foreground underline decoration-primary/50 underline-offset-4 text-sm">
+                <p className="font-geist-sans font-medium text-foreground text-sm underline decoration-primary/50 underline-offset-4">
                   {submittedEmail}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-border bg-input/20 p-4 font-geist-sans text-xs text-muted-foreground">
+              <div className="rounded-xl border border-border bg-input/20 p-4 font-geist-sans text-muted-foreground text-xs">
                 Click the link in the email to automatically log in. The link will expire in{' '}
                 <span className="font-semibold text-foreground">15 minutes</span>.
               </div>
@@ -269,7 +269,7 @@ function AuthContent() {
                 <Button
                   variant="ghost"
                   onClick={() => setSubmittedEmail(null)}
-                  className="h-10 w-full rounded-xl font-geist-sans text-xs text-muted-foreground hover:text-foreground"
+                  className="h-10 w-full rounded-xl font-geist-sans text-muted-foreground text-xs hover:text-foreground"
                 >
                   <ArrowLeft className="size-3.5" />
                   Use a different email

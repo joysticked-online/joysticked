@@ -24,7 +24,7 @@ export async function requestMagicLink(email: string) {
       success: true,
       data: result.data
     };
-  } catch (err) {
+  } catch (_err) {
     return {
       success: false,
       error: 'Could not connect to the API server. Please try again later.'

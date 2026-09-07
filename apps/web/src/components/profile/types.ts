@@ -1,5 +1,3 @@
-import type { Activity } from 'lucide-react';
-
 export type Profile = {
   id: string;
   username: string;
@@ -12,6 +10,8 @@ export type Profile = {
     twitch?: string | null;
     discord?: string | null;
     steam?: string | null;
+    steamId?: string | null;
+    steamPublic?: boolean | null;
     instagram?: string | null;
   } | null;
   preferences?: {
@@ -136,7 +136,8 @@ export const GAME_CATALOG_LOOKUP: Record<string, ProfileGame> = {
     status: 'Na Fila',
     rating: 5,
     hours: '60h',
-    reviewSnippet: 'Engenharia de física e criatividade que redefine o que um jogo de aventura pode proporcionar.',
+    reviewSnippet:
+      'Engenharia de física e criatividade que redefine o que um jogo de aventura pode proporcionar.',
     genres: ['Action-Adventure', 'Open World'],
     platformTag: 'Switch',
     completedDate: 'Planejado'
@@ -151,7 +152,8 @@ export const GAME_CATALOG_LOOKUP: Record<string, ProfileGame> = {
     status: 'Concluído',
     rating: 4.8,
     hours: '48h',
-    reviewSnippet: 'Combate visceral com um encerramento emocionante para a saga nórdica de Kratos e Atreus.',
+    reviewSnippet:
+      'Combate visceral com um encerramento emocionante para a saga nórdica de Kratos e Atreus.',
     genres: ['Action-Adventure', 'Mythology'],
     platformTag: 'PS5',
     completedDate: 'há 1 mês'
@@ -166,7 +168,8 @@ export const GAME_CATALOG_LOOKUP: Record<string, ProfileGame> = {
     status: 'Platinado',
     rating: 5,
     hours: '62h',
-    reviewSnippet: 'O ápice do gênero Metroidvania. Atmosfera melancólica, trilha sonora e combate impecáveis.',
+    reviewSnippet:
+      'O ápice do gênero Metroidvania. Atmosfera melancólica, trilha sonora e combate impecáveis.',
     genres: ['Metroidvania', 'Indie'],
     platformTag: 'Steam Deck',
     completedDate: 'há 3 meses'

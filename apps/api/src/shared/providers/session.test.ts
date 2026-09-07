@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { createSession, deleteSession, getSession } from './session';
-import { redis } from './redis';
 
 describe('session provider', () => {
   const memoryStore = new Map<string, string>();

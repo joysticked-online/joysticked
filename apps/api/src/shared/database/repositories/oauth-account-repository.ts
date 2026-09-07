@@ -35,10 +35,7 @@ class OAuthAccountRepository {
    * a new provider to an existing user based on matching email.
    */
   async create(data: CreateOAuthAccountData, tx?: Transaction) {
-    const result = await (tx ?? this.db)
-      .insert(oauthAccounts)
-      .values(data)
-      .returning();
+    const result = await (tx ?? this.db).insert(oauthAccounts).values(data).returning();
 
     if (!result[0]) throw new InternalServerError('Failed to create OAuth account link');
 

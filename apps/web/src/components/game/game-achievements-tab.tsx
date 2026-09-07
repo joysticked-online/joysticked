@@ -1,193 +1,176 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Trophy,
-  Award,
-  CheckCircle2,
-  Lock,
-  Sparkles,
-  Search,
-  Check,
-  Percent
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
+import {
+  ArrowRight,
+  ExternalLink,
+  Gamepad2,
+  RefreshCw,
+  Search,
+  ShieldAlert,
+  Sparkles
+} from 'lucide-react';
+import { motion } from 'motion/react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 import type { Game } from '@/lib/games';
+import { GameAchievementCard } from './game-achievement-card';
+import { GameStoreRewards, type StoreType } from './game-store-rewards';
 
 export interface Achievement {
   id: string;
   name: string;
   description: string;
-  rarity: number; // e.g. 9.4 (%)
+  rarity: number;
   tier: 'platinum' | 'gold' | 'silver' | 'bronze';
   icon?: string;
+  iconGray?: string;
   unlocked?: boolean;
+  unlockTime?: number;
 }
-
-// Sample Curated Achievements Database for Elden Ring & generic fallback generator
-const ELDEN_RING_ACHIEVEMENTS: Achievement[] = [
-  {
-    id: 'er-1',
-    name: 'Elden Ring',
-    description: 'Obteve todos os troféus e conquistou as Terras Intermédias.',
-    rarity: 8.9,
-    tier: 'platinum'
-  },
-  {
-    id: 'er-2',
-    name: 'Elden Lord',
-    description: 'Alcançou o final Elden Lord e restaurou a ordem do Anel Prístino.',
-    rarity: 22.4,
-    tier: 'gold'
-  },
-  {
-    id: 'er-3',
-    name: 'Age of the Stars',
-    description: 'Completou a jornada de Ranni, a Bruxa, e inaugurou a Era das Estrelas.',
-    rarity: 24.1,
-    tier: 'gold'
-  },
-  {
-    id: 'er-4',
-    name: 'Lord of the Frenzied Flame',
-    description: 'Sucumbiu à Chama Frenética e queimou o mundo até as cinzas.',
-    rarity: 13.7,
-    tier: 'gold'
-  },
-  {
-    id: 'er-5',
-    name: 'Shardbearer Malenia',
-    description: 'Derrotou Malenia, a Espada de Miquella no Haligtree.',
-    rarity: 19.3,
-    tier: 'silver'
-  },
-  {
-    id: 'er-6',
-    name: 'Shardbearer Radahn',
-    description: 'Derrotou o Flagelo Estelar Radahn no Festival de Redmane.',
-    rarity: 48.2,
-    tier: 'silver'
-  },
-  {
-    id: 'er-7',
-    name: 'Shardbearer Mohg',
-    description: 'Derrotou Mohg, o Senhor do Sangue no Palácio de Mohgwyn.',
-    rarity: 26.8,
-    tier: 'silver'
-  },
-  {
-    id: 'er-8',
-    name: 'Shardbearer Rykard',
-    description: 'Derrotou Rykard, Senhor da Blasfêmia na Mansão Vulcânica.',
-    rarity: 41.5,
-    tier: 'silver'
-  },
-  {
-    id: 'er-9',
-    name: 'Maliketh the Black Blade',
-    description: 'Derrotou Maliketh, a Lâmina Negra em Crumbling Farum Azula.',
-    rarity: 33.6,
-    tier: 'silver'
-  },
-  {
-    id: 'er-10',
-    name: 'Hoarah Loux the Warrior',
-    description: 'Derrotou o Primeiro Lorde Prístino, Godfrey, em Leyndell.',
-    rarity: 32.1,
-    tier: 'silver'
-  },
-  {
-    id: 'er-11',
-    name: 'Dragonlord Placidusax',
-    description: 'Derrotou o Senhor Dragão Placidusax no coração da tempestade.',
-    rarity: 16.5,
-    tier: 'silver'
-  },
-  {
-    id: 'er-12',
-    name: 'Legendary Armaments',
-    description: 'Coletou todas as 9 armas lendárias das Terras Intermédias.',
-    rarity: 14.8,
-    tier: 'silver'
-  },
-  {
-    id: 'er-13',
-    name: 'Legendary Ashen Remains',
-    description: 'Adquiriu todas as cinzas espirituais lendárias.',
-    rarity: 18.2,
-    tier: 'silver'
-  },
-  {
-    id: 'er-14',
-    name: 'Legendary Talismans',
-    description: 'Coletou todos os 8 talismãs lendários.',
-    rarity: 21.0,
-    tier: 'silver'
-  },
-  {
-    id: 'er-15',
-    name: 'God-Slaying Armament',
-    description: 'Aprimorou qualquer arma até o nível máximo de reforço.',
-    rarity: 56.4,
-    tier: 'bronze'
-  },
-  {
-    id: 'er-16',
-    name: 'Margit, the Fell Omen',
-    description: 'Derrotou Margit, o Agouro Caído nos portões do Castelo Stormveil.',
-    rarity: 74.8,
-    tier: 'bronze'
-  },
-  {
-    id: 'er-17',
-    name: 'Godrick the Grafted',
-    description: 'Derrotou Godrick, o Enxertado e reivindicou sua Grande Runa.',
-    rarity: 68.2,
-    tier: 'bronze'
-  },
-  {
-    id: 'er-18',
-    name: 'Rennala, Queen of the Full Moon',
-    description: 'Derrotou a Rainha da Lua Cheia na Academia de Raya Lucaria.',
-    rarity: 58.9,
-    tier: 'bronze'
-  }
-];
 
 interface GameAchievementsTabProps {
   game: Game;
 }
 
 export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
-  const isElden = game.slug.includes('elden-ring');
-  const baseAchievements = isElden ? ELDEN_RING_ACHIEVEMENTS : generateDefaultAchievements(game.name);
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const pathname = usePathname();
 
-  const [unlockedIds, setUnlockedIds] = useState<Record<string, boolean>>({});
+  const [selectedStore, setSelectedStore] = useState<StoreType>('steam');
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [tierFilter, setTierFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSyncingSteam, setIsSyncingSteam] = useState(false);
+  const [isSteamConnectedOnServer, setIsSteamConnectedOnServer] = useState(false);
+  const [isGameDetailsPrivate, setIsGameDetailsPrivate] = useState(false);
+  const [autoRetryCount, setAutoRetryCount] = useState(0);
 
-  const toggleUnlock = (id: string, name: string) => {
-    const isNowUnlocked = !unlockedIds[id];
-    setUnlockedIds((prev) => ({ ...prev, [id]: isNowUnlocked }));
+  const steamId =
+    (user?.socials as any)?.steamId ||
+    (user?.socials?.steam && /^\d{17}$/.test(user.socials.steam) ? user.socials.steam : undefined);
+  const steamAccount = steamId || user?.socials?.steam;
+  const isConnectedSteam = Boolean(steamAccount || isSteamConnectedOnServer);
 
-    if (isNowUnlocked) {
-      confetti({
-        particleCount: 30,
-        spread: 45,
-        origin: { y: 0.7 }
-      });
-      toast.success(`Conquista desbloqueada: "${name}"!`, {
-        icon: '🏆'
-      });
+  const fetchSteamAchievements = useCallback(
+    async (silent = false) => {
+      if (!silent) {
+        setIsLoading(true);
+      }
+
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const queryParam = steamAccount ? `?steamId=${encodeURIComponent(steamAccount)}` : '';
+        const res = await fetch(`${apiBase}/steam/achievements/${game.slug}${queryParam}`, {
+          credentials: 'include'
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.achievements && data.achievements.length > 0) {
+            const mapped = data.achievements.map((item: any) => ({
+              id: item.id || item.apiName,
+              name: item.name,
+              description: item.description,
+              rarity: item.rarity,
+              tier: item.tier,
+              icon: item.icon,
+              iconGray: item.iconGray,
+              unlocked: Boolean(item.achieved),
+              unlockTime: item.unlockTime
+            }));
+            setAchievements(mapped);
+            setIsSteamConnectedOnServer(Boolean(data.isConnected));
+
+            const wasPrivate = isGameDetailsPrivate;
+            const nowPrivate = Boolean(data.isGameDetailsPrivate);
+            setIsGameDetailsPrivate(nowPrivate);
+
+            // If it just became public and unlocked achievements were detected
+            if (wasPrivate && !nowPrivate && mapped.some((a: Achievement) => a.unlocked)) {
+              toast.success('Suas conquistas da Steam foram detectadas e sincronizadas!');
+              confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+            }
+          } else {
+            setAchievements([]);
+          }
+        } else {
+          setAchievements([]);
+        }
+      } catch (err) {
+        console.warn('[Achievements] Error fetching steam achievements:', err);
+        setAchievements([]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [game.slug, steamAccount, isGameDetailsPrivate]
+  );
+
+  // Load automatically as soon as tab is opened or user/game changes
+  useEffect(() => {
+    if (!isAuthLoading) {
+      fetchSteamAchievements(false);
+    }
+  }, [fetchSteamAchievements, isAuthLoading]);
+
+  // Automatic retry polling if privacy was detected as private (retry every 3.5s up to 10 times)
+  useEffect(() => {
+    if (isGameDetailsPrivate && isConnectedSteam && autoRetryCount < 10) {
+      const timer = setTimeout(() => {
+        setAutoRetryCount((c) => c + 1);
+        fetchSteamAchievements(true);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [isGameDetailsPrivate, isConnectedSteam, autoRetryCount, fetchSteamAchievements]);
+
+  // Automatically revalidate when the user switches back to this browser tab/window
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchSteamAchievements(true);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [fetchSteamAchievements]);
+
+  // Check URL params for post-auth feedback
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('steam=connected')) {
+      toast.success('Conta Steam conectada com sucesso!');
+      confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
+      fetchSteamAchievements(false);
+      window.history.replaceState({}, '', pathname);
+    }
+  }, [pathname, fetchSteamAchievements]);
+
+  const handleManualRefresh = async () => {
+    setIsSyncingSteam(true);
+    setAutoRetryCount(0);
+    try {
+      await fetchSteamAchievements(false);
+      toast.success('Conquistas atualizadas com a Steam!');
+    } finally {
+      setIsSyncingSteam(false);
     }
   };
 
-  const unlockedCount = Object.values(unlockedIds).filter(Boolean).length;
-  const progressPercent = Math.round((unlockedCount / baseAchievements.length) * 100);
+  const handleConnectSteam = () => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const returnTo = pathname || window.location.pathname;
+    window.location.href = `${apiBase}/auth/steam?returnTo=${encodeURIComponent(returnTo)}`;
+  };
 
-  const filteredAchievements = baseAchievements.filter((ach) => {
+  const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const progressPercent =
+    achievements.length > 0 ? Math.round((unlockedCount / achievements.length) * 100) : 0;
+
+  const filteredAchievements = achievements.filter((ach) => {
     if (tierFilter !== 'all' && ach.tier !== tierFilter) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -198,197 +181,216 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Progress & Summary Bar */}
-      <div className="rounded-3xl border border-white/10 bg-neutral-900/60 p-5 sm:p-6 backdrop-blur-xl space-y-4 shadow-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Trophy className="size-4.5 text-white" />
-              <span>Conquistas & Troféus ({baseAchievements.length})</span>
-            </h3>
-            <p className="text-xs text-neutral-400">
-              Acompanhe seu progresso e marque as conquistas já desbloqueadas.
-            </p>
-          </div>
+      {/* 1. Modular Store Rewards Component (with platform filtering) */}
+      <GameStoreRewards
+        platforms={game.platforms}
+        selectedStore={selectedStore}
+        onSelectStore={setSelectedStore}
+        unlockedCount={unlockedCount}
+        totalCount={achievements.length}
+        progressPercent={progressPercent}
+      />
 
-          {/* Unlocked Progress Pill */}
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-xs font-bold text-white">
-                {unlockedCount} de {baseAchievements.length} desbloqueadas
-              </div>
-              <div className="text-[11px] text-neutral-400">{progressPercent}% concluído</div>
-            </div>
-            <div className="size-11 rounded-full border border-white/15 bg-white/5 flex items-center justify-center font-black text-xs text-white">
-              {progressPercent}%
-            </div>
-          </div>
-        </div>
-
-        {/* Progress bar line */}
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="h-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]"
-          />
-        </div>
-      </div>
-
-      {/* Filter Chips & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Tier Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          {[
-            { id: 'all', label: 'Todas', count: baseAchievements.length },
-            { id: 'platinum', label: '🏆 Platina', count: baseAchievements.filter(a => a.tier === 'platinum').length },
-            { id: 'gold', label: '🥇 Ouro', count: baseAchievements.filter(a => a.tier === 'gold').length },
-            { id: 'silver', label: '🥈 Prata', count: baseAchievements.filter(a => a.tier === 'silver').length },
-            { id: 'bronze', label: '🥉 Bronze', count: baseAchievements.filter(a => a.tier === 'bronze').length }
-          ].filter(t => t.count > 0 || t.id === 'all').map((t) => {
-            const isActive = tierFilter === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTierFilter(t.id)}
-                className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer whitespace-nowrap border ${
-                  isActive
-                    ? 'border-white bg-white text-black font-semibold'
-                    : 'border-white/10 bg-white/[0.03] text-neutral-300 hover:border-white/20 hover:text-white'
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Quick Search Input */}
-        <div className="relative w-full sm:w-60">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-neutral-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filtrar conquistas..."
-            className="w-full h-8.5 rounded-xl border border-white/10 bg-black/60 pl-8.5 pr-3 text-xs text-white placeholder:text-neutral-500 focus:border-white/30 focus:outline-hidden"
-          />
-        </div>
-      </div>
-
-      {/* Achievements List */}
-      <div className="space-y-2.5">
-        {filteredAchievements.map((ach) => {
-          const isUnlocked = !!unlockedIds[ach.id];
-          return (
-            <div
-              key={ach.id}
-              className={`flex items-center justify-between rounded-2xl border p-4 transition-all duration-200 ${
-                isUnlocked
-                  ? 'border-white/20 bg-white/[0.05]'
-                  : 'border-white/[0.08] bg-white/[0.02] hover:border-white/15'
-              }`}
-            >
-              {/* Left Trophy Info */}
-              <div className="flex items-center gap-3.5 min-w-0 pr-3">
-                {/* Trophy Icon */}
-                <div
-                  className={`size-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                    ach.tier === 'platinum'
-                      ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300'
-                      : ach.tier === 'gold'
-                      ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-                      : ach.tier === 'silver'
-                      ? 'border-neutral-400/30 bg-neutral-400/10 text-neutral-300'
-                      : 'border-amber-700/30 bg-amber-700/10 text-amber-500'
-                  }`}
-                >
-                  <Trophy className="size-5" />
-                </div>
-
-                <div className="space-y-0.5 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className={`text-xs sm:text-sm font-semibold truncate ${isUnlocked ? 'text-white' : 'text-neutral-200'}`}>
-                      {ach.name}
-                    </h4>
-                    <span className="text-[10px] text-neutral-500">• {ach.rarity}% dos jogadores</span>
+      {/* Steam Connection Banner: Only appears if the user is NOT connected */}
+      {selectedStore === 'steam' && (
+        <div className="space-y-3">
+          {!isConnectedSteam && (
+            /* User is NOT connected to Steam -> Prominent 'Connect to your Steam' card */
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171a21]/90 via-[#1b2838]/60 to-black/80 p-5 shadow-xl backdrop-blur-md sm:p-6">
+              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                <div className="flex items-start gap-4">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-lg">
+                    <Gamepad2 className="size-6" />
                   </div>
-                  <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed">
-                    {ach.description}
-                  </p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-sm text-white tracking-tight">
+                        Conecte sua conta Steam
+                      </h3>
+                      <span className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/10 px-2 py-0.5 font-semibold text-[10px] text-neutral-300">
+                        <Sparkles className="size-2.5 text-amber-300" />
+                        Sincronização Oficial
+                      </span>
+                    </div>
+                    <p className="max-w-xl text-neutral-300 text-xs leading-relaxed">
+                      Conecte sua Steam para carregar automaticamente todas as suas conquistas
+                      desbloqueadas, tempo de jogo e progresso nesta página sem precisar fazer nada
+                      manualmente.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex shrink-0 flex-col items-stretch gap-2.5 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={handleConnectSteam}
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 font-semibold text-black text-xs shadow-lg transition-all hover:bg-neutral-200 active:scale-[0.98]"
+                  >
+                    <Gamepad2 className="size-4 text-black" />
+                    <span>Conectar com a Steam</span>
+                    <ArrowRight className="size-3.5" />
+                  </button>
+
+                  <Link
+                    href="/profile"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-3.5 py-2.5 font-medium text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    <span>Vincular por ID</span>
+                  </Link>
                 </div>
               </div>
-
-              {/* Right Toggle Button */}
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.92 }}
-                onClick={() => toggleUnlock(ach.id, ach.name)}
-                className={`shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer border select-none ${
-                  isUnlocked
-                    ? 'border-white bg-white text-black font-semibold shadow-sm'
-                    : 'border-white/10 bg-white/[0.03] text-neutral-400 hover:border-white/25 hover:text-white'
-                }`}
-              >
-                {isUnlocked ? (
-                  <>
-                    <Check className="size-3 text-black" />
-                    <span>Conquistada</span>
-                  </>
-                ) : (
-                  <>
-                    <Lock className="size-3 text-neutral-500" />
-                    <span>Desbloquear</span>
-                  </>
-                )}
-              </motion.button>
             </div>
-          );
-        })}
-      </div>
+          )}
+
+          {/* Steam Privacy Warning Alert (when Steam is connected but 'Game Details' is private) */}
+          {isConnectedSteam && isGameDetailsPrivate && (
+            <div className="fade-in flex animate-in flex-col justify-between gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-xs duration-300 sm:flex-row sm:items-center">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="mt-0.5 size-5 shrink-0 text-amber-400" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-amber-200">
+                    Detalhes de jogos privados na sua Steam
+                  </p>
+                  <p className="max-w-2xl text-[11px] text-neutral-300 leading-relaxed">
+                    Sua conta Steam está conectada, mas a Valve ainda não liberou o progresso de
+                    conquistas porque a opção <strong>"Detalhes dos jogos"</strong> estava privada.
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-amber-300/90">
+                    <RefreshCw className="size-3 animate-spin text-amber-400" />
+                    <span>
+                      Verificando atualização da Steam automaticamente em segundo plano...
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <a
+                href="https://steamcommunity.com/my/edit/settings"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/20 px-3.5 py-1.5 font-medium text-amber-200 text-xs transition-colors hover:bg-amber-500/30"
+              >
+                <span>Configurações da Steam</span>
+                <ExternalLink className="size-3" />
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 2. Filter Chips & Search Bar */}
+      {achievements.length > 0 && (
+        <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+          {/* Tier Filters with Liquid Pill */}
+          <div className="relative flex w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.04] p-1 sm:w-auto">
+            {[
+              { id: 'all', label: 'Todas', count: achievements.length },
+              {
+                id: 'platinum',
+                label: 'Platina',
+                count: achievements.filter((a) => a.tier === 'platinum').length
+              },
+              {
+                id: 'gold',
+                label: 'Ouro',
+                count: achievements.filter((a) => a.tier === 'gold').length
+              },
+              {
+                id: 'silver',
+                label: 'Prata',
+                count: achievements.filter((a) => a.tier === 'silver').length
+              },
+              {
+                id: 'bronze',
+                label: 'Bronze',
+                count: achievements.filter((a) => a.tier === 'bronze').length
+              }
+            ]
+              .filter((t) => t.count > 0 || t.id === 'all')
+              .map((t) => {
+                const isActive = tierFilter === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTierFilter(t.id)}
+                    className={`relative cursor-pointer select-none whitespace-nowrap rounded-xl px-3 py-1.5 font-medium text-xs transition-colors ${
+                      isActive ? 'font-semibold text-black' : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="tier-filter-liquid-pill"
+                        className="absolute inset-0 rounded-xl bg-white shadow-sm"
+                        transition={{
+                          type: 'spring',
+                          stiffness: 420,
+                          damping: 30
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{t.label}</span>
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* Quick Search & Sync */}
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <div className="relative flex-1 sm:w-60">
+              <Search className="-translate-y-1/2 absolute top-1/2 left-3 size-3.5 text-neutral-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filtrar conquistas..."
+                className="h-8.5 w-full rounded-xl border border-white/10 bg-black/60 pr-3 pl-8.5 text-white text-xs placeholder:text-neutral-500 focus:border-white/30 focus:outline-hidden"
+              />
+            </div>
+            {isConnectedSteam && (
+              <button
+                type="button"
+                onClick={handleManualRefresh}
+                disabled={isSyncingSteam}
+                title="Sincronizar conquistas com Steam"
+                className="flex size-8.5 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-neutral-400 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`size-3.5 ${isSyncingSteam ? 'animate-spin text-amber-400' : ''}`}
+                />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Achievements Content: Loading, Empty, or List */}
+      {isLoading ? (
+        <div className="space-y-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-10 text-center">
+          <RefreshCw className="mx-auto size-6 animate-spin text-neutral-400" />
+          <p className="text-neutral-400 text-xs">Carregando conquistas oficiais da Steam...</p>
+        </div>
+      ) : achievements.length === 0 ? (
+        <div className="space-y-2 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-10 text-center">
+          <Gamepad2 className="mx-auto size-8 text-neutral-600" />
+          <h4 className="font-semibold text-sm text-white">
+            Nenhuma conquista registrada na Steam
+          </h4>
+          <p className="mx-auto max-w-md text-neutral-400 text-xs leading-relaxed">
+            Este jogo não possui conquistas cadastradas na Steam ou ainda não foi catalogado nesta
+            loja.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {filteredAchievements.map((ach) => (
+            <GameAchievementCard
+              key={ach.id}
+              achievement={ach}
+              isUnlocked={Boolean(ach.unlocked)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
-}
-
-function generateDefaultAchievements(gameName: string): Achievement[] {
-  return [
-    {
-      id: 'gen-1',
-      name: `${gameName} - Completista`,
-      description: `Desbloqueou todas as conquistas e segredos de ${gameName}.`,
-      rarity: 5.4,
-      tier: 'platinum'
-    },
-    {
-      id: 'gen-2',
-      name: 'Campanha Concluída',
-      description: 'Chegou ao final da história principal.',
-      rarity: 32.8,
-      tier: 'gold'
-    },
-    {
-      id: 'gen-3',
-      name: 'Mestre do Combate',
-      description: 'Dominou todas as mecânicas avançadas e derrotou chefes opcionais.',
-      rarity: 18.2,
-      tier: 'silver'
-    },
-    {
-      id: 'gen-4',
-      name: 'Colecionador Lendário',
-      description: 'Encontrou todos os itens secretos e colecionáveis espalhados pelo mapa.',
-      rarity: 14.5,
-      tier: 'silver'
-    },
-    {
-      id: 'gen-5',
-      name: 'Primeiros Passos',
-      description: 'Concluiu o prólogo e iniciou a grande jornada.',
-      rarity: 88.6,
-      tier: 'bronze'
-    }
-  ];
 }

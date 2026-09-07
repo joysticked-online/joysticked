@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import { Logos } from '@/components/logos';
 import { env } from '@/env';
@@ -25,7 +25,7 @@ function VerifyContent() {
       <Logos.Joysticked className="h-8 opacity-80" />
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 shadow-xl">
         <Loader2 className="size-5 animate-spin text-primary" />
-        <span className="font-geist-sans text-sm text-foreground">
+        <span className="font-geist-sans text-foreground text-sm">
           Authenticating your session…
         </span>
       </div>

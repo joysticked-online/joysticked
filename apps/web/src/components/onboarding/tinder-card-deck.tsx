@@ -111,7 +111,7 @@ function SwipeableCard({
       <img
         src={game.coverUrl}
         alt={game.title}
-        className="pointer-events-none h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/10"
+        className="-outline-offset-1 pointer-events-none h-full w-full object-cover outline outline-1 outline-white/10"
         draggable={false}
       />
 
@@ -212,14 +212,14 @@ export function TinderCardDeck({
       {!isFinished ? (
         <>
           {/* 3D Stack Container */}
-          <div className="relative aspect-[3/4] w-72 sm:w-80 select-none">
+          <div className="relative aspect-[3/4] w-72 select-none sm:w-80">
             {/* Background Preview Card (Next in queue) with Concentric Radius & Image Outline */}
             {nextGame && (
               <div className="pointer-events-none absolute inset-0 translate-y-3 scale-[0.93] overflow-hidden rounded-3xl border border-white/[0.08] bg-card opacity-60 shadow-lg transition-transform duration-300 ease-out">
                 <img
                   src={nextGame.coverUrl}
                   alt={nextGame.title}
-                  className="h-full w-full object-cover outline outline-1 -outline-offset-1 outline-white/10"
+                  className="-outline-offset-1 h-full w-full object-cover outline outline-1 outline-white/10"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>
@@ -267,7 +267,10 @@ export function TinderCardDeck({
               className="group flex size-14 items-center justify-center rounded-full border border-white/[0.08] bg-card/90 text-emerald-500 shadow-[0_0_0_1px_oklch(1_0_0/0.05),0_8px_20px_rgba(0,0,0,0.3)] backdrop-blur-md transition-transform duration-150 ease-out hover:border-emerald-500/40 hover:bg-emerald-500/10 active:scale-[0.96]"
               title="Já joguei / Gostei"
             >
-              <ThumbsUp className="size-6 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+              <ThumbsUp
+                className="size-6 transition-transform group-hover:scale-110"
+                strokeWidth={1.5}
+              />
             </button>
           </div>
 
