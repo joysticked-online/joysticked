@@ -2,6 +2,7 @@ import { Elysia, t } from 'elysia';
 
 import { db } from '../../../shared/database';
 import { gameActivities, gameReviews } from '../../../shared/database/schemas';
+import { executeTransaction } from '../../../shared/database/transaction';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 
 export const createReviewRouter = new Elysia().use(authMiddleware).post(
@@ -17,31 +18,34 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
     const { gameId, gameTitle, rating, reviewText, platform, hoursPlayed } = body;
 
     try {
-      const [review] = await db
-        .insert(gameReviews)
-        .values({
+      const review = await executeTransaction(db, async (tx) => {
+        const [createdReview] = await tx
+          .insert(gameReviews)
+          .values({
+            gameId: String(gameId),
+            gameSlug: slug,
+            gameTitle,
+            userId,
+            rating,
+            reviewText: reviewText || null,
+            platform: platform || null,
+            hoursPlayed: hoursPlayed || null
+          })
+          .returning();
+
+        await tx.insert(gameActivities).values({
           gameId: String(gameId),
           gameSlug: slug,
           gameTitle,
           userId,
-          rating,
-          reviewText: reviewText || null,
-          platform: platform || null,
-          hoursPlayed: hoursPlayed || null
-        })
-        .returning();
+          type: 'rated',
+          detail: reviewText
+            ? `Avaliou com ${rating} estrelas: "${reviewText.substring(0, 80)}..."`
+            : `Avaliou com ${rating} estrelas`,
+          platform: platform || null
+        });
 
-      // Log to game activity
-      await db.insert(gameActivities).values({
-        gameId: String(gameId),
-        gameSlug: slug,
-        gameTitle,
-        userId,
-        type: 'rated',
-        detail: reviewText
-          ? `Avaliou com ${rating} estrelas: "${reviewText.substring(0, 80)}..."`
-          : `Avaliou com ${rating} estrelas`,
-        platform: platform || null
+        return createdReview;
       });
 
       return { review };
