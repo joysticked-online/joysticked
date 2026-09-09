@@ -5,7 +5,10 @@ export const searchGamesRouter = new Elysia().get(
   '/',
   async ({ query }) => {
     const q = query.q || '';
-    const limit = query.limit ? Number(query.limit) : 20;
+    const parsedLimit = Number(query.limit);
+    const limit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(Math.trunc(parsedLimit), 1), 100)
+      : 20;
 
     if (!q.trim()) {
       const popular = await igdbProvider.getPopularGames(limit);
