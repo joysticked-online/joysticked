@@ -245,7 +245,7 @@ export interface HomeFeedData {
 export async function getHomeFeed(): Promise<HomeFeedData> {
   try {
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/home`, {
-      cache: 'no-store'
+      next: { revalidate: 60 }
     });
     if (res.ok) {
       return await res.json();
