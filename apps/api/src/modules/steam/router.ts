@@ -17,49 +17,18 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
   .use(authMiddleware)
 
   /**
-   * Link Steam account directly using SteamID64, Custom URL, or profile link
+   * Manual Steam linking is intentionally disabled because a SteamID or profile URL
+   * does not prove account ownership. Use the Steam OpenID flow instead.
    */
   .post(
     '/link',
-    async ({ body, db, userId, status }) => {
+    ({ userId, status }) => {
       if (!userId) {
         return status(401, { message: 'Unauthorized' });
       }
 
-      const input = body.steamUrlOrId.trim();
-      const steamId = await steamService.resolveVanityUrl(input);
-
-      if (!steamId) {
-        return status(400, {
-          message:
-            'Não foi possível encontrar a conta Steam. Verifique o link ou SteamID informado.'
-        });
-      }
-
-      const summary = await steamService.getPlayerSummary(steamId);
-      const userRepo = createUserRepository(db);
-      const user = await userRepo.findById(userId);
-
-      if (!user) {
-        return status(404, { message: 'Usuário não encontrado' });
-      }
-
-      const currentSocials = user.socials || {};
-      const updatedSocials = {
-        ...currentSocials,
-        steam: summary?.personaName || input,
-        steamId,
-        steamPublic: body.isPublic ?? currentSocials.steamPublic ?? true
-      };
-
-      await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
-
-      return status(200, {
-        success: true,
-        steamId,
-        personaName: summary?.personaName || input,
-        avatarUrl: summary?.avatarUrl || '',
-        steamPublic: updatedSocials.steamPublic
+      return status(400, {
+        message: 'Para vincular sua conta Steam, use a autenticação oficial da Steam (OpenID).'
       });
     },
     {
