@@ -8,13 +8,15 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 import { db } from '../../../shared/database';
 import { gameActivities } from '../../../shared/database/schemas';
+import { authMiddleware } from '../../../shared/http/middlewares/auth';
 import { igdbProvider } from '../../../shared/providers/igdb/igdb-provider';
 import { steamService } from '../../../shared/providers/steam/steam-service';
 
 export const popularGamesRouter = new Elysia()
+  .use(authMiddleware)
   .get(
     '/discover',
-    async ({ query }) => {
+    async ({ query, userId }) => {
       const limit = Math.max(parsePaginationValue(query.limit, 21, 100), 1);
       const offset = parsePaginationValue(query.offset, 0, 10_000);
       const played = query.played
@@ -23,8 +25,6 @@ export const popularGamesRouter = new Elysia()
             .map((s) => s.trim())
             .filter(Boolean)
         : [];
-      const userId = query.userId;
-
       let allPlayedSlugs = [...played];
       if (userId) {
         try {
@@ -55,8 +55,7 @@ export const popularGamesRouter = new Elysia()
       query: t.Object({
         limit: t.Optional(t.String()),
         offset: t.Optional(t.String()),
-        played: t.Optional(t.String()),
-        userId: t.Optional(t.String())
+        played: t.Optional(t.String())
       })
     }
   )
