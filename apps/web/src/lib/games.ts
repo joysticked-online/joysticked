@@ -251,18 +251,7 @@ export async function getHomeFeed(): Promise<HomeFeedData> {
       return await res.json();
     }
   } catch (err) {
-    console.warn('getHomeFeed /home failed, trying /games/home-feed:', err);
-  }
-
-  try {
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/games/home-feed`, {
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.error('getHomeFeed fallback failed:', err);
+    console.error('getHomeFeed failed:', err);
   }
 
   return {
