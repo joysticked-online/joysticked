@@ -36,6 +36,13 @@
       "when": 1788665235723,
       "tag": "20260906032715_add-onboarding-fields",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788963600000,
+      "tag": "20260909142000_unique-game-review-per-user",
+      "breakpoints": true
     }
   ]
 }
