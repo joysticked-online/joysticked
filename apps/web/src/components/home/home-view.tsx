@@ -142,6 +142,28 @@ export function HomeView({ initialData }: HomeViewProps) {
   const reviews: GameReview[] = initialData?.popularReviews || [];
   const activities: GameActivity[] = initialData?.activities || [];
 
+  const filteredReviews = reviews.filter((review) => {
+    if (selectedPeriod === 'all') return true;
+
+    const createdAt = new Date(review.createdAt);
+    if (Number.isNaN(createdAt.getTime())) return false;
+
+    const now = new Date();
+    let periodStart: Date;
+
+    if (selectedPeriod === 'today') {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (selectedPeriod === 'week') {
+      const day = now.getDay();
+      const daysSinceMonday = (day + 6) % 7;
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysSinceMonday);
+    } else {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+
+    return createdAt >= periodStart && createdAt <= now;
+  });
+
   // Spotlight game (featured top-rated title)
   const spotlightGame = topRatedGames[0] || popularGames[0];
 
@@ -347,9 +369,9 @@ export function HomeView({ initialData }: HomeViewProps) {
               </div>
 
               {/* Reviews Feed List */}
-              {reviews.length > 0 ? (
+              {filteredReviews.length > 0 ? (
                 <div className="space-y-3">
-                  {reviews.map((review) => (
+                  {filteredReviews.map((review) => (
                     <div
                       key={review.id}
                       className="space-y-3 rounded-2xl border border-white/[0.03] bg-neutral-900/40 p-4 transition-colors hover:bg-neutral-900/60 sm:p-5"
