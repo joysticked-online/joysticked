@@ -14,6 +14,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Footer } from '@/components/navigation/footer';
@@ -380,9 +381,11 @@ export function HomeView({ initialData }: HomeViewProps) {
                         <div className="flex items-center gap-2.5">
                           <div className="flex size-8 items-center justify-center overflow-hidden rounded-full bg-neutral-800 font-bold text-neutral-300 text-xs">
                             {review.user?.avatarUrl ? (
-                              <img
+                              <Image
                                 src={review.user.avatarUrl}
                                 alt={review.user.username}
+                                width={32}
+                                height={32}
                                 className="size-full object-cover"
                               />
                             ) : (
@@ -477,9 +480,11 @@ export function HomeView({ initialData }: HomeViewProps) {
                       <div className="flex items-center gap-2.5">
                         <div className="flex size-7 items-center justify-center overflow-hidden rounded-full bg-neutral-800 font-bold text-[10px]">
                           {act.user?.avatarUrl ? (
-                            <img
+                            <Image
                               src={act.user.avatarUrl}
                               alt={act.user.username}
+                              width={28}
+                              height={28}
                               className="size-full object-cover"
                             />
                           ) : (
