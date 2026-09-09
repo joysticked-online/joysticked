@@ -53,7 +53,6 @@ export function PosterImage({
         height={!fill ? height : undefined}
         sizes={sizes}
         priority={priority}
-        unoptimized={src.includes('steamstatic') || src.includes('images.igdb.com')}
         onLoad={() => setIsLoaded(true)}
         onError={() => setHasError(true)}
         className={`object-cover transition-all duration-300 ${
