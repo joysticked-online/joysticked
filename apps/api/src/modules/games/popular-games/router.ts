@@ -1,3 +1,9 @@
+function parsePaginationValue(value: string | undefined, fallback: number, max: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(Math.max(Math.trunc(parsed), 0), max);
+}
+
 import { and, eq, inArray } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 import { db } from '../../../shared/database';
@@ -9,8 +15,8 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/discover',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 21;
-      const offset = query.offset ? Number(query.offset) : 0;
+      const limit = Math.max(parsePaginationValue(query.limit, 21, 100), 1);
+      const offset = parsePaginationValue(query.offset, 0, 10_000);
       const played = query.played
         ? query.played
             .split(',')
@@ -57,8 +63,8 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/popular',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 21;
-      const offset = query.offset ? Number(query.offset) : 0;
+      const limit = Math.max(parsePaginationValue(query.limit, 21, 100), 1);
+      const offset = parsePaginationValue(query.offset, 0, 10_000);
       const games = await igdbProvider.getPopularGames(limit + offset);
       return { games: games.slice(offset, offset + limit) };
     },
@@ -72,8 +78,8 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/top-rated',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 18;
-      const offset = query.offset ? Number(query.offset) : 0;
+      const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
+      const offset = parsePaginationValue(query.offset, 0, 10_000);
       const games = await igdbProvider.getTopRatedGames(limit + offset);
       return { games: games.slice(offset, offset + limit) };
     },
@@ -87,7 +93,7 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/upcoming',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 18;
+      const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
       let games = await steamService.getMostAwaitedGames(limit);
       if (!games || games.length === 0) {
         games = await igdbProvider.getUpcomingGames(limit);
@@ -107,7 +113,7 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/top-sellers',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 18;
+      const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
       const games = await steamService.getTopSellers(limit);
       return { games };
     },
@@ -120,8 +126,8 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/popular-new-releases',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 18;
-      const offset = query.offset ? Number(query.offset) : 0;
+      const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
+      const offset = parsePaginationValue(query.offset, 0, 10_000);
       const games = await steamService.getPopularNewReleases(limit + offset);
       return { games: games.slice(offset, offset + limit) };
     },
@@ -135,7 +141,7 @@ export const popularGamesRouter = new Elysia()
   .get(
     '/new-releases',
     async ({ query }) => {
-      const limit = query.limit ? Number(query.limit) : 18;
+      const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
       const games = await steamService.getPopularNewReleases(limit);
       return { games };
     },
