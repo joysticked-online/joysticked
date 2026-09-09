@@ -1,9 +1,3 @@
-function parsePaginationValue(value: string | undefined, fallback: number, max: number) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return fallback;
-  return Math.min(Math.max(Math.trunc(parsed), 0), max);
-}
-
 import { and, eq, inArray } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 import { db } from '../../../shared/database';
@@ -11,6 +5,12 @@ import { gameActivities } from '../../../shared/database/schemas';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 import { igdbProvider } from '../../../shared/providers/igdb/igdb-provider';
 import { steamService } from '../../../shared/providers/steam/steam-service';
+
+function parsePaginationValue(value: string | undefined, fallback: number, max: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(Math.max(Math.trunc(parsed), 0), max);
+}
 
 export const popularGamesRouter = new Elysia()
   .use(authMiddleware)
