@@ -8,15 +8,25 @@ import { igdbProvider } from '../../shared/providers/igdb/igdb-provider';
 import { steamService } from '../../shared/providers/steam/steam-service';
 
 export const homeRouter = new Elysia().get('/home', async () => {
-  // 1. Fetch 3 popular games, 3 top rated games, and 3 Steam most awaited games for sidebar
-  const [popularGames, topRatedGames, steamAwaited] = await Promise.all([
+  // 1. Fetch sidebar data independently so one provider failure does not break the homepage
+  const [popularResult, topRatedResult, steamAwaitedResult] = await Promise.allSettled([
     igdbProvider.getPopularGames(3),
     igdbProvider.getTopRatedGames(3),
     steamService.getMostAwaitedGames(3)
   ]);
 
-  const upcomingGames =
-    steamAwaited && steamAwaited.length > 0 ? steamAwaited : await igdbProvider.getUpcomingGames(3);
+  const popularGames = popularResult.status === 'fulfilled' ? popularResult.value : [];
+  const topRatedGames = topRatedResult.status === 'fulfilled' ? topRatedResult.value : [];
+
+  let upcomingGames =
+    steamAwaitedResult.status === 'fulfilled' ? steamAwaitedResult.value : [];
+
+  if (!upcomingGames || upcomingGames.length === 0) {
+    upcomingGames = await igdbProvider.getUpcomingGames(3).catch((err) => {
+      console.warn('Could not fetch upcoming games:', err);
+      return [];
+    });
+  }
 
   // 2. Fetch community reviews
   let popularReviews: Array<{
