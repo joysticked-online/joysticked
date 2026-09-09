@@ -6,9 +6,7 @@ import {
   Eye,
   EyeOff,
   Gamepad2,
-  Loader2,
   RefreshCw,
-  Sparkles,
   Unlink
 } from 'lucide-react';
 import { useState } from 'react';
@@ -31,10 +29,7 @@ export function SteamConnectionCard({
   steamPublic = true,
   onUpdate
 }: SteamConnectionCardProps) {
-  const [isLinking, setIsLinking] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [manualInput, setManualInput] = useState('');
-  const [showManualInput, setShowManualInput] = useState(false);
   const [isPublic, setIsPublic] = useState(steamPublic ?? true);
 
   const isConnected = Boolean(steamId || steam);
@@ -43,59 +38,6 @@ export function SteamConnectionCard({
     // Open Steam OpenID auth via API
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
     window.location.href = `${apiBase}/auth/steam`;
-  };
-
-  const handleManualLink = async () => {
-    if (!manualInput.trim()) {
-      toast.error('Informe seu Steam ID ou link de perfil');
-      return;
-    }
-
-    setIsLinking(true);
-    try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const res = await fetch(`${apiBase}/steam/link`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          steamUrlOrId: manualInput.trim(),
-          isPublic
-        })
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Erro ao conectar à Steam');
-      }
-
-      const data = await res.json();
-      onUpdate({
-        steam: data.personaName || manualInput.trim(),
-        steamId: data.steamId,
-        steamPublic: isPublic
-      });
-      setShowManualInput(false);
-      setManualInput('');
-      toast.success('Conta Steam conectada com sucesso!');
-    } catch (_err: any) {
-      // Fallback optimistic update if local offline dev
-      const cleaned = manualInput
-        .replace(/https?:\/\/steamcommunity\.com\/(id|profiles)\//, '')
-        .replace(/\/$/, '');
-      onUpdate({
-        steam: cleaned,
-        steamId:
-          cleaned.length === 17 && /^\d+$/.test(cleaned)
-            ? cleaned
-            : `76561198${Math.floor(100000000 + Math.random() * 900000000)}`,
-        steamPublic: isPublic
-      });
-      setShowManualInput(false);
-      toast.success('Conta Steam vinculada com sucesso!');
-    } finally {
-      setIsLinking(false);
-    }
   };
 
   const handleUnlink = async () => {
@@ -287,60 +229,15 @@ export function SteamConnectionCard({
           </div>
         </div>
       ) : (
-        <div className="space-y-3 pt-1">
-          <div className="flex flex-col items-stretch gap-2.5 sm:flex-row sm:items-center">
-            {/* Official OpenID button */}
-            <button
-              type="button"
-              onClick={handleOpenIdLogin}
-              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#171a21] px-4 py-2.5 font-semibold text-white text-xs shadow-lg transition-all hover:bg-[#21252f] active:scale-[0.98]"
-            >
-              <Gamepad2 className="size-4 text-white" />
-              <span>Conectar com a Steam (OpenID)</span>
-            </button>
-
-            {/* Or manual input toggle */}
-            <button
-              type="button"
-              onClick={() => setShowManualInput(!showManualInput)}
-              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 font-medium text-neutral-300 text-xs transition-colors hover:bg-white/[0.08]"
-            >
-              <Sparkles className="size-3.5" />
-              <span>{showManualInput ? 'Ocultar' : 'Vincular por ID/Link'}</span>
-            </button>
-          </div>
-
-          {/* Manual Input Drawer */}
-          {showManualInput && (
-            <div className="space-y-2.5 rounded-2xl border border-white/[0.08] bg-black/40 p-3.5">
-              <label htmlFor="steam-id-input" className="block text-[11px] text-neutral-400">
-                Cole o link do seu perfil Steam ou seu SteamID64 (ex:
-                https://steamcommunity.com/id/usuario):
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="steam-id-input"
-                  type="text"
-                  placeholder="https://steamcommunity.com/id/..."
-                  value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value)}
-                  className="h-9 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-white text-xs outline-none placeholder:text-neutral-600 focus:border-white/30"
-                />
-                <button
-                  type="button"
-                  onClick={handleManualLink}
-                  disabled={isLinking}
-                  className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-xl bg-white px-3.5 font-semibold text-black text-xs transition-all hover:bg-neutral-200 disabled:opacity-50"
-                >
-                  {isLinking ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <span>Vincular</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={handleOpenIdLogin}
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#171a21] px-4 py-2.5 font-semibold text-white text-xs shadow-lg transition-all hover:bg-[#21252f] active:scale-[0.98]"
+          >
+            <Gamepad2 className="size-4 text-white" />
+            <span>Conectar com a Steam (OpenID)</span>
+          </button>
         </div>
       )}
     </div>
