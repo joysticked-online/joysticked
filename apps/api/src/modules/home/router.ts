@@ -39,6 +39,8 @@ export const homeRouter = new Elysia().get('/home', async () => {
     platform: string | null;
     hoursPlayed: string | null;
     createdAt: Date;
+    userId: string;
+    likesCount: number;
     user: {
       id: string;
       username: string;
@@ -79,6 +81,8 @@ export const homeRouter = new Elysia().get('/home', async () => {
       platform: r.platform,
       hoursPlayed: r.hoursPlayed,
       createdAt: r.createdAt,
+      userId: r.userId,
+      likesCount: 0,
       user: {
         id: r.userId,
         username: r.username,
@@ -98,6 +102,9 @@ export const homeRouter = new Elysia().get('/home', async () => {
     detail: string | null;
     platform: string | null;
     createdAt: Date;
+    gameId: string;
+    gameTitle: string;
+    userId: string;
     user: {
       id: string;
       username: string;
@@ -110,7 +117,9 @@ export const homeRouter = new Elysia().get('/home', async () => {
     const dbActivities = await db
       .select({
         id: gameActivities.id,
+        gameId: gameActivities.gameId,
         gameSlug: gameActivities.gameSlug,
+        gameTitle: gameActivities.gameTitle,
         type: gameActivities.type,
         detail: gameActivities.detail,
         platform: gameActivities.platform,
@@ -127,11 +136,14 @@ export const homeRouter = new Elysia().get('/home', async () => {
 
     activities = dbActivities.map((a) => ({
       id: a.id,
+      gameId: a.gameId,
       gameSlug: a.gameSlug,
+      gameTitle: a.gameTitle,
       type: a.type,
       detail: a.detail,
       platform: a.platform,
       createdAt: a.createdAt,
+      userId: a.userId,
       user: {
         id: a.userId,
         username: a.username,
