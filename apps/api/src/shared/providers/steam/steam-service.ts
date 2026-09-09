@@ -144,8 +144,7 @@ export class SteamService {
       console.error('[SteamService] Failed to verify OpenID callback:', err);
     }
 
-    // Fallback if verification endpoint is unreachable in dev
-    return steamId;
+    return null;
   }
 
   /**
