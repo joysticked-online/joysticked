@@ -31,6 +31,18 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
             platform: platform || null,
             hoursPlayed: hoursPlayed || null
           })
+          .onConflictDoUpdate({
+            target: [gameReviews.userId, gameReviews.gameId],
+            set: {
+              gameSlug: slug,
+              gameTitle,
+              rating,
+              reviewText: reviewText || null,
+              platform: platform || null,
+              hoursPlayed: hoursPlayed || null,
+              updatedAt: new Date()
+            }
+          })
           .returning();
 
         await tx.insert(gameActivities).values({
