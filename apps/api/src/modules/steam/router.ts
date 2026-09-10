@@ -291,7 +291,8 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
       if (typeof v === 'string') queryParams[k] = v;
     }
 
-    const steamId = await steamService.verifyOpenIdCallback(queryParams);
+    const expectedReturnUrl = `${envs.auth.AUTH_CALLBACK_URL}/auth/steam/callback`;
+    const steamId = await steamService.verifyOpenIdCallback(queryParams, expectedReturnUrl);
 
     if (!steamId) {
       const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
