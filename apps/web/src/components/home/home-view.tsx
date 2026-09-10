@@ -182,31 +182,10 @@ export function HomeView({ initialData }: HomeViewProps) {
               Início
             </h1>
             <p className="mt-0.5 text-neutral-400 text-xs sm:text-sm">
-              Visão geral de suas atividades, destaques e tendências na comunidade.
+              Encontre seu próximo jogo, acompanhe o que está em alta e deixe sua nota.
             </p>
           </div>
 
-          {/* Quick Platform Metrics Ticker */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-neutral-400">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.04] px-3 py-1">
-              <Gamepad2 className="size-3 text-indigo-400" />
-              <span>
-                <strong>12.400+</strong> Jogos
-              </span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.04] px-3 py-1">
-              <Star className="size-3 text-amber-400" />
-              <span>
-                <strong>48.200+</strong> Avaliações
-              </span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.04] px-3 py-1">
-              <Award className="size-3 text-emerald-400" />
-              <span>
-                <strong>185.000+</strong> Conquistas Sincronizadas
-              </span>
-            </div>
-          </div>
         </header>
 
         {/* 2-Column Responsive Dashboard */}

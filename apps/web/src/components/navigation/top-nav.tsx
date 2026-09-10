@@ -162,7 +162,7 @@ function TopNavContent({
   }, []);
 
   const NAV_ITEMS = [
-    { href: '/', label: 'Início', icon: Home, exact: true },
+    { href: '/home', label: 'Início', icon: Home, exact: true },
     { href: '/games', label: 'Jogos', icon: Gamepad2, exact: false, hasDropdown: true },
     { href: '/lists', label: 'Listas', icon: ListFilter, exact: false },
     { href: '/community', label: 'Together', icon: Users, exact: false }
@@ -175,8 +175,8 @@ function TopNavContent({
         <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/"
+              <Link
+              href="/home"
               className="flex size-8 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
             >
               <Logos.Joysticked className="size-full text-white" />
