@@ -154,6 +154,48 @@ interface GameDetailsTabProps {
 export function GameDetailsTab({ game }: GameDetailsTabProps) {
   return (
     <div className="space-y-6">
+      <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] to-white/[0.015] p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
+              Ficha do jogo
+            </p>
+            <h2 className="mt-1 font-bold text-xl text-white tracking-tight sm:text-2xl">
+              Tudo sobre {game.name}
+            </h2>
+          </div>
+          <div className="rounded-xl bg-white/[0.08] px-2.5 py-1.5 font-mono text-[10px] text-neutral-300">
+            {game.id}
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-xl bg-black/20 p-3">
+            <span className="block text-[10px] text-neutral-500">Gêneros</span>
+            <span className="mt-1 block truncate font-medium text-xs text-white">
+              {game.genres?.slice(0, 2).join(' • ') || 'Não informado'}
+            </span>
+          </div>
+          <div className="rounded-xl bg-black/20 p-3">
+            <span className="block text-[10px] text-neutral-500">Publicadora</span>
+            <span className="mt-1 block truncate font-medium text-xs text-white">
+              {game.publisher || 'Não informado'}
+            </span>
+          </div>
+          <div className="rounded-xl bg-black/20 p-3">
+            <span className="block text-[10px] text-neutral-500">Nota crítica</span>
+            <span className="mt-1 block font-medium text-xs text-white">
+              {game.aggregatedRating ? `${game.aggregatedRating.toFixed(1)} / 100` : '—'}
+            </span>
+          </div>
+          <div className="rounded-xl bg-black/20 p-3">
+            <span className="block text-[10px] text-neutral-500">Plataformas</span>
+            <span className="mt-1 block truncate font-medium text-xs text-white">
+              {game.platforms?.length || 0} disponíveis
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* 1. Time to Beat Component */}
       <GameTimeToBeat game={game} />
 
@@ -175,9 +217,9 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           Ficha Técnica
         </h3>
 
-        <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-3 text-xs sm:grid-cols-2">
           {game.firstReleaseDate && (
-            <div className="flex items-center justify-between border-white/[0.04] border-b pb-2">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Data de Lançamento</span>
               <span className="font-medium text-neutral-200">
                 {new Date(game.firstReleaseDate).toLocaleDateString('pt-BR')}
@@ -186,23 +228,30 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           )}
 
           {game.developer && (
-            <div className="flex items-center justify-between border-white/[0.04] border-b pb-2">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Desenvolvedor</span>
               <span className="font-medium text-neutral-200">{game.developer}</span>
             </div>
           )}
 
           {game.publisher && (
-            <div className="flex items-center justify-between border-white/[0.04] border-b pb-2">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Publicadora</span>
               <span className="font-medium text-neutral-200">{game.publisher}</span>
             </div>
           )}
 
           {game.genres && game.genres.length > 0 && (
-            <div className="flex items-center justify-between border-white/[0.04] border-b pb-2">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Gêneros</span>
-              <span className="font-medium text-neutral-200">{game.genres.join(', ')}</span>
+              <span className="font-medium text-neutral-200 sm:text-right">{game.genres.join(', ')}</span>
+            </div>
+          )}
+
+          {game.platforms && game.platforms.length > 0 && (
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-neutral-500">Plataformas</span>
+              <span className="font-medium text-neutral-200 sm:text-right">{game.platforms.join(', ')}</span>
             </div>
           )}
         </div>

@@ -44,6 +44,7 @@ export interface GameReview {
   user: ReviewUser;
   rating: number;
   reviewText: string | null;
+  containsSpoiler?: boolean;
   platform: string | null;
   hoursPlayed: string | null;
   likesCount: number;
@@ -215,6 +216,7 @@ export async function submitGameReview(
     gameTitle: string;
     rating: number;
     reviewText?: string;
+    containsSpoiler?: boolean;
     platform?: string;
     hoursPlayed?: string;
   }

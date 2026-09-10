@@ -21,6 +21,7 @@ export const getGameRouter = new Elysia().get(
       id: string;
       rating: number;
       reviewText: string | null;
+      containsSpoiler: boolean;
       platform: string | null;
       hoursPlayed: string | null;
       createdAt: Date;
@@ -38,6 +39,7 @@ export const getGameRouter = new Elysia().get(
           id: gameReviews.id,
           rating: gameReviews.rating,
           reviewText: gameReviews.reviewText,
+          containsSpoiler: gameReviews.containsSpoiler,
           platform: gameReviews.platform,
           hoursPlayed: gameReviews.hoursPlayed,
           createdAt: gameReviews.createdAt,
@@ -56,6 +58,7 @@ export const getGameRouter = new Elysia().get(
         id: r.id,
         rating: r.rating,
         reviewText: r.reviewText,
+        containsSpoiler: r.containsSpoiler,
         platform: r.platform,
         hoursPlayed: r.hoursPlayed,
         createdAt: r.createdAt,

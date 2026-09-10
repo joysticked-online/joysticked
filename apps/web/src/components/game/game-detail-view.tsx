@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
+import { BarChart3, CalendarDays, Gamepad2, Star, Users } from 'lucide-react';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
 import type { Game, GameActivity, GameReview } from '@/lib/games';
@@ -71,7 +72,7 @@ export function GameDetailView({
 
   // Compute community rating score
   const communityRating = useMemo(() => {
-    if (reviews.length === 0) return { average: '5.0', count: 0 };
+    if (reviews.length === 0) return { average: '—', count: 0 };
     const total = reviews.reduce((acc, r) => acc + r.rating, 0);
     return {
       average: (total / reviews.length).toFixed(1),
@@ -149,11 +150,13 @@ export function GameDetailView({
         userReview={userReview}
       />
 
+      <GameProfileSnapshot game={game} reviews={reviews} />
+
       {/* Main Tabs Container */}
-      <main className="mx-auto max-w-5xl space-y-8 px-4 pt-8 pb-24 sm:px-6">
-        {/* Centered Liquid Tab Bar */}
-        <div className="flex items-center justify-center pb-2">
-          <nav className="inline-flex items-center justify-center gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
+      <main className="mx-auto max-w-5xl space-y-6 px-3 pt-5 pb-16 sm:space-y-8 sm:px-6 sm:pt-8 sm:pb-24">
+        {/* Scrollable on narrow screens so every destination remains reachable. */}
+        <div className="-mx-3 flex items-center justify-start overflow-x-auto px-3 pb-1 sm:mx-0 sm:justify-center sm:px-0 sm:pb-2">
+          <nav className="inline-flex min-w-max items-center justify-center gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
             {TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -292,5 +295,89 @@ export function GameDetailView({
         onReviewDeleted={handleReviewDeleted}
       />
     </div>
+  );
+}
+
+function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameReview[] }) {
+  const ratingTotal = reviews.reduce((total, review) => total + review.rating, 0);
+  const average = reviews.length > 0 ? ratingTotal / reviews.length : 0;
+  const ratingBuckets = [5, 4, 3, 2, 1].map((rating) => ({
+    rating,
+    count: reviews.filter((review) => Math.round(review.rating) === rating).length
+  }));
+
+  return (
+    <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6" aria-label="Resumo do jogo">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] uppercase tracking-wider">Nota da comunidade</span>
+            <Star className="size-4 text-amber-400" />
+          </div>
+          <div className="mt-3 flex items-end gap-2">
+            <span className="font-bold text-3xl text-white tracking-tight">
+              {reviews.length ? average.toFixed(1) : '—'}
+            </span>
+            <span className="pb-1 text-xs text-neutral-500">
+              {reviews.length ? `${reviews.length} avaliações` : 'seja o primeiro'}
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] uppercase tracking-wider">Avaliações</span>
+            <BarChart3 className="size-4" />
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {ratingBuckets.map(({ rating, count }) => (
+              <div key={rating} className="flex items-center gap-2 text-[10px] text-neutral-500">
+                <span className="w-3">{rating}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+                  <div
+                    className="h-full rounded-full bg-amber-400 transition-all"
+                    style={{ width: `${reviews.length ? (count / reviews.length) * 100 : 0}%` }}
+                  />
+                </div>
+                <span className="w-3 text-right">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] uppercase tracking-wider">Lançamento</span>
+            <CalendarDays className="size-4" />
+          </div>
+          <p className="mt-3 font-semibold text-lg text-white">
+            {game.releaseYear ||
+              (game.firstReleaseDate
+                ? new Date(game.firstReleaseDate).getFullYear()
+                : 'Ainda não anunciado')}
+          </p>
+          <p className="mt-1 truncate text-xs text-neutral-500">{game.developer || 'Desenvolvedor não informado'}</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+          <div className="flex items-center justify-between text-neutral-400">
+            <span className="text-[11px] uppercase tracking-wider">Disponível em</span>
+            <Gamepad2 className="size-4" />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {(game.platforms?.length ? game.platforms : ['Plataformas não informadas'])
+              .slice(0, 3)
+              .map((platform) => (
+                <span key={platform} className="rounded-lg bg-white/[0.07] px-2 py-1 text-[10px] text-neutral-300">
+                  {platform}
+                </span>
+              ))}
+          </div>
+          <p className="mt-2 flex items-center gap-1 text-[10px] text-neutral-500">
+            <Users className="size-3" /> Veja o que a comunidade está jogando
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

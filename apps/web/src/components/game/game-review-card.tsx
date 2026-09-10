@@ -1,8 +1,9 @@
 'use client';
 
-import { Edit3, Gamepad2, Monitor, Reply, Smartphone, Star, ThumbsUp } from 'lucide-react';
+import { AlertTriangle, Edit3, Gamepad2, Monitor, Reply, Smartphone, Star, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useState } from 'react';
 import type { GameReview } from '@/lib/games';
 
 interface GameReviewCardProps {
@@ -36,6 +37,9 @@ export function GameReviewCard({
   onToggleLike,
   onEdit
 }: GameReviewCardProps) {
+  const [showSpoiler, setShowSpoiler] = useState(false);
+  const hasHiddenSpoiler = Boolean(review.containsSpoiler && !showSpoiler);
+
   return (
     <div
       className={`space-y-3 rounded-2xl p-4 transition-colors sm:p-5 ${
@@ -135,8 +139,25 @@ export function GameReviewCard({
 
       {/* Review Text */}
       {review.reviewText && (
-        <div className="whitespace-pre-line pt-0.5 text-neutral-300 text-xs leading-relaxed sm:text-sm">
-          {review.reviewText}
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/20">
+          <div className={hasHiddenSpoiler ? 'select-none blur-md' : 'whitespace-pre-line'}>
+            <div className="p-3 text-neutral-300 text-xs leading-relaxed sm:p-4 sm:text-sm">
+              {review.reviewText}
+            </div>
+          </div>
+          {hasHiddenSpoiler && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-neutral-950/65 p-4 text-center backdrop-blur-sm">
+              <AlertTriangle className="size-4 text-amber-300" />
+              <span className="font-semibold text-white text-xs">Esta avaliação contém spoiler</span>
+              <button
+                type="button"
+                onClick={() => setShowSpoiler(true)}
+                className="cursor-pointer rounded-lg bg-white px-3 py-1.5 font-bold text-black text-[11px] transition-colors hover:bg-neutral-200"
+              >
+                Mostrar spoiler
+              </button>
+            </div>
+          )}
         </div>
       )}
 

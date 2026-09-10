@@ -43,6 +43,13 @@
       "when": 1788963600000,
       "tag": "20260909142000_unique-game-review-per-user",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788969600000,
+      "tag": "20260909160000_add-spoiler-flag-to-game-reviews",
+      "breakpoints": true
     }
   ]
 }

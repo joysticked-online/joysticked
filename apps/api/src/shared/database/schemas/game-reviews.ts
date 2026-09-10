@@ -1,4 +1,4 @@
-import { doublePrecision, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { boolean, doublePrecision, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 export const gameReviews = pgTable(
@@ -13,6 +13,7 @@ export const gameReviews = pgTable(
     .references(() => users.id, { onDelete: 'cascade' }),
   rating: doublePrecision('rating').notNull(), // 1.0 to 5.0
   reviewText: text('review_text'),
+  containsSpoiler: boolean('contains_spoiler').default(false).notNull(),
   platform: text('platform'),
   hoursPlayed: text('hours_played'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

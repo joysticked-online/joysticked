@@ -15,7 +15,7 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
       return { message: 'Você precisa estar logado para avaliar.' };
     }
 
-    const { gameId, gameTitle, rating, reviewText, platform, hoursPlayed } = body;
+    const { gameId, gameTitle, rating, reviewText, containsSpoiler, platform, hoursPlayed } = body;
 
     try {
       const review = await executeTransaction(db, async (tx) => {
@@ -28,6 +28,7 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
             userId,
             rating,
             reviewText: reviewText || null,
+            containsSpoiler: containsSpoiler ?? false,
             platform: platform || null,
             hoursPlayed: hoursPlayed || null
           })
@@ -38,6 +39,7 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
               gameTitle,
               rating,
               reviewText: reviewText || null,
+              containsSpoiler: containsSpoiler ?? false,
               platform: platform || null,
               hoursPlayed: hoursPlayed || null,
               updatedAt: new Date()
@@ -76,6 +78,7 @@ export const createReviewRouter = new Elysia().use(authMiddleware).post(
       gameTitle: t.String(),
       rating: t.Number({ minimum: 1, maximum: 5 }),
       reviewText: t.Optional(t.String()),
+      containsSpoiler: t.Optional(t.Boolean()),
       platform: t.Optional(t.String()),
       hoursPlayed: t.Optional(t.String())
     })

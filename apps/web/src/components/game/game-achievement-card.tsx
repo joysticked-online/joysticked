@@ -19,12 +19,12 @@ export function GameAchievementCard({ achievement, isUnlocked }: GameAchievement
 
   return (
     <div
-      className={`flex items-center justify-between rounded-2xl border p-4 transition-all duration-200 ${
+      className={`flex flex-col gap-3 rounded-2xl border p-3.5 transition-all duration-200 sm:flex-row sm:items-center sm:justify-between sm:p-4 ${
         isUnlocked ? 'border-white/20 bg-white/[0.04]' : 'border-white/[0.06] bg-white/[0.015]'
       }`}
     >
       {/* Left Trophy / Icon Info */}
-      <div className="flex min-w-0 items-center gap-3.5 pr-3">
+      <div className="flex min-w-0 items-start gap-3 pr-1 sm:items-center sm:gap-3.5 sm:pr-3">
         {achievement.icon ? (
           <div className="size-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-neutral-900">
             <img
@@ -53,13 +53,13 @@ export function GameAchievementCard({ achievement, isUnlocked }: GameAchievement
         <div className="min-w-0 space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <h4
-              className={`truncate font-semibold text-xs sm:text-sm ${
+              className={`font-semibold text-xs sm:truncate sm:text-sm ${
                 isUnlocked ? 'text-white' : 'text-neutral-300'
               }`}
             >
               {achievement.name}
             </h4>
-            <span className="text-[10px] text-neutral-500">
+            <span className="whitespace-nowrap text-[10px] text-neutral-500">
               • {achievement.rarity}% dos jogadores
             </span>
           </div>
@@ -70,7 +70,7 @@ export function GameAchievementCard({ achievement, isUnlocked }: GameAchievement
       </div>
 
       {/* Right Verified Completion Status Badge (Strictly read-only) */}
-      <div className="flex shrink-0 flex-col items-end gap-1">
+      <div className="flex shrink-0 items-center justify-between gap-2 sm:flex-col sm:items-end sm:gap-1">
         {isUnlocked ? (
           <>
             <span className="inline-flex select-none items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-semibold text-[11px] text-emerald-400">
