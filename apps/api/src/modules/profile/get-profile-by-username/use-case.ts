@@ -14,5 +14,20 @@ export async function getProfileByUsernameUseCase(
     throw new ResourceNotFoundError('Profile not found');
   }
 
+  // Steam visibility is a public-profile concern. Never trust the frontend to
+  // hide identifiers that can be returned by this API.
+  if (profile.socials?.steamPublic === false) {
+    return {
+      profile: {
+        ...profile,
+        socials: {
+          ...profile.socials,
+          steam: null,
+          steamId: null
+        }
+      }
+    };
+  }
+
   return { profile };
 }

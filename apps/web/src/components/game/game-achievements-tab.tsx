@@ -11,7 +11,6 @@ import {
   Sparkles
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -232,12 +231,6 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
                     <ArrowRight className="size-3.5" />
                   </button>
 
-                  <Link
-                    href="/profile"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/[0.05] px-3.5 py-2.5 font-medium text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white"
-                  >
-                    <span>Vincular por ID</span>
-                  </Link>
                 </div>
               </div>
             </div>

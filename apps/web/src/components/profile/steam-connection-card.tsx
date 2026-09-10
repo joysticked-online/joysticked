@@ -102,9 +102,18 @@ export function SteamConnectionCard({
   const handleSyncStats = async () => {
     setIsSyncing(true);
     try {
-      // Simulate sync or call API
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.success('Conquistas e biblioteca Steam sincronizadas com sucesso!');
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBase}/steam/games`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Steam sync failed');
+      }
+
+      toast.success('Biblioteca Steam atualizada com sucesso!');
+    } catch {
+      toast.error('Não foi possível atualizar a biblioteca Steam.');
     } finally {
       setIsSyncing(false);
     }
