@@ -1,3 +1,4 @@
+import { fixedWindow } from 'bunlimit';
 import { eq } from 'drizzle-orm';
 import { Elysia } from 'elysia';
 import z from 'zod';
@@ -9,6 +10,7 @@ import { users } from '../../shared/database/schemas/users';
 import { executeTransaction } from '../../shared/database/transaction';
 import { authMiddleware } from '../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../shared/http/middlewares/database';
+import { rateLimitMiddleware } from '../../shared/http/middlewares/rate-limitter';
 import { consumeOAuthState, createOAuthState } from '../../shared/providers/oauth';
 import { createSession } from '../../shared/providers/session';
 import { steamService } from '../../shared/providers/steam/steam-service';
@@ -43,6 +45,7 @@ function getSafeReturnPath(value: string | undefined): string {
 }
 
 export const steamRouter = new Elysia({ prefix: '/steam' })
+  .use(rateLimitMiddleware({ strategy: fixedWindow(60, 60), key: 'steam' }))
   .use(databaseMiddleware)
   .use(authMiddleware)
 
@@ -211,6 +214,7 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
   });
 
 export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
+  .use(rateLimitMiddleware({ strategy: fixedWindow(20, 60), key: 'steam-auth' }))
   .use(databaseMiddleware)
   .use(authMiddleware)
 

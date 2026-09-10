@@ -9,9 +9,14 @@ import { rateLimitMiddleware } from '../../shared/http/middlewares/rate-limitter
 import { igdbProvider } from '../../shared/providers/igdb/igdb-provider';
 import { steamService } from '../../shared/providers/steam/steam-service';
 
+const HOME_CACHE_TTL_MS = 30_000;
+let homeCache: { expiresAt: number; value: object } | null = null;
+
 export const homeRouter = new Elysia()
   .use(rateLimitMiddleware({ strategy: fixedWindow(60, 60), key: 'home' }))
   .get('/home', async () => {
+    if (homeCache && homeCache.expiresAt > Date.now()) return homeCache.value;
+
     // 1. Fetch sidebar data independently so one provider failure does not break the homepage
     const [popularResult, topRatedResult, steamAwaitedResult] = await Promise.allSettled([
       igdbProvider.getPopularGames(3),
@@ -158,11 +163,14 @@ export const homeRouter = new Elysia()
       console.warn('Could not fetch home activities:', err);
     }
 
-    return {
+    const value = {
       popularGames,
       topRatedGames,
       upcomingGames,
       popularReviews,
       activities
     };
+
+    homeCache = { value, expiresAt: Date.now() + HOME_CACHE_TTL_MS };
+    return value;
   });
