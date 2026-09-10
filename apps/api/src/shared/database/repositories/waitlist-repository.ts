@@ -32,6 +32,10 @@ class WaitListRepository {
     return entry[0];
   }
 
+  async setResendContactId(id: string, resendContactId: string, tx?: Transaction) {
+    await (tx ?? this.db).update(waitlists).set({ resendContactId }).where(eq(waitlists.id, id));
+  }
+
   async delete(id: string) {
     await this.db.delete(waitlists).where(eq(waitlists.id, id));
   }

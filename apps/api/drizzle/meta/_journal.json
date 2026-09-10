@@ -57,6 +57,13 @@
       "when": 1788969600000,
       "tag": "20260909160000_add-spoiler-flag-to-game-reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789034400000,
+      "tag": "20260910100000_add-resend-contact-id-to-waitlists",
+      "breakpoints": true
     }
   ]
 }

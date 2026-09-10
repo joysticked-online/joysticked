@@ -7,6 +7,14 @@ import { googleOAuthCallbackUseCase } from './use-case';
 export const googleOAuthCallbackRouter = new Elysia().use(databaseMiddleware).get(
   '/google/callback',
   async ({ query, cookie, redirect, db }) => {
+    const stateCookie =
+      typeof cookie.google_oauth_state?.value === 'string' ? cookie.google_oauth_state.value : null;
+    cookie.google_oauth_state?.remove();
+
+    if (!stateCookie || stateCookie !== query.state) {
+      return redirect(`${envs.app.CLIENT_URL}/auth?error=invalid_state`, 302);
+    }
+
     try {
       const result = await googleOAuthCallbackUseCase(db, query);
 
