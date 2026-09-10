@@ -507,7 +507,13 @@ class IgdbProvider {
   }
 
   async getGameBySlugOrId(identifier: string): Promise<IgdbGame | null> {
-    const cacheKey = identifier.toLowerCase().trim();
+    const normalizedIdentifier = identifier.toLowerCase().trim();
+    const isNumeric = /^\d+$/.test(normalizedIdentifier);
+    if (!isNumeric && !/^[a-z0-9][a-z0-9-]{0,127}$/.test(normalizedIdentifier)) {
+      return null;
+    }
+
+    const cacheKey = normalizedIdentifier;
     const cached = this.gameDetailsCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < 1000 * 60 * 30) {
       return cached.data;
@@ -525,8 +531,9 @@ class IgdbProvider {
     }
 
     try {
-      const isNumeric = /^\d+$/.test(identifier);
-      const whereClause = isNumeric ? `where id = ${identifier};` : `where slug = "${identifier}";`;
+      const whereClause = isNumeric
+        ? `where id = ${normalizedIdentifier};`
+        : `where slug = "${normalizedIdentifier}";`;
 
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
