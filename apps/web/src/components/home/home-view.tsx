@@ -176,13 +176,16 @@ export function HomeView({ initialData }: HomeViewProps) {
       {/* Main Content Area */}
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-20 pb-20 sm:px-6 sm:pt-24 md:px-8">
         {/* Page Header */}
-        <header className="mb-6 space-y-3">
+        <header className="mb-8 space-y-4">
           <div>
-            <h1 className="font-bold font-redaction text-2xl text-white tracking-tight sm:text-4xl">
-              Início
+            <p className="mb-2 font-semibold text-[11px] text-neutral-500 uppercase tracking-[0.2em]">
+              Seu hub de jogos
+            </p>
+            <h1 className="font-bold text-3xl text-white tracking-tight sm:text-5xl">
+              O que você vai jogar hoje?
             </h1>
-            <p className="mt-0.5 text-neutral-400 text-xs sm:text-sm">
-              Encontre seu próximo jogo, acompanhe o que está em alta e deixe sua nota.
+            <p className="mt-2 max-w-xl text-neutral-400 text-sm leading-relaxed sm:text-base">
+              Encontre seu próximo jogo, acompanhe o que está em alta e deixe sua nota para a comunidade.
             </p>
           </div>
 
@@ -209,7 +212,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent" />
 
-                <div className="relative z-10 flex flex-col items-start gap-5 p-5 sm:flex-row sm:items-center sm:p-6">
+                <div className="relative z-10 flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:p-8">
                   {/* Spotlight Poster with Skeleton */}
                   <div className="relative aspect-[2/3] w-24 shrink-0 overflow-hidden rounded-2xl border border-white/10 shadow-2xl sm:w-28">
                     <PosterImage
@@ -227,7 +230,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                       <span>Destaque da Comunidade</span>
                     </div>
 
-                    <h2 className="font-bold font-redaction text-lg text-white leading-snug tracking-tight sm:text-2xl">
+                    <h2 className="font-bold text-lg text-white leading-snug tracking-tight sm:text-2xl">
                       {spotlightGame.name}
                     </h2>
 
@@ -263,7 +266,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Play className="size-4 text-emerald-400" />
-                    <h2 className="font-bold font-redaction text-base text-white sm:text-xl">
+                    <h2 className="font-bold text-base text-white sm:text-xl">
                       Continue de onde parou
                     </h2>
                   </div>
@@ -321,7 +324,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="size-4 text-neutral-400" />
-                  <h2 className="font-bold font-redaction text-base text-white sm:text-xl">
+                  <h2 className="font-bold text-base text-white sm:text-xl">
                     Avaliações populares
                   </h2>
                 </div>
@@ -444,7 +447,7 @@ export function HomeView({ initialData }: HomeViewProps) {
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="size-4 text-neutral-400" />
-                <h2 className="font-bold font-redaction text-base text-white sm:text-xl">
+                <h2 className="font-bold text-base text-white sm:text-xl">
                   Atividade da sua rede
                 </h2>
               </div>
@@ -513,7 +516,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <TrendingUp className="size-4 text-neutral-400" />
-                  <h2 className="font-bold font-redaction text-sm text-white sm:text-base">
+                  <h2 className="font-bold text-sm text-white sm:text-base">
                     Jogos Populares
                   </h2>
                 </div>
@@ -551,7 +554,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Award className="size-4 text-amber-400" />
-                  <h2 className="font-bold font-redaction text-sm text-white sm:text-base">
+                  <h2 className="font-bold text-sm text-white sm:text-base">
                     Mais Bem Avaliados
                   </h2>
                 </div>
@@ -599,7 +602,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Flame className="size-4 text-orange-400" />
-                  <h2 className="font-bold font-redaction text-sm text-white sm:text-base">
+                  <h2 className="font-bold text-sm text-white sm:text-base">
                     Mais Aguardados
                   </h2>
                 </div>

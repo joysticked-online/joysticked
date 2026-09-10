@@ -32,8 +32,8 @@ const DROPDOWN_OPTIONS = [
     title: 'Descobrir',
     desc: 'Explore uma vasta seleção de jogos com filtros personalizados e opções de ordenação.',
     icon: Sparkles,
-    activeColor: 'text-amber-400',
-    hoverColor: 'group-hover:text-amber-300'
+    activeColor: 'text-white',
+    hoverColor: 'group-hover:text-white'
   },
   {
     tab: 'populares',
@@ -41,8 +41,8 @@ const DROPDOWN_OPTIONS = [
     title: 'Populares',
     desc: 'Confira os jogos que estão conquistando o público e dominando as listas de favoritos.',
     icon: Heart,
-    activeColor: 'text-rose-400',
-    hoverColor: 'group-hover:text-rose-300'
+    activeColor: 'text-white',
+    hoverColor: 'group-hover:text-white'
   },
   {
     tab: 'bem-avaliados',
@@ -50,8 +50,8 @@ const DROPDOWN_OPTIONS = [
     title: 'Bem avaliados',
     desc: 'Explore os títulos mais aclamados, com as melhores avaliações do público e da crítica.',
     icon: Star,
-    activeColor: 'text-amber-400',
-    hoverColor: 'group-hover:text-amber-300'
+    activeColor: 'text-white',
+    hoverColor: 'group-hover:text-white'
   },
   {
     tab: 'lancamentos',
@@ -59,8 +59,8 @@ const DROPDOWN_OPTIONS = [
     title: 'Lançamentos',
     desc: 'Confira os lançamentos populares e recentes do Steam em tempo real.',
     icon: Calendar,
-    activeColor: 'text-emerald-400',
-    hoverColor: 'group-hover:text-emerald-300'
+    activeColor: 'text-white',
+    hoverColor: 'group-hover:text-white'
   }
 ];
 
@@ -304,46 +304,44 @@ function TopNavContent({
               transition={{ type: 'spring', stiffness: 420, damping: 28 }}
               onMouseEnter={handleGamesMouseEnter}
               onMouseLeave={handleGamesMouseLeave}
-              className="pointer-events-auto mt-2.5 flex w-[760px] max-w-[94vw] select-none gap-5 rounded-2xl border border-white/10 bg-gradient-to-b from-neutral-900/95 via-neutral-900/90 to-neutral-950/95 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.95)] backdrop-blur-2xl sm:p-5"
+              className="pointer-events-auto mt-2.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl border border-[#303030] bg-[#121212]/[0.98] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
             >
-              {/* Left Column: Steam's Most Awaited Game Poster with dynamic hover */}
+              {/* Compact featured game */}
               <motion.div
-                whileHover={{ y: -3, scale: 1.02 }}
+                whileHover={{ y: -1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="w-44 shrink-0 sm:w-48"
+                className="w-full"
               >
                 <Link
                   href={`/games/${featuredAwaited?.slug || 'halloween-the-game'}`}
                   onClick={() => setGamesMenuOpen(false)}
-                  className="group relative block aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/10 bg-neutral-950 shadow-xl transition-colors hover:border-amber-500/40"
+                  className="group flex items-center gap-4 rounded-2xl border border-[#303030] bg-[#0A0A0A] p-2.5 transition-colors hover:border-white/30"
                 >
-                  <img
-                    src={
-                      featuredAwaited?.coverUrl ||
-                      'https://images.igdb.com/igdb/image/upload/t_cover_big/coc6x4.webp'
-                    }
-                    alt={featuredAwaited?.name || 'Halloween: The Game'}
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {/* Glowing Live Beacon Badge */}
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-black/80 px-2 py-0.5 font-bold text-[9px] text-amber-300 shadow backdrop-blur-md">
-                    <span className="size-1.5 animate-pulse rounded-full bg-amber-400" />
-                    <span>#1 Steam Awaited</span>
+                  <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
+                    <img
+                      src={
+                        featuredAwaited?.coverUrl ||
+                        'https://images.igdb.com/igdb/image/upload/t_cover_big/coc6x4.webp'
+                      }
+                      alt={featuredAwaited?.name || 'Halloween: The Game'}
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
-
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/95 via-black/40 to-transparent p-3.5">
-                    <span className="mt-0.5 line-clamp-1 font-bold text-white text-xs transition-colors group-hover:text-amber-200">
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[10px] text-neutral-500 uppercase tracking-wider">Em destaque</span>
+                    <span className="mt-0.5 block truncate font-bold text-sm text-white transition-colors group-hover:text-neutral-300">
                       {featuredAwaited?.name || 'Halloween: The Game'}
                     </span>
-                    <span className="text-[10px] text-neutral-400">
+                    <span className="mt-1 block truncate text-[11px] text-neutral-500">
                       {featuredAwaited?.platforms?.[0] || 'PC (Steam)'} &bull; Em breve
                     </span>
                   </div>
+                  <ChevronDown className="-rotate-90 size-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                 </Link>
               </motion.div>
 
-              {/* Right Column: 2x2 Clean Options Grid with Dynamic Active State & Micro-Animations */}
-              <div className="grid flex-1 grid-cols-2 content-start gap-2.5">
+              {/* Short category links */}
+              <div className="grid grid-cols-2 gap-2">
                 {DROPDOWN_OPTIONS.map((item) => {
                   const isTabActive = currentTab === item.tab;
                   const Icon = item.icon;
@@ -357,10 +355,10 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`group flex h-full flex-col gap-1 rounded-xl border p-3 text-left transition-all ${
+                        className={`group flex h-full flex-col gap-1.5 rounded-2xl border p-3.5 text-left transition-all ${
                           isTabActive
-                            ? 'border-white/20 bg-white/[0.08] text-white shadow-md ring-1 ring-white/10'
-                            : 'border-white/[0.04] bg-white/[0.02] text-neutral-300 hover:border-white/10 hover:bg-white/[0.06]'
+                            ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
+                            : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
                         }`}
                       >
                         <div
@@ -377,7 +375,7 @@ function TopNavContent({
                           />
                           <span>{item.title}</span>
                         </div>
-                        <p className="text-[11px] text-neutral-400 leading-relaxed transition-colors group-hover:text-neutral-300">
+                        <p className="text-[11px] text-neutral-500 leading-relaxed transition-colors group-hover:text-neutral-300">
                           {item.desc}
                         </p>
                       </Link>
