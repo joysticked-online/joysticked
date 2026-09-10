@@ -98,13 +98,11 @@ export interface DiscoverResponse {
 export async function getDiscoverGames({
   played = [],
   offset = 0,
-  limit = 21,
-  userId
+  limit = 21
 }: {
   played?: string[];
   offset?: number;
   limit?: number;
-  userId?: string;
 } = {}): Promise<DiscoverResponse> {
   try {
     const params = new URLSearchParams();
@@ -113,10 +111,6 @@ export async function getDiscoverGames({
     if (played.length > 0) {
       params.set('played', played.join(','));
     }
-    if (userId) {
-      params.set('userId', userId);
-    }
-
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/games/discover?${params.toString()}`, {
       cache: 'no-store'
     });
