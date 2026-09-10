@@ -93,12 +93,12 @@ export const createReviewRouter = new Elysia()
       }),
       body: t.Object({
         gameId: t.Union([t.String(), t.Number()]),
-        gameTitle: t.String(),
+        gameTitle: t.String({ maxLength: 200 }),
         rating: t.Number({ minimum: 1, maximum: 5 }),
-        reviewText: t.Optional(t.String()),
+        reviewText: t.Optional(t.String({ maxLength: 500 })),
         containsSpoiler: t.Optional(t.Boolean()),
-        platform: t.Optional(t.String()),
-        hoursPlayed: t.Optional(t.String())
+        platform: t.Optional(t.String({ maxLength: 64 })),
+        hoursPlayed: t.Optional(t.String({ maxLength: 32 }))
       })
     }
   )
