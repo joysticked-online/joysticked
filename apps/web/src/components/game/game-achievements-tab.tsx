@@ -64,8 +64,9 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
 
       try {
         const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-        const queryParam = steamAccount ? `?steamId=${encodeURIComponent(steamAccount)}` : '';
-        const res = await fetch(`${apiBase}/steam/achievements/${game.slug}${queryParam}`, {
+        // The API derives the Steam ID from the authenticated user's linked account.
+        // Do not send a client-controlled Steam ID to the server.
+        const res = await fetch(`${apiBase}/steam/achievements/${game.slug}`, {
           credentials: 'include'
         });
 

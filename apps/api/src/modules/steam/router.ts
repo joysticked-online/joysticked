@@ -9,8 +9,24 @@ import { users } from '../../shared/database/schemas/users';
 import { executeTransaction } from '../../shared/database/transaction';
 import { authMiddleware } from '../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../shared/http/middlewares/database';
+import { consumeOAuthState, createOAuthState } from '../../shared/providers/oauth';
 import { createSession } from '../../shared/providers/session';
 import { steamService } from '../../shared/providers/steam/steam-service';
+
+const STEAM_STATE_TTL_SECONDS = 60 * 10;
+const STEAM_ID_PATTERN = /^7656119\d{10}$/;
+
+function getSafeReturnPath(value: string | undefined): string {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/profile';
+
+  try {
+    const parsed = new URL(value, envs.app.CLIENT_URL);
+    if (parsed.origin !== new URL(envs.app.CLIENT_URL).origin) return '/profile';
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return '/profile';
+  }
+}
 
 export const steamRouter = new Elysia({ prefix: '/steam' })
   .use(databaseMiddleware)
@@ -106,13 +122,15 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
    */
   .get(
     '/achievements/:identifier',
-    async ({ params, query, db, userId, status }) => {
-      let targetSteamId = query.steamId;
+    async ({ params, db, userId, status }) => {
+      let targetSteamId: string | undefined;
 
-      if (!targetSteamId && userId) {
+      if (userId) {
         const userRepo = createUserRepository(db);
         const user = await userRepo.findById(userId);
-        targetSteamId = user?.socials?.steamId || undefined;
+        const linkedSteamId = user?.socials?.steamId;
+        targetSteamId =
+          linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
       }
 
       const KNOWN_SLUGS: Record<string, number> = {
@@ -167,9 +185,6 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
     {
       params: z.object({
         identifier: z.string()
-      }),
-      query: z.object({
-        steamId: z.string().optional()
       })
     }
   )
@@ -179,13 +194,15 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
    */
   .get(
     '/games',
-    async ({ query, db, userId, status }) => {
-      let targetSteamId = query.steamId;
+    async ({ db, userId, status }) => {
+      let targetSteamId: string | undefined;
 
-      if (!targetSteamId && userId) {
+      if (userId) {
         const userRepo = createUserRepository(db);
         const user = await userRepo.findById(userId);
-        targetSteamId = user?.socials?.steamId || undefined;
+        const linkedSteamId = user?.socials?.steamId;
+        targetSteamId =
+          linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
       }
 
       if (!targetSteamId) {
@@ -194,11 +211,6 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
 
       const games = await steamService.getOwnedGames(targetSteamId);
       return status(200, { games });
-    },
-    {
-      query: z.object({
-        steamId: z.string().optional()
-      })
     }
   );
 
@@ -211,17 +223,31 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
    */
   .get(
     '/',
-    ({ query, redirect, cookie }) => {
-      if (query.returnTo) {
-        cookie.steam_return_to.set({
-          value: query.returnTo,
-          httpOnly: true,
-          path: '/',
-          maxAge: 600
-        });
-      }
+    async ({ query, redirect, cookie }) => {
+      const state = await createOAuthState({ provider: 'steam' });
+      const returnPath = getSafeReturnPath(query.returnTo);
 
-      const returnUrl = `${envs.auth.AUTH_CALLBACK_URL}/auth/steam/callback`;
+      cookie.steam_return_to.set({
+        value: returnPath,
+        httpOnly: true,
+        path: '/',
+        sameSite: 'lax',
+        secure: envs.app.NODE_ENV === 'prod',
+        maxAge: STEAM_STATE_TTL_SECONDS
+      });
+
+      cookie.steam_oauth_state.set({
+        value: state,
+        httpOnly: true,
+        path: '/auth/steam',
+        sameSite: 'lax',
+        secure: envs.app.NODE_ENV === 'prod',
+        maxAge: STEAM_STATE_TTL_SECONDS
+      });
+
+      const returnUrl = `${envs.auth.AUTH_CALLBACK_URL}/auth/steam/callback?state=${encodeURIComponent(
+        state
+      )}`;
       const callbackOrigin = new URL(envs.auth.AUTH_CALLBACK_URL);
       const realm = `${callbackOrigin.protocol}//${callbackOrigin.host}/`;
       const openIdUrl = steamService.createOpenIdUrl(returnUrl, realm);
@@ -239,14 +265,29 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
    * Steam OpenID Callback
    */
   .get('/callback', async ({ query, db, userId, redirect, cookie }) => {
-    const returnTarget = (cookie.steam_return_to?.value as string) || '/profile';
+    const state = typeof query.state === 'string' ? query.state : null;
+    const cookieState =
+      typeof cookie.steam_oauth_state?.value === 'string' ? cookie.steam_oauth_state.value : null;
+    const returnTarget = getSafeReturnPath(
+      typeof cookie.steam_return_to?.value === 'string' ? cookie.steam_return_to.value : undefined
+    );
     cookie.steam_return_to?.remove();
-    const dest = returnTarget.startsWith('/')
-      ? `${envs.app.CLIENT_URL}${returnTarget}`
-      : returnTarget;
+    cookie.steam_oauth_state?.remove();
+    const dest = `${envs.app.CLIENT_URL}${returnTarget}`;
     const finalRedirect = dest.includes('?')
       ? `${dest}&steam=connected`
       : `${dest}?steam=connected`;
+
+    if (!state || !cookieState || state !== cookieState) {
+      const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
+      return redirect(errDest, 302);
+    }
+
+    const oauthState = await consumeOAuthState(state, 'steam');
+    if (!oauthState) {
+      const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
+      return redirect(errDest, 302);
+    }
 
     const queryParams: Record<string, string> = {};
     for (const [k, v] of Object.entries(query)) {

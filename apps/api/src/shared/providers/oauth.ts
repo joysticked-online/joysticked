@@ -30,7 +30,7 @@ export function getDiscordOAuthClient(): Discord {
 export { generateState, generateCodeVerifier };
 
 export type OAuthStateData = {
-  provider: 'google' | 'discord';
+  provider: 'google' | 'discord' | 'steam';
   codeVerifier?: string;
 };
 
@@ -59,7 +59,7 @@ export async function createOAuthState(data: OAuthStateData): Promise<string> {
  */
 export async function consumeOAuthState(
   state: string,
-  expectedProvider: 'google' | 'discord'
+  expectedProvider: 'google' | 'discord' | 'steam'
 ): Promise<OAuthStateData | null> {
   const key = `${OAUTH_STATE_PREFIX}${state}`;
   let raw: string | null = null;
