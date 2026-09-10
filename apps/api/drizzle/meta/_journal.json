@@ -64,6 +64,13 @@
       "when": 1789034400000,
       "tag": "20260910100000_add-resend-contact-id-to-waitlists",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789038000000,
+      "tag": "20260910110000_add-case-insensitive-user-email-index",
+      "breakpoints": true
     }
   ]
 }
