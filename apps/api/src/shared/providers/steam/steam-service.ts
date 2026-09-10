@@ -119,7 +119,7 @@ export class SteamService {
     if (!claimedId) return null;
 
     const steamIdMatch = claimedId.match(/\/id\/(\d+)$/);
-    if (!steamIdMatch || !steamIdMatch[1]) return null;
+    if (!steamIdMatch?.[1]) return null;
     const steamId = steamIdMatch[1];
 
     // Verify assertion with Steam OpenID server

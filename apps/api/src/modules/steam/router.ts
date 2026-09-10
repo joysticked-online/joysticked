@@ -17,7 +17,7 @@ const STEAM_STATE_TTL_SECONDS = 60 * 10;
 const STEAM_ID_PATTERN = /^7656119\d{10}$/;
 
 function getSafeReturnPath(value: string | undefined): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/profile';
+  if (!value?.startsWith('/') || value.startsWith('//')) return '/profile';
 
   try {
     const parsed = new URL(value, envs.app.CLIENT_URL);
@@ -192,27 +192,24 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
   /**
    * Get Steam owned games & playtimes
    */
-  .get(
-    '/games',
-    async ({ db, userId, status }) => {
-      let targetSteamId: string | undefined;
+  .get('/games', async ({ db, userId, status }) => {
+    let targetSteamId: string | undefined;
 
-      if (userId) {
-        const userRepo = createUserRepository(db);
-        const user = await userRepo.findById(userId);
-        const linkedSteamId = user?.socials?.steamId;
-        targetSteamId =
-          linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
-      }
-
-      if (!targetSteamId) {
-        return status(404, { message: 'Nenhuma conta Steam vinculada.' });
-      }
-
-      const games = await steamService.getOwnedGames(targetSteamId);
-      return status(200, { games });
+    if (userId) {
+      const userRepo = createUserRepository(db);
+      const user = await userRepo.findById(userId);
+      const linkedSteamId = user?.socials?.steamId;
+      targetSteamId =
+        linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
     }
-  );
+
+    if (!targetSteamId) {
+      return status(404, { message: 'Nenhuma conta Steam vinculada.' });
+    }
+
+    const games = await steamService.getOwnedGames(targetSteamId);
+    return status(200, { games });
+  });
 
 export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
   .use(databaseMiddleware)

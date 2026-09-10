@@ -1,7 +1,20 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import confetti from 'canvas-confetti';
-import { AlertTriangle, Check, Clock, Gamepad2, Monitor, Send, Smartphone, Star, Trash2, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  Clock,
+  Gamepad2,
+  Monitor,
+  Send,
+  Smartphone,
+  Star,
+  Trash2,
+  X
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -254,7 +267,9 @@ export function GameReviewModal({
                     {isEditing ? 'Editar avaliação' : 'Avaliar jogo'}
                   </span>
                   <h3 className="mt-0.5 truncate font-bold text-base text-white">{game.name}</h3>
-                  <p className="mt-1 text-[11px] text-neutral-500">Sua nota ajuda a comunidade a descobrir bons jogos.</p>
+                  <p className="mt-1 text-[11px] text-neutral-500">
+                    Sua nota ajuda a comunidade a descobrir bons jogos.
+                  </p>
                 </div>
               </div>
 
@@ -369,7 +384,7 @@ export function GameReviewModal({
                     Tempo de Jogo (Opcional)
                   </label>
                   <div className="relative">
-                    <Clock className="-translate-y-1/2 absolute top-1/2 left-3 size-3 text-neutral-500" />
+                    <Clock className="absolute top-1/2 left-3 size-3 -translate-y-1/2 text-neutral-500" />
                     <input
                       id="modal-hours-played"
                       type="text"
@@ -395,9 +410,11 @@ export function GameReviewModal({
                     onChange={(e) => setReviewText(e.target.value)}
                     placeholder="O que você achou do jogo? Jogabilidade, história, trilha sonora..."
                     maxLength={500}
-                    className="w-full resize-none rounded-xl border border-white/10 bg-black/50 p-3.5 text-white text-sm leading-relaxed transition-colors placeholder:text-neutral-600 focus:border-white/30 focus:outline-hidden"
+                    className="w-full resize-none rounded-xl border border-white/10 bg-black/50 p-3.5 text-sm text-white leading-relaxed transition-colors placeholder:text-neutral-600 focus:border-white/30 focus:outline-hidden"
                   />
-                  <div className="text-right text-[10px] text-neutral-600">{reviewText.length}/500</div>
+                  <div className="text-right text-[10px] text-neutral-600">
+                    {reviewText.length}/500
+                  </div>
                   <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200/15 bg-amber-200/[0.04] p-3 transition-colors hover:bg-amber-200/[0.07]">
                     <input
                       type="checkbox"
@@ -408,8 +425,10 @@ export function GameReviewModal({
                     <span className="flex gap-2">
                       <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-300" />
                       <span>
-                        <span className="block font-semibold text-xs text-amber-100">Contém spoiler</span>
-                        <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">
+                        <span className="block font-semibold text-amber-100 text-xs">
+                          Contém spoiler
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-neutral-500 leading-relaxed">
                           O texto ficará oculto até a pessoa escolher mostrar.
                         </span>
                       </span>

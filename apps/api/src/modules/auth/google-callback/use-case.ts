@@ -20,7 +20,7 @@ export async function googleOAuthCallbackUseCase(
   { code, state }: { code: string; state: string }
 ) {
   const stateData = await consumeOAuthState(state, 'google');
-  if (!stateData || !stateData.codeVerifier) {
+  if (!stateData?.codeVerifier) {
     return null;
   }
 

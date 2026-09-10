@@ -20,7 +20,7 @@ export default function GameLoading() {
         </div>
 
         {/* Hero Overlap Info */}
-        <div className="-mt-10 sm:-mt-14 md:-mt-16 relative z-10 px-4">
+        <div className="relative z-10 -mt-10 px-4 sm:-mt-14 md:-mt-16">
           <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row">
             {/* Poster Skeleton */}
             <div className="mx-auto aspect-[2/3] w-20 flex-shrink-0 animate-pulse rounded-xl border border-white/10 bg-neutral-850/80 shadow-xl sm:w-24 md:mx-0 md:w-28" />

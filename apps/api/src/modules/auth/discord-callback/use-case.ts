@@ -20,7 +20,7 @@ export async function discordOAuthCallbackUseCase(
   { code, state }: { code: string; state: string }
 ) {
   const stateData = await consumeOAuthState(state, 'discord');
-  if (!stateData || !stateData.codeVerifier) {
+  if (!stateData?.codeVerifier) {
     return null;
   }
 

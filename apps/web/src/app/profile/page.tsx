@@ -1,3 +1,5 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import { useForm } from '@tanstack/react-form';
@@ -320,11 +322,11 @@ export default function ProfileSetupPage() {
                 <img
                   src={field.state.value}
                   alt="Banner do perfil"
-                  className="-outline-offset-1 h-full w-full object-cover opacity-80 outline outline-1 outline-white/10"
+                  className="h-full w-full object-cover opacity-80 outline outline-1 outline-white/10 -outline-offset-1"
                 />
               ) : (
                 <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-neutral-900/40 via-neutral-950/70 to-black">
-                  <div className="-top-10 -translate-x-1/2 absolute left-1/3 h-72 w-72 rounded-full bg-indigo-500/10 blur-[120px]" />
+                  <div className="absolute -top-10 left-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[120px]" />
                   <div className="flex flex-col items-center gap-2 text-neutral-500">
                     <ImageIcon className="size-6 opacity-40" strokeWidth={1.5} />
                     <span className="text-xs opacity-50">Nenhum banner personalizado</span>
@@ -355,7 +357,7 @@ export default function ProfileSetupPage() {
       {/* ── Main Form Content ── */}
       <div className="mx-auto max-w-3xl px-4 pb-28 md:px-8">
         {/* Avatar + Title Row */}
-        <div className="-mt-16 md:-mt-20 relative mb-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
+        <div className="relative -mt-16 mb-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left md:-mt-20">
           <form.Field name="avatarUrl">
             {(field) => (
               <div className="relative shrink-0">
@@ -364,7 +366,7 @@ export default function ProfileSetupPage() {
                     <img
                       src={field.state.value}
                       alt="Avatar"
-                      className="-outline-offset-1 h-full w-full rounded-full object-cover outline outline-1 outline-white/10"
+                      className="h-full w-full rounded-full object-cover outline outline-1 outline-white/10 -outline-offset-1"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-tr from-neutral-900 via-indigo-950 to-neutral-800 font-bold text-2xl text-white">

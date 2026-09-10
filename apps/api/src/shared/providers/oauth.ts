@@ -27,7 +27,7 @@ export function getDiscordOAuthClient(): Discord {
   return new Discord(envs.auth.DISCORD_CLIENT_ID, envs.auth.DISCORD_CLIENT_SECRET, redirectURI);
 }
 
-export { generateState, generateCodeVerifier };
+export { generateCodeVerifier, generateState };
 
 export type OAuthStateData = {
   provider: 'google' | 'discord' | 'steam';

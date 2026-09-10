@@ -1,3 +1,5 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import { Check, Image as ImageIcon, Sparkles } from 'lucide-react';
@@ -160,7 +162,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
             <p className="font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
               Ficha do jogo
             </p>
-            <h2 className="mt-1 font-bold text-xl text-white tracking-tight sm:text-2xl">
+            <h2 className="mt-1 font-bold text-white text-xl tracking-tight sm:text-2xl">
               Tudo sobre {game.name}
             </h2>
           </div>
@@ -171,25 +173,25 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl bg-black/20 p-3">
             <span className="block text-[10px] text-neutral-500">Gêneros</span>
-            <span className="mt-1 block truncate font-medium text-xs text-white">
+            <span className="mt-1 block truncate font-medium text-white text-xs">
               {game.genres?.slice(0, 2).join(' • ') || 'Não informado'}
             </span>
           </div>
           <div className="rounded-xl bg-black/20 p-3">
             <span className="block text-[10px] text-neutral-500">Publicadora</span>
-            <span className="mt-1 block truncate font-medium text-xs text-white">
+            <span className="mt-1 block truncate font-medium text-white text-xs">
               {game.publisher || 'Não informado'}
             </span>
           </div>
           <div className="rounded-xl bg-black/20 p-3">
             <span className="block text-[10px] text-neutral-500">Nota crítica</span>
-            <span className="mt-1 block font-medium text-xs text-white">
+            <span className="mt-1 block font-medium text-white text-xs">
               {game.aggregatedRating ? `${game.aggregatedRating.toFixed(1)} / 100` : '—'}
             </span>
           </div>
           <div className="rounded-xl bg-black/20 p-3">
             <span className="block text-[10px] text-neutral-500">Plataformas</span>
-            <span className="mt-1 block truncate font-medium text-xs text-white">
+            <span className="mt-1 block truncate font-medium text-white text-xs">
               {game.platforms?.length || 0} disponíveis
             </span>
           </div>
@@ -244,14 +246,18 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           {game.genres && game.genres.length > 0 && (
             <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Gêneros</span>
-              <span className="font-medium text-neutral-200 sm:text-right">{game.genres.join(', ')}</span>
+              <span className="font-medium text-neutral-200 sm:text-right">
+                {game.genres.join(', ')}
+              </span>
             </div>
           )}
 
           {game.platforms && game.platforms.length > 0 && (
             <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Plataformas</span>
-              <span className="font-medium text-neutral-200 sm:text-right">{game.platforms.join(', ')}</span>
+              <span className="font-medium text-neutral-200 sm:text-right">
+                {game.platforms.join(', ')}
+              </span>
             </div>
           )}
         </div>

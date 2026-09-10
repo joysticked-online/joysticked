@@ -468,7 +468,7 @@ export function OnboardingFlow({
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background">
-      <div className="-z-10 -translate-x-1/2 pointer-events-none absolute top-0 left-1/2 h-[500px] w-[700px] rounded-full bg-white/[0.02] blur-[150px]" />
+      <div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-white/[0.02] blur-[150px]" />
       {content}
     </div>
   );

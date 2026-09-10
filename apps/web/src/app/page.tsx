@@ -1,69 +1,49 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { Footer } from "@/components/navigation/footer";
-import { TopNav } from "@/components/navigation/top-nav";
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Footer } from '@/components/navigation/footer';
+import { TopNav } from '@/components/navigation/top-nav';
 
 export const metadata: Metadata = {
-  title: "Joysticked — encontre seu próximo jogo",
-  description:
-    "Descubra jogos, compartilhe suas notas e encontre sua próxima obsessão.",
+  title: 'Joysticked — encontre seu próximo jogo',
+  description: 'Descubra jogos, compartilhe suas notas e encontre sua próxima obsessão.'
 };
 
 const PILLARS = [
   {
-    number: "01",
-    title: "Descubra",
-    text: "Encontre jogos que combinam com o que você gosta — do hype do momento às joias escondidas.",
-    icon: "discover",
+    number: '01',
+    title: 'Descubra',
+    text: 'Encontre jogos que combinam com o que você gosta — do hype do momento às joias escondidas.',
+    icon: 'discover'
   },
   {
-    number: "02",
-    title: "Avalie",
-    text: "Registre o que jogou, dê sua nota e escreva uma opinião que realmente ajuda outras pessoas.",
-    icon: "rate",
+    number: '02',
+    title: 'Avalie',
+    text: 'Registre o que jogou, dê sua nota e escreva uma opinião que realmente ajuda outras pessoas.',
+    icon: 'rate'
   },
   {
-    number: "03",
-    title: "Jogue junto",
-    text: "Acompanhe o que a comunidade está jogando e transforme sua biblioteca em uma história.",
-    icon: "together",
-  },
+    number: '03',
+    title: 'Jogue junto',
+    text: 'Acompanhe o que a comunidade está jogando e transforme sua biblioteca em uma história.',
+    icon: 'together'
+  }
 ];
 
-function PixelIcon({ type }: { type: "discover" | "rate" | "together" }) {
-  if (type === "discover") {
+function PixelIcon({ type }: { type: 'discover' | 'rate' | 'together' }) {
+  if (type === 'discover') {
     return (
-      <svg
-        aria-hidden="true"
-        className="size-10"
-        viewBox="0 0 40 40"
-        fill="none"
-      >
-        <path
-          fill="#303030"
-          d="M8 16h4v-4h8v4h8v-4h4v4h4v12h-4v4h-8v-4h-8v4H8z"
-        />
-        <path
-          fill="#fff"
-          d="M12 20h4v-4h4v4h4v4h-4v4h-4v-4h-4zM28 20h4v4h-4z"
-        />
+      <svg aria-hidden="true" className="size-10" viewBox="0 0 40 40" fill="none">
+        <path fill="#303030" d="M8 16h4v-4h8v4h8v-4h4v4h4v12h-4v4h-8v-4h-8v4H8z" />
+        <path fill="#fff" d="M12 20h4v-4h4v4h4v4h-4v4h-4v-4h-4zM28 20h4v4h-4z" />
       </svg>
     );
   }
 
-  if (type === "rate") {
+  if (type === 'rate') {
     return (
-      <svg
-        aria-hidden="true"
-        className="size-10"
-        viewBox="0 0 40 40"
-        fill="none"
-      >
+      <svg aria-hidden="true" className="size-10" viewBox="0 0 40 40" fill="none">
         <path fill="#303030" d="M16 8h8v4h4v4h4v12h-4v4H12v-4H8V16h4v-4h4z" />
-        <path
-          fill="#fff"
-          d="M16 12h8v4h4v4h-4v4h-8v-4h-4v-4h4zM16 28h8v-4h4v4h-4v4h-8z"
-        />
+        <path fill="#fff" d="M16 12h8v4h4v4h-4v4h-8v-4h-4v-4h4zM16 28h8v-4h4v4h-4v4h-8z" />
       </svg>
     );
   }
@@ -83,7 +63,7 @@ export default function WelcomePage() {
 
       <TopNav />
 
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-84px)] w-full max-w-7xl flex-col items-center justify-center px-5 pb-16 pt-40 text-center sm:px-8 sm:pt-44 lg:pb-24">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-84px)] w-full max-w-7xl flex-col items-center justify-center px-5 pt-40 pb-16 text-center sm:px-8 sm:pt-44 lg:pb-24">
         <div className="flex max-w-3xl flex-col items-center">
           <p className="mb-5 flex items-center gap-2 font-medium text-neutral-400 text-xs uppercase tracking-[0.2em]">
             <span className="size-1.5 rounded-full bg-[#303030]" />
@@ -95,8 +75,8 @@ export default function WelcomePage() {
           </h1>
 
           <p className="mt-6 max-w-xl text-base text-neutral-400 leading-relaxed sm:text-lg">
-            Descubra o que jogar, guarde o que marcou você e encontre uma
-            comunidade que entende por que aquele detalhe importa.
+            Descubra o que jogar, guarde o que marcou você e encontre uma comunidade que entende por
+            que aquele detalhe importa.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -119,7 +99,7 @@ export default function WelcomePage() {
           {PILLARS.map((pillar) => (
             <div
               key={pillar.number}
-              className="group border-white/[0.08] sm:border-r sm:pr-7 last:border-0"
+              className="group border-white/[0.08] last:border-0 sm:border-r sm:pr-7"
             >
               <div className="flex items-center gap-3 text-[11px] text-neutral-600 sm:block">
                 <PixelIcon type={pillar.icon} />
@@ -128,9 +108,7 @@ export default function WelcomePage() {
                 </span>
               </div>
               <p className="mt-2 max-w-xs text-neutral-500 text-sm leading-relaxed transition-colors group-hover:text-neutral-300 sm:mt-3">
-                <span className="mr-2 text-[10px] text-neutral-600">
-                  {pillar.number}
-                </span>
+                <span className="mr-2 text-[10px] text-neutral-600">{pillar.number}</span>
                 {pillar.text}
               </p>
             </div>

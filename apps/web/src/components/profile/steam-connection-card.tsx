@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  CheckCircle2,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Gamepad2,
-  RefreshCw,
-  Unlink
-} from 'lucide-react';
+import { CheckCircle2, ExternalLink, Eye, EyeOff, Gamepad2, RefreshCw, Unlink } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

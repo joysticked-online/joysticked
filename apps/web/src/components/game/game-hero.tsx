@@ -1,3 +1,5 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import {
@@ -127,7 +129,7 @@ export function GameHero({
       </div>
 
       {/* Main Content Info overlapping the banner - Moved down with generous fade */}
-      <div className="-mt-10 sm:-mt-14 md:-mt-16 relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
+      <div className="relative z-10 mx-auto -mt-10 max-w-5xl px-4 sm:-mt-14 sm:px-6 md:-mt-16">
         <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row">
           {/* Overlapping Poster on the Left */}
           <motion.div

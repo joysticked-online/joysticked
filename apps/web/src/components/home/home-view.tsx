@@ -185,10 +185,10 @@ export function HomeView({ initialData }: HomeViewProps) {
               O que você vai jogar hoje?
             </h1>
             <p className="mt-2 max-w-xl text-neutral-400 text-sm leading-relaxed sm:text-base">
-              Encontre seu próximo jogo, acompanhe o que está em alta e deixe sua nota para a comunidade.
+              Encontre seu próximo jogo, acompanhe o que está em alta e deixe sua nota para a
+              comunidade.
             </p>
           </div>
-
         </header>
 
         {/* 2-Column Responsive Dashboard */}
@@ -447,9 +447,7 @@ export function HomeView({ initialData }: HomeViewProps) {
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="size-4 text-neutral-400" />
-                <h2 className="font-bold text-base text-white sm:text-xl">
-                  Atividade da sua rede
-                </h2>
+                <h2 className="font-bold text-base text-white sm:text-xl">Atividade da sua rede</h2>
               </div>
 
               {activities.length > 0 ? (
@@ -516,9 +514,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <TrendingUp className="size-4 text-neutral-400" />
-                  <h2 className="font-bold text-sm text-white sm:text-base">
-                    Jogos Populares
-                  </h2>
+                  <h2 className="font-bold text-sm text-white sm:text-base">Jogos Populares</h2>
                 </div>
                 <Link
                   href="/games?tab=populares"
@@ -554,9 +550,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Award className="size-4 text-amber-400" />
-                  <h2 className="font-bold text-sm text-white sm:text-base">
-                    Mais Bem Avaliados
-                  </h2>
+                  <h2 className="font-bold text-sm text-white sm:text-base">Mais Bem Avaliados</h2>
                 </div>
                 <Link
                   href="/games?tab=bem-avaliados"
@@ -602,9 +596,7 @@ export function HomeView({ initialData }: HomeViewProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Flame className="size-4 text-orange-400" />
-                  <h2 className="font-bold text-sm text-white sm:text-base">
-                    Mais Aguardados
-                  </h2>
+                  <h2 className="font-bold text-sm text-white sm:text-base">Mais Aguardados</h2>
                 </div>
                 <Link
                   href="/games?tab=lancamentos"

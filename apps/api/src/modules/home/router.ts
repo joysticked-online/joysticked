@@ -18,8 +18,7 @@ export const homeRouter = new Elysia().get('/home', async () => {
   const popularGames = popularResult.status === 'fulfilled' ? popularResult.value : [];
   const topRatedGames = topRatedResult.status === 'fulfilled' ? topRatedResult.value : [];
 
-  let upcomingGames =
-    steamAwaitedResult.status === 'fulfilled' ? steamAwaitedResult.value : [];
+  let upcomingGames = steamAwaitedResult.status === 'fulfilled' ? steamAwaitedResult.value : [];
 
   if (!upcomingGames || upcomingGames.length === 0) {
     upcomingGames = await igdbProvider.getUpcomingGames(3).catch((err) => {
