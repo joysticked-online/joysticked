@@ -1,6 +1,16 @@
 'use client';
 
-import { Check, ChevronDown, Gamepad2, Loader2, Search, SlidersHorizontal, Sparkles, Star, X } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Gamepad2,
+  Loader2,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  X
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -74,24 +84,38 @@ interface FilterSelectProps {
 
 function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [isOpen]);
 
   return (
-    <div className="relative space-y-1.5">
+    <div ref={containerRef} className={`relative space-y-1 ${isOpen ? 'z-30' : 'z-10'}`}>
       <span className="font-medium text-[11px] text-neutral-400">{label}</span>
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
-        className={`flex h-11 w-full items-center justify-between rounded-xl border px-3.5 text-left text-xs transition-all duration-200 ${
+        className={`flex h-9.5 w-full items-center justify-between rounded-xl border px-3 text-left text-xs transition-all duration-200 ${
           isOpen
-            ? 'border-white/25 bg-white/[0.07] text-white shadow-[0_0_0_3px_rgba(255,255,255,0.04)]'
-            : 'border-white/[0.08] bg-[#0A0A0A] text-neutral-200 hover:border-white/[0.16] hover:bg-white/[0.04]'
+            ? 'border-white/25 bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_0_3px_rgba(255,255,255,0.04)]'
+            : 'border-white/[0.08] bg-white/[0.04] text-neutral-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-white/[0.16] hover:bg-white/[0.07]'
         }`}
       >
         <span className="truncate">{value}</span>
         <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="size-4 text-neutral-500" />
+          <ChevronDown className="size-3.5 text-neutral-400" />
         </motion.span>
       </button>
 
@@ -99,12 +123,11 @@ function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
         {isOpen && (
           <motion.div
             role="listbox"
-            style={{ backgroundColor: '#181818', zIndex: 20 }}
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute top-full right-0 left-0 z-20 mt-1.5 max-h-52 overflow-y-auto rounded-xl border border-white/[0.1] bg-[#181818] p-1.5 shadow-2xl"
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="absolute top-full right-0 left-0 z-30 mt-1 max-h-48 overflow-y-auto rounded-xl bg-[#161616]/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_18px_36px_rgba(0,0,0,0.8)] backdrop-blur-2xl"
           >
             {options.map((option) => (
               <button
@@ -116,10 +139,10 @@ function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
                   onChange(option);
                   setIsOpen(false);
                 }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs transition-colors ${
+                className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition-colors ${
                   option === value
-                    ? 'bg-white text-black'
-                    : 'text-neutral-300 hover:bg-white/[0.07] hover:text-white'
+                    ? 'bg-white font-medium text-black shadow-sm'
+                    : 'text-neutral-300 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 <span>{option}</span>
@@ -194,6 +217,31 @@ function ExplorerContent({
   const [selectedPlatform, setSelectedPlatform] = useState('Todas');
   const [minimumScore, setMinimumScore] = useState(0);
   const [selectedMode, setSelectedMode] = useState('Todos');
+
+  const filterPopoverRef = useRef<HTMLDivElement | null>(null);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (query.trim()) count++;
+    if (selectedGenre !== 'Todos') count++;
+    if (selectedPlatform !== 'Todas') count++;
+    if (minimumScore > 0) count++;
+    if (selectedMode !== 'Todos') count++;
+    return count;
+  }, [query, selectedGenre, selectedPlatform, minimumScore, selectedMode]);
+
+  useEffect(() => {
+    if (!showFilters) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showFilters]);
 
   // Dynamic paginated list for the active tab
   const [gamesList, setGamesList] = useState<Game[]>(() => {
@@ -370,7 +418,17 @@ function ExplorerContent({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, hasMore, query, selectedGenre, selectedPlatform, minimumScore, selectedMode, gamesList.length, tab]);
+  }, [
+    isLoadingMore,
+    hasMore,
+    query,
+    selectedGenre,
+    selectedPlatform,
+    minimumScore,
+    selectedMode,
+    gamesList.length,
+    tab
+  ]);
 
   // Observer on Sentinel
   useEffect(() => {
@@ -400,7 +458,17 @@ function ExplorerContent({
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, query, selectedGenre, selectedPlatform, minimumScore, selectedMode, loadMoreGames, gamesList.length]);
+  }, [
+    hasMore,
+    isLoadingMore,
+    query,
+    selectedGenre,
+    selectedPlatform,
+    minimumScore,
+    selectedMode,
+    loadMoreGames,
+    gamesList.length
+  ]);
 
   // Apply search and genre filter
   const displayGames = useMemo(() => {
@@ -432,7 +500,15 @@ function ExplorerContent({
     }
 
     return list;
-  }, [query, searchResults, gamesList, selectedGenre, selectedPlatform, minimumScore, selectedMode]);
+  }, [
+    query,
+    searchResults,
+    gamesList,
+    selectedGenre,
+    selectedPlatform,
+    minimumScore,
+    selectedMode
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-100 selection:bg-white/20 selection:text-white">
@@ -461,21 +537,184 @@ function ExplorerContent({
               </p>
             </div>
 
-            {/* Filter Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setShowFilters((prev) => !prev)}
-              aria-expanded={showFilters}
-              aria-controls="games-filter-drawer"
-              className={`flex size-10 select-none items-center justify-center rounded-xl transition-all ${
-                showFilters
-                  ? 'bg-white text-black shadow-lg shadow-white/10'
-                  : 'bg-neutral-900/80 text-neutral-300 hover:bg-neutral-800 hover:text-white'
-              }`}
-              title="Filtrar jogos"
-            >
-              <SlidersHorizontal className="size-4.5" />
-            </button>
+            {/* Filter Toggle Button & Anchored Popover */}
+            <div className="relative z-30" ref={filterPopoverRef}>
+              <button
+                type="button"
+                onClick={() => setShowFilters((prev) => !prev)}
+                aria-expanded={showFilters}
+                aria-controls="games-filter-popover"
+                className={`relative flex size-10 select-none items-center justify-center rounded-xl border transition-all active:scale-[0.96] ${
+                  showFilters
+                    ? 'border-white/30 bg-white text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_8px_24px_rgba(255,255,255,0.15)]'
+                    : 'border-white/[0.08] bg-white/[0.04] text-neutral-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md hover:border-white/[0.18] hover:bg-white/[0.08] hover:text-white'
+                }`}
+                title="Filtrar jogos"
+              >
+                <SlidersHorizontal className="size-4.5" />
+                {activeFilterCount > 0 && (
+                  <span className="-top-1 -right-1 absolute flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showFilters && (
+                  <>
+                    {/* Backdrop to capture outside clicks */}
+                    <div
+                      className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1.5px]"
+                      onClick={() => setShowFilters(false)}
+                      aria-hidden="true"
+                    />
+
+                    {/* Popover pulled directly from the filter button */}
+                    <motion.div
+                      id="games-filter-popover"
+                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                      transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
+                      className="absolute top-full right-0 z-50 mt-2.5 flex w-[330px] max-w-[calc(100vw-2rem)] origin-top-right flex-col overflow-hidden rounded-2xl bg-[#121212]/80 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.16),inset_0_0_0_1px_rgba(255,255,255,0.04),0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl backdrop-saturate-150 sm:w-[360px]"
+                    >
+                      {/* Subtle liquid glass sheen overlay */}
+                      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.07] via-transparent to-transparent" />
+
+                      <div className="relative mb-3 flex items-center justify-between border-white/[0.08] border-b pb-3">
+                        <div className="flex items-center gap-2">
+                          <SlidersHorizontal className="size-4 text-neutral-400" />
+                          <span className="font-semibold text-white text-xs">Filtros</span>
+                          {activeFilterCount > 0 && (
+                            <span className="rounded-full border border-white/10 bg-white/[0.08] px-1.5 py-0.5 font-medium text-[10px] text-neutral-200">
+                              {activeFilterCount}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowFilters(false)}
+                          aria-label="Fechar filtros"
+                          className="flex size-7 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white"
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="relative max-h-[min(68vh,520px)] space-y-3.5 overflow-y-auto pr-0.5">
+                        <div className="relative flex items-center">
+                          <Search className="pointer-events-none absolute left-3 size-3.5 text-neutral-500" />
+                          <input
+                            type="search"
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            placeholder="Buscar pelo título exato..."
+                            className="h-9.5 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pr-8 pl-8 text-white text-xs shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] outline-none transition-all placeholder:text-neutral-500 hover:border-white/[0.16] hover:bg-white/[0.06] focus:border-white/25 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]"
+                          />
+                          {query && (
+                            <button
+                              type="button"
+                              onClick={() => setQuery('')}
+                              aria-label="Limpar busca"
+                              className="absolute right-2.5 text-neutral-500 transition-colors hover:text-white"
+                            >
+                              <X className="size-3" />
+                            </button>
+                          )}
+                        </div>
+
+                        <FilterSelect
+                          label="Gênero"
+                          value={selectedGenre}
+                          options={GENRES}
+                          onChange={setSelectedGenre}
+                        />
+                        <FilterSelect
+                          label="Plataforma"
+                          value={selectedPlatform}
+                          options={PLATFORMS}
+                          onChange={setSelectedPlatform}
+                        />
+
+                        <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                          <div className="flex items-center justify-between">
+                            <label
+                              htmlFor="minimum-score"
+                              className="font-medium text-[11px] text-neutral-400"
+                            >
+                              Nota mínima
+                            </label>
+                            <output
+                              htmlFor="minimum-score"
+                              className="rounded-md border border-white/10 bg-white/[0.08] px-1.5 py-0.5 font-semibold text-[10px] text-white"
+                            >
+                              {minimumScore === 0 ? 'Todas' : `${minimumScore.toFixed(1)}+`}
+                            </output>
+                          </div>
+                          <div className="relative px-1 pt-2">
+                            <input
+                              id="minimum-score"
+                              type="range"
+                              min="0"
+                              max="5"
+                              step="0.5"
+                              value={minimumScore}
+                              onChange={(event) => setMinimumScore(Number(event.target.value))}
+                              className="relative z-10 h-1.5 w-full cursor-pointer accent-white"
+                            />
+                            <div className="mt-1.5 flex justify-between text-[9px] text-neutral-500">
+                              {Array.from({ length: 11 }, (_, index) => {
+                                const score = index / 2;
+                                return (
+                                  <span
+                                    key={score}
+                                    className={
+                                      minimumScore === score ? 'font-semibold text-white' : ''
+                                    }
+                                  >
+                                    {score % 1 === 0 ? score : score.toFixed(1)}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        <FilterSelect
+                          label="Modo de jogo"
+                          value={selectedMode}
+                          options={MODES}
+                          onChange={setSelectedMode}
+                        />
+                      </div>
+
+                      <div className="relative mt-3 grid grid-cols-2 gap-2 border-white/[0.08] border-t pt-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setQuery('');
+                            setSelectedGenre('Todos');
+                            setSelectedPlatform('Todas');
+                            setMinimumScore(0);
+                            setSelectedMode('Todos');
+                          }}
+                          className="h-9 rounded-xl border border-white/[0.09] bg-white/[0.03] text-neutral-300 text-xs transition-colors hover:border-white/[0.16] hover:bg-white/[0.08] hover:text-white"
+                        >
+                          Limpar tudo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowFilters(false)}
+                          className="h-9 rounded-xl bg-white font-semibold text-black text-xs shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_4px_16px_rgba(255,255,255,0.12)] transition-transform hover:bg-neutral-100 active:scale-[0.98]"
+                        >
+                          Ver resultados
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           {/* Subtitle Badge Pill & Personalization Info */}
@@ -546,152 +785,6 @@ function ExplorerContent({
             )}
           </div>
         </header>
-
-        {/* Expandable Filter & Search Drawer */}
-        <AnimatePresence>
-          {showFilters && (
-            <>
-              <motion.button
-                type="button"
-                aria-label="Fechar filtros"
-                onClick={() => setShowFilters(false)}
-                style={{ zIndex: 55 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[55] cursor-default bg-black/55 backdrop-blur-[2px]"
-              />
-              <motion.aside
-                id="games-filter-drawer"
-                style={{ width: 'min(380px, 100vw)', zIndex: 60 }}
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-                className="fixed inset-y-0 right-0 z-[60] flex flex-col border-white/[0.1] border-l bg-[#121212] shadow-[-24px_0_80px_rgba(0,0,0,0.65)]"
-              >
-                <div className="flex items-start justify-between border-white/[0.07] border-b px-5 py-5">
-                  <div>
-                    <p className="font-semibold text-sm text-white">Filtros</p>
-                    <p className="mt-0.5 text-[11px] text-neutral-500">Refine os jogos exibidos</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowFilters(false)}
-                    aria-label="Fechar filtros"
-                    className="flex size-9 items-center justify-center rounded-xl border border-white/[0.08] text-neutral-400 transition-colors hover:bg-white/[0.06] hover:text-white"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-
-                <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
-                  <div className="relative flex items-center">
-                    <Search className="absolute left-3.5 size-4 text-neutral-500" />
-                    <input
-                      type="search"
-                      value={query}
-                      onChange={(event) => setQuery(event.target.value)}
-                      placeholder="Buscar pelo título exato..."
-                      className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#0A0A0A] pr-10 pl-10 text-xs text-white outline-none transition-all placeholder:text-neutral-600 focus:border-white/25 focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]"
-                    />
-                    {query && (
-                      <button
-                        type="button"
-                        onClick={() => setQuery('')}
-                        aria-label="Limpar busca"
-                        className="absolute right-3 text-neutral-500 transition-colors hover:text-white"
-                      >
-                        <X className="size-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  <FilterSelect
-                    label="Gênero"
-                    value={selectedGenre}
-                    options={GENRES}
-                    onChange={setSelectedGenre}
-                  />
-                  <FilterSelect
-                    label="Plataforma"
-                    value={selectedPlatform}
-                    options={PLATFORMS}
-                    onChange={setSelectedPlatform}
-                  />
-
-                  <div className="space-y-2 rounded-2xl border border-white/[0.07] bg-[#0A0A0A] p-4">
-                    <div className="flex items-center justify-between">
-                      <label htmlFor="minimum-score" className="font-medium text-[11px] text-neutral-400">
-                        Nota mínima
-                      </label>
-                      <output htmlFor="minimum-score" className="rounded-md bg-white/[0.08] px-2 py-1 font-semibold text-[10px] text-white">
-                        {minimumScore === 0 ? 'Todas' : `${minimumScore.toFixed(1)}+`}
-                      </output>
-                    </div>
-                    <div className="relative px-1 pt-4">
-                      <div className="pointer-events-none absolute top-0 right-1 left-1 flex justify-between">
-                        {Array.from({ length: 11 }, (_, index) => (
-                          <span key={index} className="h-2.5 w-px bg-white/30" />
-                        ))}
-                      </div>
-                      <input
-                        id="minimum-score"
-                        type="range"
-                        min="0"
-                        max="5"
-                        step="0.5"
-                        value={minimumScore}
-                        onChange={(event) => setMinimumScore(Number(event.target.value))}
-                        className="relative z-10 h-1.5 w-full cursor-pointer accent-white"
-                      />
-                      <div className="mt-2 flex justify-between text-[9px] text-neutral-600">
-                        {Array.from({ length: 11 }, (_, index) => {
-                          const score = index / 2;
-                          return (
-                            <span key={score} className={minimumScore === score ? 'font-semibold text-white' : ''}>
-                              {score % 1 === 0 ? score : score.toFixed(1)}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <FilterSelect
-                    label="Modo de jogo"
-                    value={selectedMode}
-                    options={MODES}
-                    onChange={setSelectedMode}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 border-white/[0.07] border-t p-5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuery('');
-                      setSelectedGenre('Todos');
-                      setSelectedPlatform('Todas');
-                      setMinimumScore(0);
-                      setSelectedMode('Todos');
-                    }}
-                    className="h-11 rounded-xl border border-white/[0.09] text-xs text-neutral-300 transition-colors hover:bg-white/[0.05] hover:text-white"
-                  >
-                    Limpar tudo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowFilters(false)}
-                    className="h-11 rounded-xl bg-white font-semibold text-black text-xs transition-transform hover:bg-neutral-200 active:scale-[0.98]"
-                  >
-                    Ver resultados
-                  </button>
-                </div>
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
 
         {/* Compact & High-Density Poster Grid */}
         {displayGames.length === 0 && !isSearching ? (
@@ -766,7 +859,7 @@ function ExplorerContent({
                   </div>
                 </Link>
               </motion.div>
-             ))}
+            ))}
           </div>
         )}
 
@@ -790,10 +883,10 @@ function ExplorerContent({
             selectedPlatform === 'Todas' &&
             minimumScore === 0 &&
             selectedMode === 'Todos' && (
-            <p className="font-medium text-[11px] text-neutral-600 tracking-wide">
-              Você chegou ao final dos títulos disponíveis.
-            </p>
-          )}
+              <p className="font-medium text-[11px] text-neutral-600 tracking-wide">
+                Você chegou ao final dos títulos disponíveis.
+              </p>
+            )}
         </div>
       </main>
 
