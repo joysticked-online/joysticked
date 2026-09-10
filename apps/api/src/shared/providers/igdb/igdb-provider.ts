@@ -2048,8 +2048,8 @@ class IgdbProvider {
       .slice(0, limit);
   }
 
-  async getPopularGames(limit = 12): Promise<IgdbGame[]> {
-    const cacheKey = String(limit);
+  async getPopularGames(limit = 12, offset = 0): Promise<IgdbGame[]> {
+    const cacheKey = `${limit}:${offset}`;
     const cached = this.popularCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
       return cached.data;
@@ -2060,7 +2060,7 @@ class IgdbProvider {
     }
 
     try {
-      const fetchLimit = Math.max(limit * 2, 30);
+      const fetchLimit = Math.min(Math.max(limit * 2, 30), 500);
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
@@ -2069,6 +2069,7 @@ class IgdbProvider {
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 100 & cover != null;
         sort rating_count desc;
+        offset ${offset};
         limit ${fetchLimit};
       `;
 
@@ -2110,8 +2111,8 @@ class IgdbProvider {
     }
   }
 
-  async getTopRatedGames(limit = 6): Promise<IgdbGame[]> {
-    const cacheKey = String(limit);
+  async getTopRatedGames(limit = 6, offset = 0): Promise<IgdbGame[]> {
+    const cacheKey = `${limit}:${offset}`;
     const cached = this.topRatedCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
       return cached.data;
@@ -2122,7 +2123,7 @@ class IgdbProvider {
     }
 
     try {
-      const fetchLimit = Math.max(limit * 3, 25);
+      const fetchLimit = Math.min(Math.max(limit * 3, 25), 500);
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
@@ -2131,6 +2132,7 @@ class IgdbProvider {
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 500 & cover != null;
         sort rating desc;
+        offset ${offset};
         limit ${fetchLimit};
       `;
 
