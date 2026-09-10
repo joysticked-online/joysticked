@@ -15,6 +15,20 @@ import { steamService } from '../../shared/providers/steam/steam-service';
 
 const STEAM_STATE_TTL_SECONDS = 60 * 10;
 const STEAM_ID_PATTERN = /^7656119\d{10}$/;
+const KNOWN_SLUGS: Record<string, number> = {
+  'elden-ring': 1245620,
+  'cyberpunk-2077': 1091500,
+  'the-witcher-3-wild-hunt': 292030,
+  'hollow-knight': 367520,
+  balatro: 2379780,
+  'red-dead-redemption-2': 1174180,
+  'god-of-war': 1593500,
+  'baldurs-gate-3': 1086940,
+  'monster-hunter-world': 582010,
+  'sekiro-shadows-die-twice': 814380,
+  hades: 1145360,
+  celeste: 504230
+};
 
 function getSafeReturnPath(value: string | undefined): string {
   if (!value?.startsWith('/') || value.startsWith('//')) return '/profile';
@@ -132,21 +146,6 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
         targetSteamId =
           linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
       }
-
-      const KNOWN_SLUGS: Record<string, number> = {
-        'elden-ring': 1245620,
-        'cyberpunk-2077': 1091500,
-        'the-witcher-3-wild-hunt': 292030,
-        'hollow-knight': 367520,
-        balatro: 2379780,
-        'red-dead-redemption-2': 1174180,
-        'god-of-war': 1593500,
-        'baldurs-gate-3': 1086940,
-        'monster-hunter-world': 582010,
-        'sekiro-shadows-die-twice': 814380,
-        hades: 1145360,
-        celeste: 504230
-      };
 
       const raw = params.identifier.trim();
       let resolvedAppId: number | null = /^\d+$/.test(raw)
