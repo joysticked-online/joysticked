@@ -2,6 +2,7 @@ import { Elysia } from 'elysia';
 import z from 'zod';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../../shared/http/middlewares/database';
+import { toPublicProfile } from '../get-profile/schemas';
 import { updateProfileBodySchema, updateProfileResponseSchema } from './schemas';
 import { updateProfileUseCase } from './use-case';
 
@@ -17,7 +18,7 @@ export const updateProfileRouter = new Elysia()
 
       const { profile } = await updateProfileUseCase(db, { id: params.id, ...body });
 
-      return status(200, profile);
+      return status(200, { profile: toPublicProfile(profile) });
     },
     {
       params: z.object({ id: z.uuid() }),

@@ -17,11 +17,12 @@ import { errorHandler } from './middlewares/error-handler';
 const app = new Elysia()
   .use(
     cors({
-      origin: [
-        envs.app.CLIENT_URL || 'http://localhost:3000',
-        'http://localhost:3000',
-        'http://localhost:3001'
-      ],
+      origin: Array.from(
+        new Set([
+          envs.app.CLIENT_URL || 'http://localhost:3000',
+          ...(envs.app.NODE_ENV === 'dev' ? ['http://localhost:3000', 'http://localhost:3001'] : [])
+        ])
+      ),
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
     })
