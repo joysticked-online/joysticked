@@ -98,7 +98,8 @@ function TopNavContent({
   // Focus input on search open
   useEffect(() => {
     if (searchOpen) {
-      setTimeout(() => searchInputRef.current?.focus(), 50);
+      const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
+      return () => cancelAnimationFrame(frame);
     } else {
       setSearchQuery('');
       setSearchResults([]);
@@ -113,10 +114,11 @@ function TopNavContent({
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const results = await searchGames(searchQuery.trim());
+        const results = await searchGames(searchQuery.trim(), controller.signal);
         setSearchResults(results.slice(0, 6));
       } catch (err) {
         console.error('Search error:', err);
@@ -125,7 +127,10 @@ function TopNavContent({
       }
     }, 220);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [searchQuery]);
 
   const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
@@ -163,7 +168,7 @@ function TopNavContent({
   const NAV_ITEMS = [
     { href: '/home', label: 'Início', icon: Home, exact: true },
     { href: '/games', label: 'Jogos', icon: Gamepad2, exact: false, hasDropdown: true },
-    { href: '/lists', label: 'Listas', icon: ListFilter, exact: false },
+    { href: '/lists', label: 'Listas', icon: ListFilter, exact: false }
   ];
 
   return (
@@ -173,7 +178,7 @@ function TopNavContent({
         <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
           <div className="flex items-center gap-1 sm:gap-2">
-              <Link
+            <Link
               href="/home"
               className="flex size-8 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
             >
@@ -268,9 +273,11 @@ function TopNavContent({
                 className="flex size-7 items-center justify-center overflow-hidden rounded-full bg-neutral-800 transition-all hover:ring-2 hover:ring-white/20 active:scale-95 sm:size-8"
               >
                 {currentUser.avatarUrl ? (
-                  <img
+                  <Image
                     src={currentUser.avatarUrl}
                     alt={currentUser.username}
+                    width={32}
+                    height={32}
                     className="size-full object-cover"
                   />
                 ) : (
@@ -315,18 +322,22 @@ function TopNavContent({
                   onClick={() => setGamesMenuOpen(false)}
                   className="group flex items-center gap-4 rounded-2xl border border-[#303030] bg-[#0A0A0A] p-2.5 transition-colors hover:border-white/30"
                 >
-                  <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
-                    <img
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
+                    <Image
                       src={
                         featuredAwaited?.coverUrl ||
                         'https://images.igdb.com/igdb/image/upload/t_cover_big/coc6x4.webp'
                       }
                       alt={featuredAwaited?.name || 'Halloween: The Game'}
+                      fill
+                      sizes="56px"
                       className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="block text-[10px] text-neutral-500 uppercase tracking-wider">Em destaque</span>
+                    <span className="block text-[10px] text-neutral-500 uppercase tracking-wider">
+                      Em destaque
+                    </span>
                     <span className="mt-0.5 block truncate font-bold text-sm text-white transition-colors group-hover:text-neutral-300">
                       {featuredAwaited?.name || 'Halloween: The Game'}
                     </span>
@@ -334,7 +345,7 @@ function TopNavContent({
                       {featuredAwaited?.platforms?.[0] || 'PC (Steam)'} &bull; Em breve
                     </span>
                   </div>
-                  <ChevronDown className="-rotate-90 size-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
+                  <ChevronDown className="size-4 shrink-0 -rotate-90 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                 </Link>
               </motion.div>
 

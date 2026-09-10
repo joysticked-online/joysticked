@@ -61,7 +61,23 @@ function normalizeSearchText(value: string): string {
 }
 
 function removeSearchFillers(value: string): string {
-  const fillerWords = new Set(['a', 'an', 'and', 'da', 'das', 'de', 'do', 'dos', 'e', 'for', 'in', 'of', 'on', 'the', 'to']);
+  const fillerWords = new Set([
+    'a',
+    'an',
+    'and',
+    'da',
+    'das',
+    'de',
+    'do',
+    'dos',
+    'e',
+    'for',
+    'in',
+    'of',
+    'on',
+    'the',
+    'to'
+  ]);
   return value
     .split(' ')
     .filter((word) => word && !fillerWords.has(word))
@@ -80,7 +96,8 @@ function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string
   if (compactName === compactQuery) return 95;
   if (normalizedName.startsWith(normalizedQuery)) return 90;
   if (normalizedName.split(' ').some((word) => word.startsWith(normalizedQuery))) return 80;
-  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery)) return 70;
+  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery))
+    return 70;
 
   if (compactQuery.length > 1 && compactName.startsWith(compactQuery)) return 85;
 
@@ -88,6 +105,8 @@ function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string
 }
 
 class IgdbProvider {
+  private static readonly LIST_CACHE_TTL = 5 * 60 * 1000;
+  private static readonly SEARCH_CACHE_TTL = 60 * 1000;
   private clientId: string | undefined;
   private clientSecret: string | undefined;
   private accessToken: string | null = null;
@@ -104,6 +123,10 @@ class IgdbProvider {
   >();
   private gameDetailsCache = new Map<string, { data: IgdbGame; timestamp: number }>();
   private recommendedCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private popularCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private topRatedCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private upcomingCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private searchCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
 
   constructor() {
     this.clientId = envs.services.TWITCH_CLIENT_ID;
@@ -293,16 +316,18 @@ class IgdbProvider {
   async searchGames(query: string, limit = 20): Promise<IgdbGame[]> {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return [];
+    const cacheKey = `${normalizedQuery}:${limit}`;
+    const cached = this.searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.SEARCH_CACHE_TTL) {
+      return cached.data;
+    }
 
     const rankMatches = (games: IgdbGame[]) => {
       const seenNames = new Set<string>();
       return games
         .map((game) => ({ game, relevance: getSearchRelevance(game, normalizedQuery) }))
         .filter(({ relevance }) => relevance > 0)
-        .sort(
-          (a, b) =>
-            b.relevance - a.relevance || (b.game.rating || 0) - (a.game.rating || 0)
-        )
+        .sort((a, b) => b.relevance - a.relevance || (b.game.rating || 0) - (a.game.rating || 0))
         .filter(({ game }) => {
           const name = normalizeSearchText(game.name);
           if (seenNames.has(name)) return false;
@@ -346,11 +371,13 @@ class IgdbProvider {
       }
 
       const rawGames = (await res.json()) as IgdbRawGame[];
-      return rankMatches(
+      const result = rankMatches(
         rawGames
           .map((g) => this.transformGame(g))
           .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category))
       );
+      this.searchCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return [];
     }
@@ -367,7 +394,7 @@ class IgdbProvider {
     genres?: string[];
     platforms?: string[];
   } | null> {
-    if (!title || !title.trim()) return null;
+    if (!title?.trim()) return null;
     const key = title.trim().toLowerCase();
     if (this.mediaCache.has(key)) {
       return this.mediaCache.get(key)!;
@@ -2015,6 +2042,11 @@ class IgdbProvider {
   }
 
   async getPopularGames(limit = 12): Promise<IgdbGame[]> {
+    const cacheKey = String(limit);
+    const cached = this.popularCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
       return this.getFallbackGames().slice(0, limit);
@@ -2062,7 +2094,9 @@ class IgdbProvider {
         }
       }
 
-      return transformed.slice(0, limit);
+      const result = transformed.slice(0, limit);
+      this.popularCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch (err) {
       console.error('Error fetching popular games from IGDB:', err);
       return this.getFallbackGames().slice(0, limit);
@@ -2070,6 +2104,11 @@ class IgdbProvider {
   }
 
   async getTopRatedGames(limit = 6): Promise<IgdbGame[]> {
+    const cacheKey = String(limit);
+    const cached = this.topRatedCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
       return this.getFallbackGames().slice(0, limit);
@@ -2107,7 +2146,9 @@ class IgdbProvider {
         .map((g) => this.transformGame(g))
         .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category));
 
-      return filtered.slice(0, limit);
+      const result = filtered.slice(0, limit);
+      this.topRatedCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return this.getFallbackGames().slice(0, limit);
     }
@@ -2244,6 +2285,11 @@ class IgdbProvider {
   }
 
   async getUpcomingGames(limit = 6): Promise<IgdbGame[]> {
+    const cacheKey = String(limit);
+    const cached = this.upcomingCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const upcomingFallbacks: IgdbGame[] = [
       {
         id: 119171,
@@ -2337,7 +2383,9 @@ class IgdbProvider {
         }
       }
 
-      return filtered.slice(0, limit);
+      const result = filtered.slice(0, limit);
+      this.upcomingCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return upcomingFallbacks.slice(0, limit);
     }

@@ -73,11 +73,12 @@ export interface GameDetailsResponse {
   recommendedGames?: Game[];
 }
 
-export async function searchGames(query: string): Promise<Game[]> {
+export async function searchGames(query: string, signal?: AbortSignal): Promise<Game[]> {
   if (!query.trim()) return [];
   try {
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/games?q=${encodeURIComponent(query)}`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      signal
     });
     if (!res.ok) throw new Error('Falha ao buscar jogos');
     const data = await res.json();
