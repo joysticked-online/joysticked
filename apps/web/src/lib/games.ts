@@ -13,6 +13,7 @@ export interface Game {
   screenshots?: string[];
   genres?: string[];
   platforms?: string[];
+  gameModes?: string[];
   firstReleaseDate?: string | null;
   releaseYear?: string | null;
   developer?: string | null;

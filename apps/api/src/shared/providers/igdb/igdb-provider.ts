@@ -13,6 +13,7 @@ export type IgdbGame = {
   screenshots?: string[];
   genres: string[];
   platforms: string[];
+  gameModes?: string[];
   firstReleaseDate?: string;
   releaseYear?: string;
   developer?: string;
@@ -37,6 +38,7 @@ type IgdbRawGame = {
   screenshots?: { id: number; image_id?: string; url?: string }[];
   genres?: { id: number; name: string }[];
   platforms?: { id: number; name: string; abbreviation?: string }[];
+  game_modes?: { id: number; name: string }[];
   first_release_date?: number;
   rating?: number;
   aggregated_rating?: number;
@@ -48,6 +50,42 @@ type IgdbRawGame = {
   }[];
   similar_games?: (IgdbRawGame | number)[];
 };
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function removeSearchFillers(value: string): string {
+  const fillerWords = new Set(['a', 'an', 'and', 'da', 'das', 'de', 'do', 'dos', 'e', 'for', 'in', 'of', 'on', 'the', 'to']);
+  return value
+    .split(' ')
+    .filter((word) => word && !fillerWords.has(word))
+    .join(' ');
+}
+
+function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string): number {
+  const normalizedQuery = normalizeSearchText(query);
+  const normalizedName = normalizeSearchText(game.name);
+  const normalizedSlug = normalizeSearchText(game.slug);
+  const compactQuery = removeSearchFillers(normalizedQuery);
+  const compactName = removeSearchFillers(normalizedName);
+
+  if (!normalizedQuery) return 0;
+  if (normalizedName === normalizedQuery || normalizedSlug === normalizedQuery) return 100;
+  if (compactName === compactQuery) return 95;
+  if (normalizedName.startsWith(normalizedQuery)) return 90;
+  if (normalizedName.split(' ').some((word) => word.startsWith(normalizedQuery))) return 80;
+  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery)) return 70;
+
+  if (compactQuery.length > 1 && compactName.startsWith(compactQuery)) return 85;
+
+  return 0;
+}
 
 class IgdbProvider {
   private clientId: string | undefined;
@@ -187,6 +225,7 @@ class IgdbProvider {
     const genres = raw.genres?.map((g) => g.name) || [];
     const genreIds = raw.genres?.map((g) => g.id) || [];
     const platforms = raw.platforms?.map((p) => p.name) || [];
+    const gameModes = raw.game_modes?.map((mode) => mode.name) || [];
 
     let releaseYear: string | undefined;
     let firstReleaseDate: string | undefined;
@@ -240,6 +279,7 @@ class IgdbProvider {
       genres,
       genreIds,
       platforms,
+      gameModes,
       firstReleaseDate,
       releaseYear,
       developer,
@@ -251,23 +291,44 @@ class IgdbProvider {
   }
 
   async searchGames(query: string, limit = 20): Promise<IgdbGame[]> {
+    const normalizedQuery = normalizeSearchText(query);
+    if (!normalizedQuery) return [];
+
+    const rankMatches = (games: IgdbGame[]) => {
+      const seenNames = new Set<string>();
+      return games
+        .map((game) => ({ game, relevance: getSearchRelevance(game, normalizedQuery) }))
+        .filter(({ relevance }) => relevance > 0)
+        .sort(
+          (a, b) =>
+            b.relevance - a.relevance || (b.game.rating || 0) - (a.game.rating || 0)
+        )
+        .filter(({ game }) => {
+          const name = normalizeSearchText(game.name);
+          if (seenNames.has(name)) return false;
+          seenNames.add(name);
+          return true;
+        })
+        .slice(0, limit)
+        .map(({ game }) => game);
+    };
+
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
-      return this.getFallbackGames().filter((g) =>
-        g.name.toLowerCase().includes(query.toLowerCase())
-      );
+      return rankMatches(this.getFallbackGames());
     }
 
     try {
       const sanitized = query.replace(/"/g, '\\"');
+      const fetchLimit = Math.min(Math.max(limit * 3, 30), 100);
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.id, genres.name, platforms.name, platforms.abbreviation,
+               genres.id, genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, rating, aggregated_rating,
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         search "${sanitized}";
-        limit ${limit};
+        limit ${fetchLimit};
       `;
 
       const res = await fetch('https://api.igdb.com/v4/games', {
@@ -285,9 +346,11 @@ class IgdbProvider {
       }
 
       const rawGames = (await res.json()) as IgdbRawGame[];
-      return rawGames
-        .map((g) => this.transformGame(g))
-        .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category));
+      return rankMatches(
+        rawGames
+          .map((g) => this.transformGame(g))
+          .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category))
+      );
     } catch {
       return [];
     }
@@ -336,7 +399,7 @@ class IgdbProvider {
             'Content-Type': 'text/plain'
           },
           body: `
-            fields name, slug, cover.image_id, artworks.image_id, screenshots.image_id, genres.name, platforms.name;
+            fields name, slug, cover.image_id, artworks.image_id, screenshots.image_id, genres.name, platforms.name, game_modes.name;
             search "${clean.replace(/"/g, '')}";
             limit 5;
           `
@@ -441,7 +504,7 @@ class IgdbProvider {
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.id, genres.name, platforms.name, platforms.abbreviation,
+               genres.id, genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, rating, aggregated_rating,
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name,
                similar_games.name, similar_games.slug, similar_games.category, similar_games.summary, similar_games.cover.image_id, similar_games.cover.url,
@@ -471,7 +534,7 @@ class IgdbProvider {
           const searchBody = `
             fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                    artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-                   genres.id, genres.name, platforms.name, platforms.abbreviation,
+                   genres.id, genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                    first_release_date, rating, aggregated_rating,
                    involved_companies.developer, involved_companies.publisher, involved_companies.company.name,
                    similar_games.name, similar_games.slug, similar_games.category, similar_games.summary, similar_games.cover.image_id, similar_games.cover.url,
@@ -820,7 +883,7 @@ class IgdbProvider {
 
       const body = `
         fields name, slug, summary, category, cover.image_id, cover.url,
-               genres.id, genres.name, platforms.name, first_release_date, rating;
+               genres.id, genres.name, platforms.name, game_modes.name, first_release_date, rating;
         where genres = (${targetGenre}) & id != ${excludeId} & cover != null & category = (0, 8, 9) & rating > 70;
         sort rating desc;
         limit ${limit};
@@ -1962,7 +2025,7 @@ class IgdbProvider {
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.name, platforms.name, platforms.abbreviation,
+               genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, rating, aggregated_rating, rating_count,
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 100 & cover != null;
@@ -2017,7 +2080,7 @@ class IgdbProvider {
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.name, platforms.name, platforms.abbreviation,
+               genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, rating, aggregated_rating, rating_count,
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 500 & cover != null;
@@ -2111,7 +2174,7 @@ class IgdbProvider {
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.id, genres.name, platforms.name, platforms.abbreviation,
+               genres.id, genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, rating, aggregated_rating, rating_count;
         ${whereClause};
         sort rating desc;
@@ -2239,7 +2302,7 @@ class IgdbProvider {
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
-               genres.name, platforms.name, platforms.abbreviation,
+               genres.name, platforms.name, platforms.abbreviation, game_modes.name,
                first_release_date, hypes, rating,
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where first_release_date > ${nowSeconds} & cover != null & category = (0, 8, 9);

@@ -11,7 +11,6 @@ import {
   Search,
   Sparkles,
   Star,
-  Users,
   X
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -165,7 +164,6 @@ function TopNavContent({
     { href: '/home', label: 'Início', icon: Home, exact: true },
     { href: '/games', label: 'Jogos', icon: Gamepad2, exact: false, hasDropdown: true },
     { href: '/lists', label: 'Listas', icon: ListFilter, exact: false },
-    { href: '/community', label: 'Together', icon: Users, exact: false }
   ];
 
   return (
