@@ -42,7 +42,7 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
 
       {/* ── Main Layout Container ── */}
       <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 md:px-8">
-        <div className="relative -mt-20 grid grid-cols-1 gap-10 md:-mt-28 lg:grid-cols-12">
+        <div className="-mt-20 md:-mt-28 relative grid grid-cols-1 gap-10 lg:grid-cols-12">
           {/* ── LEFT COLUMN: Centered Player Profile Card ── */}
           <ProfileSidebar
             profile={profile}

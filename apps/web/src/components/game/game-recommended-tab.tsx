@@ -74,7 +74,7 @@ export function GameRecommendedTab({
             >
               <Link
                 href={`/games/${game.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-500/10"
+                className="group hover:-translate-y-1 relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40 transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-500/10"
               >
                 {/* Poster Artwork Container */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-900">

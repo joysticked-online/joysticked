@@ -40,12 +40,19 @@
     {
       "idx": 5,
       "version": "7",
+      "when": 1788962400000,
+      "tag": "20260909140000_create-game-reviews-and-activities",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
       "when": 1788963600000,
       "tag": "20260909142000_unique-game-review-per-user",
       "breakpoints": true
     },
     {
-      "idx": 6,
+      "idx": 7,
       "version": "7",
       "when": 1788969600000,
       "tag": "20260909160000_add-spoiler-flag-to-game-reviews",

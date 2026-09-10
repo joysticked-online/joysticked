@@ -66,7 +66,8 @@ export async function discordOAuthCallbackUseCase(
         await (tx ?? db).update(users).set({ avatarUrl }).where(eq(users.id, userId));
       }
     } else {
-      const existingUserByEmail = email ? await userRepository.findByEmail(email) : null;
+      const existingUserByEmail =
+        email && emailVerified ? await userRepository.findByEmail(email) : null;
 
       if (existingUserByEmail) {
         user = existingUserByEmail;
@@ -78,7 +79,7 @@ export async function discordOAuthCallbackUseCase(
           await (tx ?? db).update(users).set({ avatarUrl }).where(eq(users.id, userId));
         }
       } else {
-        if (email) {
+        if (email && emailVerified) {
           user = await userRepository.createWithEmail(email, tx);
           if (emailVerified) {
             await userRepository.setEmailVerified(user.id, tx);

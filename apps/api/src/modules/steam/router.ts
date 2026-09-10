@@ -306,6 +306,11 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
     if (userId) {
       const user = await userRepo.findById(userId);
       if (user) {
+        const existingAccount = await oauthRepo.findByProvider('steam', steamId);
+        if (existingAccount && existingAccount.userId !== userId) {
+          const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
+          return redirect(errDest, 302);
+        }
         const currentSocials = user.socials || {};
         const updatedSocials = {
           ...currentSocials,
@@ -314,7 +319,12 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
           steamPublic: currentSocials.steamPublic ?? true
         };
 
-        await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+        await executeTransaction(db, async (tx) => {
+          await tx.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+          if (!existingAccount) {
+            await oauthRepo.create({ provider: 'steam', providerId: steamId, userId }, tx);
+          }
+        });
       }
       return redirect(finalRedirect, 302);
     }

@@ -238,6 +238,18 @@ export async function submitGameReview(
   return await res.json();
 }
 
+export async function deleteGameReview(slug: string, reviewId: string) {
+  const res = await fetch(
+    `${env.NEXT_PUBLIC_API_URL}/games/${encodeURIComponent(slug)}/reviews/${encodeURIComponent(reviewId)}`,
+    { method: 'DELETE', credentials: 'include' }
+  );
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao remover avaliação');
+  }
+}
+
 export interface HomeFeedData {
   popularGames: Game[];
   topRatedGames: Game[];

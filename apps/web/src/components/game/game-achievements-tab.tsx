@@ -330,7 +330,7 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
           {/* Quick Search & Sync */}
           <div className="flex w-full items-center gap-2 sm:w-auto">
             <div className="relative flex-1 sm:w-60">
-              <Search className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-neutral-500" />
+              <Search className="-translate-y-1/2 absolute top-1/2 left-3 size-3.5 text-neutral-500" />
               <input
                 type="text"
                 value={searchQuery}

@@ -286,7 +286,7 @@ export function StatsTab() {
           {/* Centered Modern Donut Ring with Total Hub */}
           <div className="flex items-center justify-center py-2">
             <div className="relative flex items-center justify-center">
-              <svg className="size-40 -rotate-90 transform" viewBox="0 0 140 140">
+              <svg className="-rotate-90 size-40 transform" viewBox="0 0 140 140">
                 {/* Background Ring */}
                 <circle
                   cx="70"

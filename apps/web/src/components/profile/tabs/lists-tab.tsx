@@ -33,7 +33,7 @@ export function ListsTab({ displayGames }: ListsTabProps) {
             Jogos que marcaram época pela direção de arte, narrativa e gameplay inesquecível.
           </p>
         </div>
-        <div className="flex -space-x-2 pt-2">
+        <div className="-space-x-2 flex pt-2">
           {displayGames.slice(0, 4).map((g) => (
             <img
               key={g.id}
@@ -58,7 +58,7 @@ export function ListsTab({ displayGames }: ListsTabProps) {
             Do primeiro contato com Lordran até as Terras Intermédias de Elden Ring.
           </p>
         </div>
-        <div className="flex -space-x-2 pt-2">
+        <div className="-space-x-2 flex pt-2">
           {displayGames.slice(0, 3).map((g) => (
             <img
               key={g.id}

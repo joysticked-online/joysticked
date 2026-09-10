@@ -19,7 +19,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
-import { type Game, type GameReview, submitGameReview } from '@/lib/games';
+import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -212,8 +212,16 @@ export function GameReviewModal({
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!initialReview) return;
+    setIsSubmitting(true);
+    try {
+      await deleteGameReview(game.slug, initialReview.id);
+    } catch (err: any) {
+      toast.error(err?.message || 'Erro ao remover avaliação.');
+      setIsSubmitting(false);
+      return;
+    }
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(`local_reviews_${game.slug}`) || '[]';
       try {
@@ -225,6 +233,7 @@ export function GameReviewModal({
     onReviewDeleted?.(initialReview.id);
     onClose();
     toast.info('Avaliação removida.');
+    setIsSubmitting(false);
   };
 
   return (
@@ -384,7 +393,7 @@ export function GameReviewModal({
                     Tempo de Jogo (Opcional)
                   </label>
                   <div className="relative">
-                    <Clock className="absolute top-1/2 left-3 size-3 -translate-y-1/2 text-neutral-500" />
+                    <Clock className="-translate-y-1/2 absolute top-1/2 left-3 size-3 text-neutral-500" />
                     <input
                       id="modal-hours-played"
                       type="text"

@@ -113,7 +113,7 @@ function SwipeableCard({
       <img
         src={game.coverUrl}
         alt={game.title}
-        className="pointer-events-none h-full w-full object-cover outline outline-1 outline-white/10 -outline-offset-1"
+        className="-outline-offset-1 pointer-events-none h-full w-full object-cover outline outline-1 outline-white/10"
         draggable={false}
       />
 
@@ -221,7 +221,7 @@ export function TinderCardDeck({
                 <img
                   src={nextGame.coverUrl}
                   alt={nextGame.title}
-                  className="h-full w-full object-cover outline outline-1 outline-white/10 -outline-offset-1"
+                  className="-outline-offset-1 h-full w-full object-cover outline outline-1 outline-white/10"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>

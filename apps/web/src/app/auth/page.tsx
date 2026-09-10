@@ -83,8 +83,8 @@ function AuthContent() {
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background px-4 py-12">
       {/* Background ambient lighting */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/5 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-40 left-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-white/5 blur-[140px]" />
+      <div className="-top-40 -z-10 -translate-x-1/2 pointer-events-none absolute left-1/2 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="-bottom-40 -z-10 -translate-x-1/2 pointer-events-none absolute left-1/2 h-[500px] w-[500px] rounded-full bg-white/5 blur-[140px]" />
 
       {/* Brand Header */}
       <div className="mb-8 flex flex-col items-center gap-3">
@@ -170,7 +170,7 @@ function AuthContent() {
                         Email Address
                       </label>
                       <div className="relative">
-                        <Mail className="absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Mail className="-translate-y-1/2 absolute top-1/2 left-3.5 size-4 text-muted-foreground" />
                         <Input
                           id="email"
                           type="email"

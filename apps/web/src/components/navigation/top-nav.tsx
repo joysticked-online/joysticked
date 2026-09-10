@@ -345,7 +345,7 @@ function TopNavContent({
                       {featuredAwaited?.platforms?.[0] || 'PC (Steam)'} &bull; Em breve
                     </span>
                   </div>
-                  <ChevronDown className="size-4 shrink-0 -rotate-90 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
+                  <ChevronDown className="-rotate-90 size-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                 </Link>
               </motion.div>
 
