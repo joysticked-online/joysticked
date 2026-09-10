@@ -18,7 +18,7 @@ export const updateProfileRouter = new Elysia()
 
       const { profile } = await updateProfileUseCase(db, { id: params.id, ...body });
 
-      return status(200, { profile: toPublicProfile(profile) });
+      return status(200, toPublicProfile(profile));
     },
     {
       params: z.object({ id: z.uuid() }),
