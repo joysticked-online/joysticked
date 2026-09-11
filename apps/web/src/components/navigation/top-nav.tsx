@@ -175,7 +175,7 @@ function TopNavContent({
     <>
       {/* Centralized Floating Capsule Bar */}
       <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex flex-col items-center px-3 sm:top-4 sm:px-4">
-        <header className="pointer-events-auto relative flex h-11 w-[calc(100vw-1rem)] min-w-0 max-w-2xl items-center justify-between gap-2 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:min-w-[720px] sm:gap-9 sm:px-3.5">
+        <header className="pointer-events-auto relative flex h-11 w-[calc(100vw-1rem)] min-w-0 max-w-2xl items-center justify-between gap-2 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:min-w-0 sm:gap-9 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
