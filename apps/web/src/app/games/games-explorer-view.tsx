@@ -1,12 +1,13 @@
 'use client';
 
-import { Gamepad2, Loader2, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { Gamepad2, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FilterSelect } from '@/components/game-explorer/filter-select';
+import { ActiveGameFilters } from '@/components/game-explorer/active-game-filters';
 import { GameExplorerCard } from '@/components/game-explorer/game-explorer-card';
+import { GameFilterControls } from '@/components/game-explorer/game-filter-controls';
 import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { FadeDots } from '@/components/ui/fade-dots';
@@ -467,7 +468,7 @@ function ExplorerContent({
               >
                 <SlidersHorizontal className="size-4.5" />
                 {activeFilterCount > 0 && (
-                  <span className="-top-1 -right-1 absolute flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
+                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
                     {activeFilterCount}
                   </span>
                 )}
@@ -515,92 +516,21 @@ function ExplorerContent({
                         </button>
                       </div>
 
-                      <div className="relative max-h-[min(68vh,520px)] space-y-3.5 overflow-y-auto pr-0.5">
-                        <div className="relative flex items-center">
-                          <Search className="pointer-events-none absolute left-3 size-3.5 text-neutral-500" />
-                          <input
-                            type="search"
-                            value={query}
-                            onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Buscar pelo título exato..."
-                            className="h-9.5 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pr-8 pl-8 text-white text-xs shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] outline-none transition-all placeholder:text-neutral-500 hover:border-white/[0.16] hover:bg-white/[0.06] focus:border-white/25 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]"
-                          />
-                          {query && (
-                            <button
-                              type="button"
-                              onClick={() => setQuery('')}
-                              aria-label="Limpar busca"
-                              className="absolute right-2.5 text-neutral-500 transition-colors hover:text-white"
-                            >
-                              <X className="size-3" />
-                            </button>
-                          )}
-                        </div>
-
-                        <FilterSelect
-                          label="Gênero"
-                          value={selectedGenre}
-                          options={GENRES}
-                          onChange={setSelectedGenre}
-                        />
-                        <FilterSelect
-                          label="Plataforma"
-                          value={selectedPlatform}
-                          options={PLATFORMS}
-                          onChange={setSelectedPlatform}
-                        />
-
-                        <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                          <div className="flex items-center justify-between">
-                            <label
-                              htmlFor="minimum-score"
-                              className="font-medium text-[11px] text-neutral-400"
-                            >
-                              Nota mínima
-                            </label>
-                            <output
-                              htmlFor="minimum-score"
-                              className="rounded-md border border-white/10 bg-white/[0.08] px-1.5 py-0.5 font-semibold text-[10px] text-white"
-                            >
-                              {minimumScore === 0 ? 'Todas' : `${minimumScore.toFixed(1)}+`}
-                            </output>
-                          </div>
-                          <div className="relative px-1 pt-2">
-                            <input
-                              id="minimum-score"
-                              type="range"
-                              min="0"
-                              max="5"
-                              step="0.5"
-                              value={minimumScore}
-                              onChange={(event) => setMinimumScore(Number(event.target.value))}
-                              className="relative z-10 h-1.5 w-full cursor-pointer accent-white"
-                            />
-                            <div className="mt-1.5 flex justify-between text-[9px] text-neutral-500">
-                              {Array.from({ length: 11 }, (_, index) => {
-                                const score = index / 2;
-                                return (
-                                  <span
-                                    key={score}
-                                    className={
-                                      minimumScore === score ? 'font-semibold text-white' : ''
-                                    }
-                                  >
-                                    {score % 1 === 0 ? score : score.toFixed(1)}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-
-                        <FilterSelect
-                          label="Modo de jogo"
-                          value={selectedMode}
-                          options={MODES}
-                          onChange={setSelectedMode}
-                        />
-                      </div>
+                      <GameFilterControls
+                        query={query}
+                        selectedGenre={selectedGenre}
+                        selectedPlatform={selectedPlatform}
+                        minimumScore={minimumScore}
+                        selectedMode={selectedMode}
+                        genres={GENRES}
+                        platforms={PLATFORMS}
+                        modes={MODES}
+                        onQueryChange={setQuery}
+                        onGenreChange={setSelectedGenre}
+                        onPlatformChange={setSelectedPlatform}
+                        onMinimumScoreChange={setMinimumScore}
+                        onModeChange={setSelectedMode}
+                      />
 
                       <div className="relative mt-3 grid grid-cols-2 gap-2 border-white/[0.08] border-t pt-3">
                         <button
@@ -654,49 +584,16 @@ function ExplorerContent({
               </span>
             )}
 
-            {selectedGenre !== 'Todos' && (
-              <button
-                type="button"
-                onClick={() => setSelectedGenre('Todos')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedGenre}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {selectedPlatform !== 'Todas' && (
-              <button
-                type="button"
-                onClick={() => setSelectedPlatform('Todas')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedPlatform}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {minimumScore > 0 && (
-              <button
-                type="button"
-                onClick={() => setMinimumScore(0)}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>Nota {minimumScore.toFixed(1)}+</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {selectedMode !== 'Todos' && (
-              <button
-                type="button"
-                onClick={() => setSelectedMode('Todos')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedMode}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
+            <ActiveGameFilters
+              genre={selectedGenre}
+              platform={selectedPlatform}
+              minimumScore={minimumScore}
+              mode={selectedMode}
+              onGenreReset={() => setSelectedGenre('Todos')}
+              onPlatformReset={() => setSelectedPlatform('Todas')}
+              onScoreReset={() => setMinimumScore(0)}
+              onModeReset={() => setSelectedMode('Todos')}
+            />
           </div>
         </header>
 

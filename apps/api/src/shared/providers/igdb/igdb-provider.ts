@@ -26,6 +26,19 @@ export type IgdbGame = {
   recommendedGames?: IgdbGame[];
 };
 
+export type IgdbPlatform = {
+  id: number;
+  name: string;
+  abbreviation?: string;
+};
+
+export type IgdbTimeToBeat = {
+  gameId: number;
+  completely?: number;
+  hastily?: number;
+  normally?: number;
+};
+
 type IgdbRawGame = {
   id: number;
   name: string;
@@ -127,6 +140,8 @@ class IgdbProvider {
   private topRatedCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
   private upcomingCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
   private searchCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private platformsCache: { data: IgdbPlatform[]; timestamp: number } | null = null;
+  private timeToBeatCache = new Map<string, { data: IgdbTimeToBeat | null; timestamp: number }>();
 
   constructor() {
     this.clientId = envs.services.TWITCH_CLIENT_ID;
@@ -311,6 +326,82 @@ class IgdbProvider {
       aggregatedRating: raw.aggregated_rating ? Math.round(raw.aggregated_rating) / 20 : undefined,
       similarGames
     };
+  }
+
+  /** Returns the compact platform catalogue used by discovery filters and clients. */
+  async getPlatforms(limit = 100): Promise<IgdbPlatform[]> {
+    const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 500);
+    if (
+      this.platformsCache &&
+      Date.now() - this.platformsCache.timestamp < IgdbProvider.LIST_CACHE_TTL
+    ) {
+      return this.platformsCache.data.slice(0, safeLimit);
+    }
+
+    const token = await this.getAccessToken();
+    if (!token || !this.clientId) return [];
+
+    try {
+      const res = await fetch('https://api.igdb.com/v4/platforms', {
+        method: 'POST',
+        headers: {
+          'Client-ID': this.clientId,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `fields name, abbreviation; sort name asc; limit ${safeLimit};`
+      });
+      if (!res.ok) return [];
+
+      const platforms = (await res.json()) as IgdbPlatform[];
+      this.platformsCache = { data: platforms, timestamp: Date.now() };
+      return platforms;
+    } catch {
+      return [];
+    }
+  }
+
+  /** Fetches playtime estimates using IGDB's game_time_to_beats endpoint. */
+  async getTimeToBeat(gameId: number): Promise<IgdbTimeToBeat | null> {
+    if (!Number.isInteger(gameId) || gameId <= 0) return null;
+    const cacheKey = String(gameId);
+    const cached = this.timeToBeatCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) return cached.data;
+
+    const token = await this.getAccessToken();
+    if (!token || !this.clientId) return null;
+
+    try {
+      const res = await fetch('https://api.igdb.com/v4/game_time_to_beats', {
+        method: 'POST',
+        headers: {
+          'Client-ID': this.clientId,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `fields game_id, completely, hastily, normally; where game_id = ${gameId}; limit 1;`
+      });
+      if (!res.ok) return null;
+
+      const [result] = (await res.json()) as Array<{
+        game_id: number;
+        completely?: number;
+        hastily?: number;
+        normally?: number;
+      }>;
+      const data = result
+        ? {
+            gameId: result.game_id,
+            completely: result.completely,
+            hastily: result.hastily,
+            normally: result.normally
+          }
+        : null;
+      this.timeToBeatCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data;
+    } catch {
+      return null;
+    }
   }
 
   async searchGames(query: string, limit = 20): Promise<IgdbGame[]> {
