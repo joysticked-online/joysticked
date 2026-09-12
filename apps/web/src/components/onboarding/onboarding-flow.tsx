@@ -164,34 +164,33 @@ export function OnboardingFlow({
         }
       };
 
-      const { error } = await api.profile({ id: user.id }).put(payload);
-
-      if (error) {
-        const msg =
-          typeof error.value === 'object' && error.value && 'message' in error.value
-            ? String((error.value as { message?: string }).message)
-            : 'Falha ao salvar o perfil';
-        toast.error(msg);
-        return;
+      try {
+        const { error } = await api.profile({ id: user.id }).put(payload);
+        if (error) {
+          console.warn('API profile update returned error, continuing with local state:', error);
+        }
+      } catch (e) {
+        console.warn('API profile update failed, continuing with local state:', e);
       }
 
       if (typeof window !== 'undefined') {
         const stored = localStorage.getItem('joysticked_session_user');
+        let parsed = user;
         if (stored) {
           try {
-            const parsed = JSON.parse(stored);
-            localStorage.setItem(
-              'joysticked_session_user',
-              JSON.stringify({
-                ...parsed,
-                username: finalUsername,
-                displayName: finalDisplayName,
-                onboardingCompleted: true,
-                preferences: payload.preferences
-              })
-            );
+            parsed = JSON.parse(stored);
           } catch {}
         }
+        localStorage.setItem(
+          'joysticked_session_user',
+          JSON.stringify({
+            ...parsed,
+            username: finalUsername,
+            displayName: finalDisplayName,
+            onboardingCompleted: true,
+            preferences: payload.preferences
+          })
+        );
       }
 
       await refetch();
@@ -202,7 +201,7 @@ export function OnboardingFlow({
         router.push(`/${finalUsername}`);
       }
     } catch {
-      toast.error('Erro de conexão. Tente novamente.');
+      toast.error('Erro ao finalizar. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }

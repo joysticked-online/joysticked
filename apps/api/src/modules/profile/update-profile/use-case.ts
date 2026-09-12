@@ -1,6 +1,8 @@
 import type { Database } from '../../../shared/database';
+import { envs } from '../../../shared/config/envs';
 import { createProfileRepository } from '../../../shared/database/repositories/profile-repository';
 import { ConflictError } from '../../../shared/errors/conflict-error';
+import { inMemoryDevUsers } from '../../auth/me/use-case';
 
 type UpdateProfileInput = {
   id: string;
@@ -25,17 +27,41 @@ type UpdateProfileInput = {
 };
 
 export async function updateProfileUseCase(db: Database, { id, ...data }: UpdateProfileInput) {
-  const profileRepository = createProfileRepository(db);
-
-  if (data.username) {
-    const existingProfile = await profileRepository.findByUsername(data.username);
-    if (existingProfile && existingProfile.id !== id) {
-      throw new ConflictError(`Username "${data.username}" is already taken`);
-    }
+  // Sync to in-memory dev users map if in dev
+  if (envs.app.NODE_ENV === 'dev') {
+    const existing = inMemoryDevUsers.get(id) || {
+      id,
+      username: data.username || `user_${id.slice(0, 6)}`,
+      createdAt: new Date()
+    };
+    const updated = {
+      ...existing,
+      ...data,
+      onboardingCompleted:
+        data.onboardingCompleted !== undefined
+          ? data.onboardingCompleted
+          : existing.onboardingCompleted
+    };
+    inMemoryDevUsers.set(id, updated);
   }
 
-  // repository.update already throws ResourceNotFoundError if the profile doesn't exist
-  const profile = await profileRepository.update(id, data);
+  try {
+    const profileRepository = createProfileRepository(db);
 
-  return { profile };
+    if (data.username) {
+      const existingProfile = await profileRepository.findByUsername(data.username);
+      if (existingProfile && existingProfile.id !== id) {
+        throw new ConflictError(`Username "${data.username}" is already taken`);
+      }
+    }
+
+    const profile = await profileRepository.update(id, data);
+    return { profile };
+  } catch (err) {
+    if (envs.app.NODE_ENV === 'dev') {
+      const devProfile = inMemoryDevUsers.get(id);
+      return { profile: devProfile };
+    }
+    throw err;
+  }
 }

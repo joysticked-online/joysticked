@@ -45,14 +45,14 @@ export async function getMeUseCase(db: Database, userId: string | null) {
   if (envs.app.NODE_ENV === 'dev') {
     const devUser = {
       id: userId,
-      username: userId.replace('usr_dev_', '').replace('usr_', ''),
-      displayName: 'Dev Gamer',
+      username: userId.startsWith('user_') ? userId : `user_${userId.replace('usr_dev_', '').replace('usr_', '').slice(0, 6)}`,
+      displayName: 'Novo Jogador',
       email: `${userId}@joysticked.dev`,
       emailVerified: true,
-      onboardingCompleted: true,
+      onboardingCompleted: false,
       avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${userId}`,
       bannerUrl: null,
-      bio: 'Jogador Joysticked',
+      bio: '',
       socials: null,
       preferences: null,
       createdAt: new Date()

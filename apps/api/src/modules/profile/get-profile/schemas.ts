@@ -30,12 +30,23 @@ export const profileResponseSchema = z.object({
   createdAt: zDate
 });
 
-export function toPublicProfile<
-  T extends { email?: unknown; emailVerified?: unknown; socials?: any }
->(profile: T) {
+export type PublicProfile = z.infer<typeof profileResponseSchema>;
+
+export function toPublicProfile(profile: any): PublicProfile {
   const { email: _email, emailVerified: _emailVerified, socials, ...publicProfile } = profile;
   const publicSocials =
-    socials?.steamPublic === false ? { ...socials, steam: null, steamId: null } : socials;
+    socials?.steamPublic === false ? { ...socials, steam: null, steamId: null } : (socials ?? null);
 
-  return { ...publicProfile, socials: publicSocials };
+  return {
+    id: publicProfile.id,
+    username: publicProfile.username,
+    displayName: publicProfile.displayName ?? null,
+    onboardingCompleted: publicProfile.onboardingCompleted ?? false,
+    avatarUrl: publicProfile.avatarUrl ?? null,
+    bannerUrl: publicProfile.bannerUrl ?? null,
+    bio: publicProfile.bio ?? null,
+    socials: publicSocials,
+    preferences: publicProfile.preferences ?? null,
+    createdAt: publicProfile.createdAt ? new Date(publicProfile.createdAt) : new Date()
+  };
 }

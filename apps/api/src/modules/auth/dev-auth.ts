@@ -12,7 +12,8 @@ export async function createDevSocialSession(
   }>
 ) {
   const userId = customData?.id || crypto.randomUUID();
-  const username = customData?.username || `${provider}_player`;
+  // Temporary username prefix so onboarding asks for real handle
+  const username = customData?.username || `user_${userId.slice(0, 6)}`;
   const displayName =
     customData?.displayName !== undefined
       ? customData.displayName
@@ -33,10 +34,10 @@ export async function createDevSocialSession(
     displayName,
     email,
     emailVerified: true,
-    onboardingCompleted: true,
+    onboardingCompleted: false, // Must be false for first-time onboarding
     avatarUrl,
     bannerUrl: null,
-    bio: `Jogador verificado via ${provider}`,
+    bio: '',
     socials: { [provider]: username },
     preferences: null,
     createdAt: new Date()

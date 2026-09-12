@@ -74,7 +74,8 @@ export function useAuth() {
 
   const loginLocal = (identifier = 'jogador', onboardingCompleted = false) => {
     const rawName = identifier.includes('@') ? identifier.split('@')[0] : identifier;
-    const username = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'jogador';
+    const tempId = Date.now().toString().slice(-4);
+    const username = `user_${tempId}`;
     const newUser: AuthUser = {
       id: `usr_${Date.now()}`,
       username,
@@ -82,9 +83,9 @@ export function useAuth() {
       email: identifier.includes('@') ? identifier : `${username}@joysticked.com`,
       emailVerified: true,
       onboardingCompleted,
-      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${rawName}`,
       bannerUrl: null,
-      bio: 'Jogador no Joysticked',
+      bio: '',
       socials: null,
       preferences: null,
       createdAt: new Date().toISOString()
@@ -92,6 +93,8 @@ export function useAuth() {
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('joysticked_session_user', JSON.stringify(newUser));
+      localStorage.setItem('joysticked_session_token', `mock_token_${Date.now()}`);
+      document.cookie = `session=mock_token_${Date.now()}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     }
     queryClient.setQueryData(['auth', 'me'], newUser);
     return newUser;
@@ -101,7 +104,9 @@ export function useAuth() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('joysticked_session_user');
       localStorage.removeItem('joysticked_session_token');
-      document.cookie = 'session=; path=/; max-age=0';
+      document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
     queryClient.setQueryData(['auth', 'me'], null);
   };

@@ -25,7 +25,7 @@ function AuthContent() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
 
-  // Handle URL errors (from OAuth or magic link redirects)
+  // Handle URL errors or reset flags
   useEffect(() => {
     const error = searchParams.get('error');
     if (error === 'invalid_token') {
@@ -34,6 +34,16 @@ function AuthContent() {
       toast.error('Authentication session expired. Please try signing in again.');
     } else if (error === 'oauth_failed') {
       toast.error('Login social não configurado no ambiente local. Use o botão "Entrar com 1 Clique" acima ou seu e-mail!');
+    }
+
+    if (searchParams.get('reset') === 'true') {
+      try {
+        localStorage.clear();
+        document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        toast.info('Sessão resetada! Faça login para começar o onboarding do zero.');
+      } catch {}
     }
   }, [searchParams]);
 
@@ -219,6 +229,23 @@ function AuthContent() {
               <p className="text-center font-geist-sans text-[11px] text-muted-foreground">
                 By signing in, you agree to our Terms of Service and Privacy Policy.
               </p>
+
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.clear();
+                    document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    toast.success('Todos os dados locais foram apagados!');
+                    window.location.reload();
+                  }}
+                  className="font-geist-sans text-[11px] text-muted-foreground/70 underline underline-offset-2 hover:text-foreground"
+                >
+                  Resetar todos os dados locais
+                </button>
+              </div>
             </motion.div>
           ) : (
             /* State 2: Check your inbox */
