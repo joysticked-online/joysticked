@@ -1,7 +1,9 @@
 'use client';
 
-import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Check, ChevronRight, Gamepad2, Layers, Loader2, Sparkles, User } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -19,6 +21,7 @@ type PlatformOption = {
   name: string;
   badge: string;
   description: string;
+  iconTag: string;
 };
 
 const PLATFORMS: PlatformOption[] = [
@@ -26,72 +29,75 @@ const PLATFORMS: PlatformOption[] = [
     id: 'pc',
     name: 'PC / Steam',
     badge: 'Steam',
-    description: 'Steam, Epic Games, GOG'
+    description: 'Steam, Epic Games, GOG',
+    iconTag: 'PC'
   },
   {
     id: 'playstation',
-    name: 'PlayStation 5',
-    badge: 'PS5',
-    description: 'PlayStation 5 & PS4'
+    name: 'PlayStation',
+    badge: 'PS5 / PS4',
+    description: 'PlayStation 5 & PlayStation 4',
+    iconTag: 'PS'
   },
   {
     id: 'xbox',
-    name: 'Xbox Series X|S',
-    badge: 'Xbox',
-    description: 'Series X|S & Game Pass'
+    name: 'Xbox',
+    badge: 'Series / One',
+    description: 'Xbox Series X|S & Game Pass',
+    iconTag: 'XB'
   },
   {
     id: 'switch',
     name: 'Nintendo Switch',
     badge: 'Switch',
-    description: 'Nintendo Switch & OLED'
+    description: 'Switch, OLED & Retro Nintendo',
+    iconTag: 'NSW'
   },
   {
     id: 'handheld',
-    name: 'Handheld & Retro',
-    badge: 'Retro',
-    description: 'Steam Deck, ROG Ally, Emulação'
+    name: 'Portáteis & Emuladores',
+    badge: 'Deck / Retro',
+    description: 'Steam Deck, ROG Ally, Portáteis',
+    iconTag: 'HD'
   }
 ];
 
 const GENRES = [
   'RPG',
-  'Action-Adventure',
+  'Ação',
   'Souls-like',
-  'FPS / Shooter',
+  'FPS',
   'Indie',
-  'Survival Horror',
+  'Terror',
   'Roguelike',
-  'Open World',
-  'Strategy',
-  'Platformer',
-  'Cyberpunk',
-  'Fighting',
-  'Racing',
-  'MMO',
+  'Mundo Aberto',
+  'Estratégia',
+  'Plataforma',
   'Metroidvania',
-  'Story Rich'
+  'Narrativo'
 ];
 
-// Per-step ambient gradient hues — crossfade between steps
-const STEP_GRADIENTS = [
-  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(99,102,241,0.18) 0%, transparent 70%)', // indigo — step 1
-  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)', // violet — step 2
-  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(16,185,129,0.15) 0%, transparent 70%)', // emerald — step 3
-  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(245,158,11,0.15) 0%, transparent 70%)'  // amber — step 4
-];
-
-// Stagger container + item variants
 const containerVariants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
-  exit: {}
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { duration: 0.16 }
+  },
+  exit: { opacity: 0, transition: { duration: 0.1 } }
 };
 
 const itemVariants = {
-  hidden: (dir: number) => ({ opacity: 0, x: dir * 24, y: 4 }),
-  show: { opacity: 1, x: 0, y: 0, transition: { type: 'spring' as const, stiffness: 380, damping: 30 } },
-  exit: (dir: number) => ({ opacity: 0, x: dir * -16, y: -4, transition: { duration: 0.12, ease: 'easeIn' as const } })
+  hidden: (dir: number) => ({ opacity: 0, x: dir * 12 }),
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { type: 'spring' as const, duration: 0.24, bounce: 0 }
+  },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir * -10,
+    transition: { duration: 0.1 }
+  })
 };
 
 export function OnboardingFlow({
@@ -102,32 +108,45 @@ export function OnboardingFlow({
   onClose?: () => void;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, refetch } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['pc', 'playstation']);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>(['RPG', 'Action-Adventure']);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['pc']);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(['RPG', 'Ação', 'Souls-like']);
   const [likedGameIds, setLikedGameIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Track navigation direction for horizontal slide
-  const directionRef = useRef(1); // 1 = forward, -1 = backward
+  // Direction tracker for horizontal transition
+  const directionRef = useRef(1);
 
   const goToStep = (next: number) => {
     directionRef.current = next > currentStep ? 1 : -1;
     setCurrentStep(next);
   };
 
-  // Initialize with current user info
   useEffect(() => {
     if (user) {
       if (user.username && !user.username.startsWith('user_')) {
         setUsername(user.username);
       }
-      if (user.displayName) {
+      if (user.displayName && user.displayName !== 'Dev Gamer' && user.displayName !== 'Novo Jogador') {
         setDisplayName(user.displayName);
+      }
+    } else if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('joysticked_session_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.username && !parsed.username.startsWith('user_')) {
+            setUsername(parsed.username);
+          }
+          if (parsed.displayName) {
+            setDisplayName(parsed.displayName);
+          }
+        } catch {}
       }
     }
   }, [user]);
@@ -145,11 +164,18 @@ export function OnboardingFlow({
   };
 
   const handleFinish = async (finalLikedIds?: string[]) => {
-    if (!user) return;
     setIsSubmitting(true);
 
     try {
-      const finalUsername = username.trim() || user.username;
+      const currentStored = typeof window !== 'undefined' ? localStorage.getItem('joysticked_session_user') : null;
+      let effectiveUser = user;
+      if (!effectiveUser && currentStored) {
+        try {
+          effectiveUser = JSON.parse(currentStored);
+        } catch {}
+      }
+
+      const finalUsername = username.trim().toLowerCase() || effectiveUser?.username || `player_${Date.now().toString().slice(-4)}`;
       const finalDisplayName = displayName.trim() || finalUsername;
       const gamesToSave = finalLikedIds || likedGameIds;
 
@@ -164,44 +190,47 @@ export function OnboardingFlow({
         }
       };
 
-      try {
-        const { error } = await api.profile({ id: user.id }).put(payload);
-        if (error) {
-          console.warn('API profile update returned error, continuing with local state:', error);
-        }
-      } catch (e) {
-        console.warn('API profile update failed, continuing with local state:', e);
-      }
+      const updatedUser = {
+        ...(effectiveUser || {
+          id: `usr_${Date.now()}`,
+          email: `${finalUsername}@joysticked.com`,
+          emailVerified: true,
+          avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${finalUsername}`,
+          bannerUrl: null,
+          bio: '',
+          socials: null,
+          createdAt: new Date().toISOString()
+        }),
+        username: finalUsername,
+        displayName: finalDisplayName,
+        onboardingCompleted: true,
+        preferences: payload.preferences
+      };
 
+      // 1. Immediately update localStorage & React Query cache
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('joysticked_session_user');
-        let parsed = user;
-        if (stored) {
-          try {
-            parsed = JSON.parse(stored);
-          } catch {}
-        }
-        localStorage.setItem(
-          'joysticked_session_user',
-          JSON.stringify({
-            ...parsed,
-            username: finalUsername,
-            displayName: finalDisplayName,
-            onboardingCompleted: true,
-            preferences: payload.preferences
-          })
-        );
+        localStorage.setItem('joysticked_session_user', JSON.stringify(updatedUser));
+      }
+      queryClient.setQueryData(['auth', 'me'], updatedUser);
+
+      // 2. Fire backend update asynchronously without blocking UI navigation
+      if (effectiveUser?.id) {
+        api.profile({ id: effectiveUser.id }).put(payload).catch((err) => {
+          console.warn('API profile update background error:', err);
+        });
       }
 
-      await refetch();
-      toast.success('Perfil configurado com sucesso! Bem-vindo ao Joysticked.');
+      toast.success('Perfil configurado!');
+
       if (onClose) {
         onClose();
-      } else {
-        router.push(`/${finalUsername}`);
       }
+
+      // 3. Guaranteed immediate redirect
+      router.push(`/${finalUsername}`);
     } catch {
-      toast.error('Erro ao finalizar. Tente novamente.');
+      toast.error('Erro ao salvar. Redirecionando...');
+      router.push(`/${username || 'home'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -209,137 +238,146 @@ export function OnboardingFlow({
 
   const totalSteps = 4;
   const dir = directionRef.current;
+  const previewAvatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${username.trim() || 'gamer'}`;
 
   const content = (
-    <div className="relative flex min-h-full w-full flex-col font-geist-sans text-foreground overflow-hidden">
-      {/* Animated ambient background per step */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`bg-${currentStep}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{ background: STEP_GRADIENTS[currentStep - 1] }}
-        />
-      </AnimatePresence>
-
-      {/* Top Header with Progress Indicators */}
-      <header className="relative flex h-16 w-full items-center justify-between px-6 md:px-10">
-        <div className="flex items-center gap-4">
-          {currentStep > 1 && (
+    <div className="relative flex w-full flex-col font-geist-sans text-white">
+      {/* Step Header with Navigation and Segmented Capsule Progress */}
+      <header className="flex h-14 w-full items-center justify-between px-6 pt-3 pb-2">
+        <div className="flex items-center gap-3">
+          {currentStep > 1 ? (
             <button
               type="button"
               onClick={() => goToStep(currentStep - 1)}
-              className="flex size-8 items-center justify-center rounded-xl border border-input bg-card/60 text-muted-foreground backdrop-blur-sm transition-all hover:bg-card hover:text-foreground active:scale-[0.97]"
+              className="flex size-8 items-center justify-center rounded-xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
               title="Voltar"
             >
               <ArrowLeft className="size-3.5" />
             </button>
+          ) : (
+            <div className="size-8" />
           )}
           <Logos.Joysticked className="h-5 opacity-90" />
         </div>
 
-        {/* Animated spring segment progress */}
-        <div className="flex items-center gap-2">
+        {/* Minimalist Segmented Indicator */}
+        <div className="flex items-center gap-1.5">
           {Array.from({ length: totalSteps }).map((_, idx) => {
             const stepNum = idx + 1;
             const isCompleted = stepNum < currentStep;
             const isCurrent = stepNum === currentStep;
 
             return (
-              <motion.div
+              <div
                 key={stepNum}
-                layout
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 className={cn(
-                  'h-1 rounded-full',
+                  'h-1 rounded-full transition-all duration-250',
                   isCurrent
-                    ? 'w-8 bg-foreground'
+                    ? 'w-6 bg-white'
                     : isCompleted
-                      ? 'w-5 bg-foreground/60'
-                      : 'w-5 bg-input/40'
+                      ? 'w-2.5 bg-white/40'
+                      : 'w-2.5 bg-white/10'
                 )}
               />
             );
           })}
         </div>
 
-        <div className="font-medium text-muted-foreground text-xs">
-          {currentStep} / {totalSteps}
+        <div className="w-8 text-right font-mono text-[11px] tabular-nums text-zinc-500">
+          {currentStep}/{totalSteps}
         </div>
       </header>
 
-      {/* Main Step Container */}
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 py-6">
-        <AnimatePresence mode="wait" custom={dir}>
-          {/* ── STEP 1: Name & Handle ── */}
+      {/* Step Body */}
+      <main className="flex w-full flex-1 flex-col items-center justify-center px-6 py-4">
+        <AnimatePresence mode="wait" custom={dir} initial={false}>
+          {/* ── STEP 1: Identity & Handle ── */}
           {currentStep === 1 && (
             <motion.div
-              key="step-1"
+              key="onboarding-step-1"
               custom={dir}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex w-full max-w-md flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-sm flex-col items-center gap-5 text-center"
             >
-              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
-                <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
-                  Diga-nos seu nome para começar
+              {/* Dynamic Avatar Preview */}
+              <motion.div custom={dir} variants={itemVariants} className="relative mt-1">
+                <div className="relative size-16 overflow-hidden rounded-2xl bg-white/[0.05] p-1.5 ring-1 ring-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]">
+                  <img
+                    src={previewAvatarUrl}
+                    alt="Avatar"
+                    className="size-full rounded-xl object-cover"
+                  />
+                </div>
+                <div className="absolute -bottom-1 -right-1 rounded-md bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-black uppercase tracking-wider">
+                  BETA
+                </div>
+              </motion.div>
+
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1">
+                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                  Criar sua identidade
                 </h1>
-                <p className="text-muted-foreground text-xs">
-                  Escolha como você será identificado pelos outros jogadores.
+                <p className="text-xs text-zinc-400 [text-wrap:pretty]">
+                  Escolha seu nome público e handle único para seu diário.
                 </p>
               </motion.div>
 
               <motion.div custom={dir} variants={itemVariants} className="w-full space-y-3.5 text-left">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label
                     htmlFor="displayName"
-                    className="font-medium text-muted-foreground text-xs"
+                    className="block text-[11px] font-medium text-zinc-400"
                   >
                     Nome de exibição
                   </label>
                   <Input
                     id="displayName"
-                    placeholder="Ex: Henrique"
+                    placeholder="Ex: Pedro Henrique"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-11 rounded-xl border-border bg-card px-3.5 text-sm"
+                    className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label htmlFor="username" className="font-medium text-muted-foreground text-xs">
-                    Nome de usuário (@handle)
-                  </label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="username" className="block text-[11px] font-medium text-zinc-400">
+                      Nome de usuário (@handle)
+                    </label>
+                    <span className="font-mono text-[10px] text-zinc-500">
+                      joysticked.com/@{username || 'seu_handle'}
+                    </span>
+                  </div>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3.5 select-none text-muted-foreground text-xs">
+                    <span className="pointer-events-none absolute left-3.5 select-none font-mono text-xs text-zinc-500">
                       @
                     </span>
                     <Input
                       id="username"
-                      placeholder="henrique"
+                      placeholder="pedro"
                       value={username}
                       onChange={(e) =>
                         setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))
                       }
-                      className="h-11 rounded-xl border-border bg-card pl-7 text-sm"
+                      className="h-11 rounded-xl border-0 bg-white/[0.03] pl-8 pr-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
                     />
                   </div>
                 </div>
               </motion.div>
 
-              <motion.div custom={dir} variants={itemVariants} className="w-full">
+              <motion.div custom={dir} variants={itemVariants} className="w-full pt-1">
                 <Button
-                  size="lg"
                   disabled={!username.trim() || username.length < 3}
                   onClick={() => goToStep(2)}
-                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                  className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
-                  Continuar
+                  <div className="flex items-center justify-center gap-1.5">
+                    <span>Continuar</span>
+                    <ChevronRight className="size-3.5" />
+                  </div>
                 </Button>
               </motion.div>
             </motion.div>
@@ -348,27 +386,27 @@ export function OnboardingFlow({
           {/* ── STEP 2: Platforms ── */}
           {currentStep === 2 && (
             <motion.div
-              key="step-2"
+              key="onboarding-step-2"
               custom={dir}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex w-full flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
             >
-              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
-                <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1">
+                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
                   Onde você joga?
                 </h1>
-                <p className="text-muted-foreground text-xs">
-                  Selecione todas as plataformas em que você joga regularmente.
+                <p className="text-xs text-zinc-400 [text-wrap:pretty]">
+                  Selecione as plataformas que você mais utiliza.
                 </p>
               </motion.div>
 
               <motion.div
                 custom={dir}
                 variants={itemVariants}
-                className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3"
+                className="grid w-full grid-cols-1 gap-2"
               >
                 {PLATFORMS.map((platform) => {
                   const isSelected = selectedPlatforms.includes(platform.id);
@@ -379,44 +417,70 @@ export function OnboardingFlow({
                       type="button"
                       onClick={() => togglePlatform(platform.id)}
                       className={cn(
-                        'relative flex flex-col items-start justify-between rounded-2xl border p-4 text-left transition-all duration-150 active:scale-[0.97]',
+                        'flex items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-all duration-150 active:scale-[0.97]',
                         isSelected
-                          ? 'border-primary bg-primary/10 shadow-lg ring-1 ring-primary/30'
-                          : 'border-border bg-card/80 hover:border-input hover:bg-card'
+                          ? 'bg-white text-black ring-0 shadow-[0_1px_3px_rgba(0,0,0,0.3)]'
+                          : 'bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]'
                       )}
                     >
-                      <div className="flex w-full items-center justify-between">
-                        <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-wider">
-                          {platform.badge}
-                        </span>
-                        <div
+                      <div className="flex items-center gap-3">
+                        <span
                           className={cn(
-                            'flex size-4 items-center justify-center rounded-full border transition-all',
+                            'flex size-7 items-center justify-center rounded-lg font-mono text-[10px] font-bold',
                             isSelected
-                              ? 'border-primary bg-primary text-primary-foreground'
-                              : 'border-border'
+                              ? 'bg-black text-white'
+                              : 'bg-white/[0.06] text-zinc-400'
                           )}
                         >
-                          {isSelected && <Check className="size-2.5" />}
+                          {platform.iconTag}
+                        </span>
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-xs">
+                              {platform.name}
+                            </span>
+                            <span
+                              className={cn(
+                                'font-mono text-[9px] uppercase tracking-wider',
+                                isSelected ? 'text-black/60' : 'text-zinc-500'
+                              )}
+                            >
+                              {platform.badge}
+                            </span>
+                          </div>
+                          <p
+                            className={cn(
+                              'text-[10px]',
+                              isSelected ? 'text-black/70' : 'text-zinc-500'
+                            )}
+                          >
+                            {platform.description}
+                          </p>
                         </div>
                       </div>
 
-                      <div className="mt-4 space-y-0.5">
-                        <h3 className="font-medium text-foreground text-xs">{platform.name}</h3>
-                        <p className="text-[11px] text-muted-foreground">{platform.description}</p>
+                      <div
+                        className={cn(
+                          'flex size-4.5 items-center justify-center rounded-full transition-colors',
+                          isSelected
+                            ? 'bg-black text-white'
+                            : 'bg-white/10 text-transparent'
+                        )}
+                      >
+                        {isSelected && <Check className="size-3" strokeWidth={2.5} />}
                       </div>
                     </button>
                   );
                 })}
               </motion.div>
 
-              <motion.div custom={dir} variants={itemVariants} className="w-full max-w-sm">
+              <motion.div custom={dir} variants={itemVariants} className="w-full pt-1">
                 <Button
-                  size="lg"
+                  disabled={selectedPlatforms.length === 0}
                   onClick={() => goToStep(3)}
-                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                  className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
-                  Continuar
+                  Continuar ({selectedPlatforms.length} selecionada{selectedPlatforms.length !== 1 ? 's' : ''})
                 </Button>
               </motion.div>
             </motion.div>
@@ -425,27 +489,27 @@ export function OnboardingFlow({
           {/* ── STEP 3: Favorite Genres ── */}
           {currentStep === 3 && (
             <motion.div
-              key="step-3"
+              key="onboarding-step-3"
               custom={dir}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex w-full max-w-lg flex-col items-center gap-6 text-center"
+              className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
             >
-              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
-                <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
-                  Seus gêneros favoritos
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1">
+                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                  Gêneros favoritos
                 </h1>
-                <p className="text-muted-foreground text-xs">
-                  Selecione ao menos um gênero para personalizar o seu catálogo.
+                <p className="text-xs text-zinc-400 [text-wrap:pretty]">
+                  Escolha os estilos que definem o seu gosto.
                 </p>
               </motion.div>
 
               <motion.div
                 custom={dir}
                 variants={itemVariants}
-                className="flex flex-wrap items-center justify-center gap-2"
+                className="flex flex-wrap items-center justify-center gap-2 py-2"
               >
                 {GENRES.map((genre) => {
                   const isSelected = selectedGenres.includes(genre);
@@ -456,10 +520,10 @@ export function OnboardingFlow({
                       type="button"
                       onClick={() => toggleGenre(genre)}
                       className={cn(
-                        'rounded-full border px-3.5 py-1.5 font-medium text-xs transition-all duration-100 active:scale-[0.96]',
+                        'rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150 active:scale-[0.96]',
                         isSelected
-                          ? 'border-primary bg-primary text-primary-foreground shadow-md'
-                          : 'border-border bg-card text-muted-foreground hover:border-input hover:text-foreground'
+                          ? 'bg-white text-black ring-0 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                          : 'bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.08] hover:text-white'
                       )}
                     >
                       {genre}
@@ -468,42 +532,40 @@ export function OnboardingFlow({
                 })}
               </motion.div>
 
-              <motion.div custom={dir} variants={itemVariants} className="w-full max-w-sm">
+              <motion.div custom={dir} variants={itemVariants} className="w-full pt-2">
                 <Button
-                  size="lg"
                   disabled={selectedGenres.length === 0}
                   onClick={() => goToStep(4)}
-                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                  className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
-                  Continuar ({selectedGenres.length} selecionado{selectedGenres.length > 1 ? 's' : ''}
-                  )
+                  Continuar ({selectedGenres.length} escolhido{selectedGenres.length !== 1 ? 's' : ''})
                 </Button>
               </motion.div>
             </motion.div>
           )}
 
-          {/* ── STEP 4: Tinder-Style Game Discovery Swipe Deck ── */}
+          {/* ── STEP 4: Discovery Swipe Deck ── */}
           {currentStep === 4 && (
             <motion.div
-              key="step-4"
+              key="onboarding-step-4"
               custom={dir}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="exit"
-              className="flex w-full max-w-md flex-col items-center gap-5 text-center"
+              className="flex w-full max-w-xs flex-col items-center gap-3 text-center"
             >
-              <motion.div custom={dir} variants={itemVariants} className="space-y-1">
-                <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
-                  Descubra títulos
+              <motion.div custom={dir} variants={itemVariants} className="space-y-0.5">
+                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                  Descobrir &amp; Calibrar
                 </h1>
-                <p className="text-muted-foreground text-xs">
-                  Arraste os cards para calibrar suas preferências iniciais.
+                <p className="text-xs text-zinc-400 [text-wrap:pretty]">
+                  Deslize para a direita se curte, ou para a esquerda para pular.
                 </p>
               </motion.div>
 
-              {/* Tinder-Style Gesture Deck */}
-              <motion.div custom={dir} variants={itemVariants} className="w-full">
+              {/* High-fidelity Drag/Swipe Card Deck */}
+              <motion.div custom={dir} variants={itemVariants} className="w-full py-1">
                 <TinderCardDeck
                   onRate={(gameId, liked) => {
                     if (liked) {
@@ -516,21 +578,20 @@ export function OnboardingFlow({
                 />
               </motion.div>
 
-              {/* Finish Button Option */}
+              {/* Finish Button */}
               <motion.div custom={dir} variants={itemVariants} className="w-full">
                 <Button
-                  size="lg"
                   disabled={isSubmitting}
                   onClick={() => handleFinish()}
-                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                  className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                      Finalizando perfil…
+                      <Loader2 className="mr-2 size-3.5 animate-spin" />
+                      Finalizando configuração…
                     </>
                   ) : (
-                    'Concluir Onboarding e ir para o Perfil'
+                    'Concluir e Abrir Perfil'
                   )}
                 </Button>
               </motion.div>
@@ -543,17 +604,31 @@ export function OnboardingFlow({
 
   if (isModal) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
-        <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-y-auto rounded-3xl border border-border/80 bg-background/95 p-2 shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-2xl">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97, y: 6 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.97, y: 6 }}
+          transition={{ type: 'spring', duration: 0.28, bounce: 0 }}
+          className="relative flex w-full max-w-md flex-col overflow-hidden rounded-[26px] bg-[#111114]/95 p-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08]"
+        >
           {content}
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background">
-      {content}
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#08080a] p-4 selection:bg-white selection:text-black">
+      {/* Background Matrix */}
+      <div 
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,#000_70%,transparent_100%)] opacity-80" 
+        aria-hidden="true" 
+      />
+
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[26px] bg-[#111114]/95 p-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-2xl sm:p-4">
+        {content}
+      </div>
     </div>
   );
 }

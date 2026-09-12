@@ -22,7 +22,7 @@ export const DEFAULT_DISCOVERY_GAMES: DiscoveryGame[] = [
     title: 'Elden Ring',
     year: '2022',
     developer: 'FromSoftware',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co4jni.webp',
     genres: ['Action RPG', 'Souls-like']
   },
   {
@@ -30,7 +30,7 @@ export const DEFAULT_DISCOVERY_GAMES: DiscoveryGame[] = [
     title: "Baldur's Gate 3",
     year: '2023',
     developer: 'Larian Studios',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co670h.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co670h.webp',
     genres: ['RPG', 'Turn-Based']
   },
   {
@@ -38,7 +38,7 @@ export const DEFAULT_DISCOVERY_GAMES: DiscoveryGame[] = [
     title: 'Cyberpunk 2077',
     year: '2020',
     developer: 'CD Projekt RED',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co8v0m.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co8v0m.webp',
     genres: ['Action RPG', 'Open World']
   },
   {
@@ -46,23 +46,23 @@ export const DEFAULT_DISCOVERY_GAMES: DiscoveryGame[] = [
     title: 'The Legend of Zelda: Tears of the Kingdom',
     year: '2023',
     developer: 'Nintendo',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5vmg.webp',
-    genres: ['Action-Adventure', 'Open World']
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co5vmg.webp',
+    genres: ['Ação e Aventura', 'Mundo Aberto']
   },
   {
     id: 'god-of-war-ragnarok',
     title: 'God of War Ragnarök',
     year: '2022',
     developer: 'Santa Monica Studio',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co5s5v.webp',
-    genres: ['Action-Adventure', 'Mythology']
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co5s5v.webp',
+    genres: ['Ação e Aventura', 'Mitologia']
   },
   {
     id: 'hollow-knight',
     title: 'Hollow Knight',
     year: '2017',
     developer: 'Team Cherry',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co952f.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co952f.webp',
     genres: ['Metroidvania', 'Indie']
   }
 ];
@@ -77,16 +77,16 @@ function SwipeableCard({
   isTop: boolean;
 }) {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-250, 250], [-18, 18]);
-  const likeOpacity = useTransform(x, [20, 100], [0, 1]);
-  const passOpacity = useTransform(x, [-20, -100], [0, 1]);
+  const rotate = useTransform(x, [-200, 200], [-12, 12]);
+  const likeOpacity = useTransform(x, [20, 75], [0, 1]);
+  const passOpacity = useTransform(x, [-20, -75], [0, 1]);
 
   const handleDragEnd = (
     _: any,
     info: { offset: { x: number; y: number }; velocity: { x: number; y: number } }
   ) => {
-    const threshold = 100;
-    const velocityThreshold = 400;
+    const threshold = 75;
+    const velocityThreshold = 300;
 
     if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
       onSwipe('right');
@@ -104,61 +104,61 @@ function SwipeableCard({
       style={{ x, rotate }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.7}
+      dragElastic={0.6}
       onDragEnd={handleDragEnd}
       whileTap={{ cursor: 'grabbing' }}
-      className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl border border-border/80 bg-card shadow-2xl active:cursor-grabbing"
+      className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-[20px] bg-[#18181b] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] ring-1 ring-white/[0.1] active:cursor-grabbing"
     >
       {/* Game Cover */}
       <img
         src={game.coverUrl}
         alt={game.title}
-        className="-outline-offset-1 pointer-events-none h-full w-full object-cover outline outline-1 outline-white/10"
+        className="pointer-events-none h-full w-full object-cover"
         draggable={false}
       />
 
-      {/* Subtle Vignette Gradient */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
+      {/* Atmospheric Vignette Gradient */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent" />
 
       {/* Swipe Feedback Stamp: LIKE (Right) */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="pointer-events-none absolute top-6 left-6 rotate-[-12deg] rounded-xl border-2 border-emerald-500 bg-emerald-500/20 px-3 py-1 font-bold text-emerald-400 backdrop-blur-md"
+        className="pointer-events-none absolute top-3.5 left-3.5 rotate-[-6deg] rounded-lg bg-white px-2.5 py-1 text-black font-semibold shadow-lg backdrop-blur-md"
       >
-        <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
-          <ThumbsUp className="size-3.5" strokeWidth={2} />
-          <span>Gostei</span>
+        <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider">
+          <ThumbsUp className="size-3" strokeWidth={2.5} />
+          <span>Curti</span>
         </div>
       </motion.div>
 
       {/* Swipe Feedback Stamp: PASS (Left) */}
       <motion.div
         style={{ opacity: passOpacity }}
-        className="pointer-events-none absolute top-6 right-6 rotate-[12deg] rounded-xl border-2 border-rose-500 bg-rose-500/20 px-3 py-1 font-bold text-rose-400 backdrop-blur-md"
+        className="pointer-events-none absolute top-3.5 right-3.5 rotate-[6deg] rounded-lg bg-zinc-800/90 px-2.5 py-1 text-zinc-200 font-semibold ring-1 ring-white/15 backdrop-blur-md"
       >
-        <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider">
-          <ThumbsDown className="size-3.5" strokeWidth={2} />
+        <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider">
+          <ThumbsDown className="size-3" strokeWidth={2.5} />
           <span>Pular</span>
         </div>
       </motion.div>
 
-      {/* Game Details Card Footer */}
-      <div className="pointer-events-none absolute right-5 bottom-5 left-5 text-left">
-        <div className="flex items-center gap-2 font-medium text-[11px] text-white/70">
+      {/* Card Details Footer */}
+      <div className="pointer-events-none absolute right-4 bottom-4 left-4 text-left">
+        <div className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400">
           <span>{game.year}</span>
           <span>•</span>
-          <span>{game.developer}</span>
+          <span className="truncate">{game.developer}</span>
         </div>
 
-        <h3 className="mt-1 font-bold font-redaction text-white text-xl leading-snug">
+        <h3 className="mt-0.5 font-redaction font-medium text-lg text-white leading-snug tracking-tight">
           {game.title}
         </h3>
 
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-1.5 flex flex-wrap gap-1">
           {game.genres.map((g) => (
             <span
               key={g}
-              className="rounded-full bg-white/15 px-2.5 py-0.5 font-medium text-[10px] text-white/90 backdrop-blur-md"
+              className="rounded-md bg-white/[0.08] px-2 py-0.5 font-medium text-[9px] text-zinc-200 ring-1 ring-white/[0.08] backdrop-blur-sm"
             >
               {g}
             </span>
@@ -201,7 +201,7 @@ export function TinderCardDeck({
     setTimeout(() => {
       setCurrentIndex((prev) => prev + 1);
       setSwipeDirection(null);
-    }, 150);
+    }, 60);
   };
 
   const handleReset = () => {
@@ -210,35 +210,35 @@ export function TinderCardDeck({
   };
 
   return (
-    <div className="relative flex flex-col items-center gap-6">
+    <div className="relative flex flex-col items-center gap-3">
       {!isFinished ? (
         <>
-          {/* 3D Stack Container */}
-          <div className="relative aspect-[3/4] w-72 select-none sm:w-80">
-            {/* Background Preview Card (Next in queue) with Concentric Radius & Image Outline */}
+          {/* Card Stack */}
+          <div className="relative aspect-[3/4] w-56 select-none sm:w-60">
+            {/* Background Preview Card */}
             {nextGame && (
-              <div className="pointer-events-none absolute inset-0 translate-y-3 scale-[0.93] overflow-hidden rounded-3xl border border-white/[0.08] bg-card opacity-60 shadow-lg transition-transform duration-300 ease-out">
+              <div className="pointer-events-none absolute inset-0 translate-y-2 scale-[0.96] overflow-hidden rounded-[20px] bg-[#18181b] opacity-35 ring-1 ring-white/[0.08] transition-transform duration-200 ease-out">
                 <img
                   src={nextGame.coverUrl}
                   alt={nextGame.title}
-                  className="-outline-offset-1 h-full w-full object-cover outline outline-1 outline-white/10"
+                  className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>
             )}
 
-            {/* Active Top Draggable Card */}
+            {/* Top Interactive Card */}
             <AnimatePresence mode="wait">
               {currentGame && (
                 <motion.div
                   key={currentGame.id}
-                  initial={{ scale: 0.95, opacity: 0 }}
+                  initial={{ scale: 0.97, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{
-                    x: swipeDirection === 'right' ? 400 : swipeDirection === 'left' ? -400 : 0,
+                    x: swipeDirection === 'right' ? 280 : swipeDirection === 'left' ? -280 : 0,
                     opacity: 0,
-                    rotate: swipeDirection === 'right' ? 25 : swipeDirection === 'left' ? -25 : 0,
-                    transition: { duration: 0.22, ease: 'easeIn' }
+                    rotate: swipeDirection === 'right' ? 14 : swipeDirection === 'left' ? -14 : 0,
+                    transition: { duration: 0.16, ease: 'easeIn' }
                   }}
                   className="absolute inset-0"
                 >
@@ -248,72 +248,69 @@ export function TinderCardDeck({
             </AnimatePresence>
           </div>
 
-          {/* Tinder-Style Floating Controls with 0.96 scale */}
-          <div className="flex items-center gap-6">
+          {/* Clean Tactile Floating Controls */}
+          <div className="flex items-center gap-4 pt-1">
             <button
               type="button"
               onClick={() => handleSwipe('left')}
-              className="group flex size-14 items-center justify-center rounded-full border border-white/[0.08] bg-card/90 text-rose-500 shadow-[0_0_0_1px_oklch(1_0_0/0.05),0_8px_20px_rgba(0,0,0,0.3)] backdrop-blur-md transition-transform duration-150 ease-out hover:border-rose-500/40 hover:bg-rose-500/10 active:scale-[0.96]"
-              title="Pular / Não joguei"
+              className="flex size-10 items-center justify-center rounded-xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
+              title="Pular"
             >
-              <X className="size-6 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+              <X className="size-4" strokeWidth={2} />
             </button>
 
-            <div className="rounded-full border border-white/[0.08] bg-card/60 px-4 py-1.5 font-medium text-muted-foreground text-xs backdrop-blur-sm">
-              <span>{games.length - currentIndex} jogos restantes</span>
-            </div>
+            <span className="font-mono text-[10px] text-zinc-500 tabular-nums">
+              {games.length - currentIndex} restantes
+            </span>
 
             <button
               type="button"
               onClick={() => handleSwipe('right')}
-              className="group flex size-14 items-center justify-center rounded-full border border-white/[0.08] bg-card/90 text-emerald-500 shadow-[0_0_0_1px_oklch(1_0_0/0.05),0_8px_20px_rgba(0,0,0,0.3)] backdrop-blur-md transition-transform duration-150 ease-out hover:border-emerald-500/40 hover:bg-emerald-500/10 active:scale-[0.96]"
-              title="Já joguei / Gostei"
+              className="flex size-10 items-center justify-center rounded-xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
+              title="Gostei"
             >
-              <ThumbsUp
-                className="size-6 transition-transform group-hover:scale-110"
-                strokeWidth={1.5}
-              />
+              <ThumbsUp className="size-4" strokeWidth={2} />
             </button>
           </div>
-
-          <p className="text-[11px] text-muted-foreground">
-            Arraste para a direita para curtir ou para a esquerda para pular
-          </p>
         </>
       ) : (
         /* Finished State */
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-6 py-8 text-center"
+          transition={{ type: 'spring', duration: 0.28, bounce: 0 }}
+          className="flex flex-col items-center gap-4 py-4 text-center"
         >
-          <div className="flex size-16 items-center justify-center rounded-3xl border border-primary/30 bg-primary/10 text-primary shadow-xl">
-            <Sparkles className="size-8" />
+          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white ring-1 ring-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]">
+            <Sparkles className="size-6 text-white" />
           </div>
 
-          <div className="space-y-1.5">
-            <h3 className="font-bold font-redaction text-2xl text-foreground">
-              Calibração Completa!
+          <div className="space-y-1">
+            <h3 className="font-redaction font-medium text-xl text-white">
+              Tudo pronto!
             </h3>
-            <p className="max-w-xs text-muted-foreground text-xs">
-              Você avaliou os jogos sugeridos. Seu perfil inicial está calibrado com{' '}
-              {likedIds.length} jogo{likedIds.length !== 1 ? 's' : ''} favoritados.
+            <p className="max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
+              {likedIds.length} título{likedIds.length !== 1 ? 's' : ''} salvo{likedIds.length !== 1 ? 's' : ''} nas suas preferências.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 pt-1">
             <Button
               variant="outline"
               size="sm"
               onClick={handleReset}
-              className="rounded-xl text-xs"
+              className="h-9 rounded-xl border-0 bg-white/[0.04] px-3 text-xs text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.08] active:scale-[0.96]"
             >
-              <RotateCcw className="mr-1.5 size-3.5" />
+              <RotateCcw className="mr-1.5 size-3" />
               Revisar
             </Button>
-            <Button size="sm" onClick={() => onFinish(likedIds)} className="rounded-xl text-xs">
-              <Check className="mr-1.5 size-3.5" />
-              Continuar
+            <Button
+              size="sm"
+              onClick={() => onFinish(likedIds)}
+              className="h-9 rounded-xl bg-white px-4 text-xs font-medium text-black hover:bg-zinc-200 active:scale-[0.96]"
+            >
+              <Check className="mr-1.5 size-3.5" strokeWidth={2.5} />
+              Concluir
             </Button>
           </div>
         </motion.div>
