@@ -104,7 +104,7 @@ export function GameBentoGrid() {
         {/* =========================================================================
             CARD 1: Review Breakdown / Vector Blueprint Inspector (Left Top) - md:col-span-4
            ========================================================================= */}
-        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
+        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-[box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-[0.1]"
@@ -206,7 +206,7 @@ export function GameBentoGrid() {
         {/* =========================================================================
             CARD 2: Isometric Backlog Stack (Center Tall Card) - md:col-span-4
            ========================================================================= */}
-        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
+        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-[box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-[0.08]"
@@ -292,7 +292,7 @@ export function GameBentoGrid() {
         {/* =========================================================================
             CARD 3: Interactive Red Pixel Heart Review Rating (Right Top) - md:col-span-4
            ========================================================================= */}
-        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
+        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-[box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-12 lg:col-span-4">
           {/* Top Bar: Platform pills + hours counter */}
           <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-xs">
             <div className="flex items-center gap-1">
@@ -379,7 +379,7 @@ export function GameBentoGrid() {
         {/* =========================================================================
             CARD 4: Tactile Review Log Capsule (Left Bottom) - md:col-span-5
            ========================================================================= */}
-        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-6 lg:col-span-5">
+        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-[box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-6 lg:col-span-5">
           {/* Interactive Floating Review Log in the center */}
           <div className="relative flex min-h-[160px] w-full items-center justify-center">
             <button
@@ -441,7 +441,7 @@ export function GameBentoGrid() {
         {/* =========================================================================
             CARD 5: CAD Blueprint of a Game Review Card (Right Bottom) - md:col-span-7
            ========================================================================= */}
-        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-6 lg:col-span-7">
+        <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-[#0E0E0E] p-6 transition-[box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] md:col-span-6 lg:col-span-7">
           {/* Technical CAD Blueprint Vector Graphic of Review Metrics */}
           <div className="relative flex min-h-[160px] w-full items-center justify-center py-2">
             <svg

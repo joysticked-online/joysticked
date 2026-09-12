@@ -298,26 +298,30 @@ export function GameReviewModal({
           likesCount: initialReview?.likesCount || 0,
           createdAt: initialReview?.createdAt || new Date().toISOString()
         };
+      }
 
-        if (typeof window !== 'undefined') {
+      // Always save to localStorage to ensure instant client sync across profile & game tabs
+      if (typeof window !== 'undefined' && updatedReview) {
+        try {
           const stored = localStorage.getItem(`local_reviews_${game.slug}`) || '[]';
-          try {
-            const list: GameReview[] = JSON.parse(stored);
-            const filtered = list.filter((r) => r.id !== updatedReview!.id);
-            localStorage.setItem(
-              `local_reviews_${game.slug}`,
-              JSON.stringify([updatedReview, ...filtered])
-            );
+          const list: GameReview[] = JSON.parse(stored);
+          const filtered = list.filter((r) => r.id !== updatedReview!.id);
+          localStorage.setItem(
+            `local_reviews_${game.slug}`,
+            JSON.stringify([updatedReview, ...filtered])
+          );
 
-            const playedList = JSON.parse(localStorage.getItem('joysticked_played_games') || '[]');
-            if (!playedList.includes(game.slug)) {
-              localStorage.setItem(
-                'joysticked_played_games',
-                JSON.stringify([game.slug, ...playedList])
-              );
-            }
-          } catch {}
-        }
+          const playedList = JSON.parse(localStorage.getItem('joysticked_played_games') || '[]');
+          if (!playedList.includes(game.slug)) {
+            localStorage.setItem(
+              'joysticked_played_games',
+              JSON.stringify([game.slug, ...playedList])
+            );
+          }
+
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: updatedReview }));
+        } catch {}
       }
 
       onReviewCreated?.(updatedReview);
@@ -348,6 +352,8 @@ export function GameReviewModal({
         const list: GameReview[] = JSON.parse(stored);
         const filtered = list.filter((r) => r.id !== initialReview.id);
         localStorage.setItem(`local_reviews_${game.slug}`, JSON.stringify(filtered));
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: { id: initialReview.id, deleted: true } }));
       } catch {}
     }
     onReviewDeleted?.(initialReview.id);

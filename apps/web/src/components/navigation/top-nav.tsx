@@ -70,8 +70,10 @@ function TopNavContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, logoutLocal } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const isGamesPage = pathname === '/games';
   const currentTab = isGamesPage ? searchParams?.get('tab') || 'descobrir' : null;
 
@@ -99,6 +101,17 @@ function TopNavContent({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [userMenuOpen]);
 
   // Focus input on search open
   useEffect(() => {
@@ -221,7 +234,7 @@ function TopNavContent({
                           <Icon className="size-3.5" />
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`size-3 transition-transform duration-200 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : 'opacity-70'
+                            className={`size-3 transition-transform duration-100 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : 'opacity-70'
                               }`}
                           />
                         </span>
@@ -268,25 +281,136 @@ function TopNavContent({
               </kbd>
             </button>
 
-            {/* User Avatar Circle */}
+            {/* User Avatar with dropdown */}
             {mounted && currentUser ? (
-              <Link
-                href={`/${currentUser.username}`}
-                title={`@${currentUser.username}`}
-                className="flex size-7 items-center justify-center overflow-hidden rounded-full bg-neutral-800 transition-all hover:ring-2 hover:ring-white/20 active:scale-95 sm:size-8"
-              >
-                {currentUser.avatarUrl ? (
-                  <img
-                    src={currentUser.avatarUrl}
-                    alt={currentUser.username}
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <div className="flex size-full items-center justify-center bg-indigo-900 font-bold text-[10px] text-white uppercase">
-                    {currentUser.username[0] || 'U'}
-                  </div>
-                )}
-              </Link>
+              <div ref={userMenuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  title={`@${currentUser.username}`}
+                  className={`flex size-7 items-center justify-center overflow-hidden rounded-full bg-neutral-800 transition-all hover:ring-2 hover:ring-white/20 active:scale-95 sm:size-8 ${
+                    userMenuOpen ? 'ring-2 ring-white/25' : ''
+                  }`}
+                >
+                  {currentUser.avatarUrl ? (
+                    <img
+                      src={currentUser.avatarUrl}
+                      alt={currentUser.username}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex size-full items-center justify-center bg-indigo-900 font-bold text-[10px] text-white uppercase">
+                      {currentUser.username[0] || 'U'}
+                    </div>
+                  )}
+                </button>
+
+                {/* Avatar Dropdown */}
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ clipPath: 'inset(0% 0% 100% 0% round 16px)', opacity: 0 }}
+                      animate={{ clipPath: 'inset(0% 0% 0% 0% round 16px)', opacity: 1 }}
+                      exit={{ clipPath: 'inset(0% 0% 100% 0% round 16px)', opacity: 0 }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute right-0 top-[calc(100%+10px)] z-50 w-44 select-none overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_16px_40px_rgba(0,0,0,0.9)]"
+                    >
+                      {/* User info header */}
+                      <div className="border-b border-white/[0.06] px-3.5 py-2.5">
+                        <p className="truncate font-semibold text-[11px] text-white">{currentUser.displayName || currentUser.username}</p>
+                        <p className="truncate text-[10px] text-neutral-500">@{currentUser.username}</p>
+                      </div>
+
+                      {/* Menu items */}
+                      <div className="p-1.5 space-y-0.5">
+                        {/* Profile */}
+                        <Link
+                          href={`/${currentUser.username}`}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                        >
+                          {/* Pixel user icon */}
+                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
+                            <rect x="3" y="0" width="2" height="2" />
+                            <rect x="2" y="2" width="4" height="2" />
+                            <rect x="1" y="4" width="6" height="1" />
+                            <rect x="0" y="5" width="8" height="3" />
+                          </svg>
+                          Perfil
+                        </Link>
+
+                        {/* Settings */}
+                        <Link
+                          href={`/${currentUser.username}/settings`}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                        >
+                          {/* Pixel gear icon */}
+                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
+                            <rect x="3" y="0" width="2" height="1" />
+                            <rect x="0" y="3" width="1" height="2" />
+                            <rect x="7" y="3" width="1" height="2" />
+                            <rect x="3" y="7" width="2" height="1" />
+                            <rect x="1" y="1" width="2" height="1" />
+                            <rect x="5" y="1" width="2" height="1" />
+                            <rect x="1" y="6" width="2" height="1" />
+                            <rect x="5" y="6" width="2" height="1" />
+                            <rect x="2" y="2" width="4" height="4" />
+                            <rect x="3" y="3" width="2" height="2" fill="#141414" />
+                          </svg>
+                          Configurações
+                        </Link>
+
+                        {/* Language */}
+                        <button
+                          type="button"
+                          className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                        >
+                          {/* Pixel globe icon */}
+                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
+                            <rect x="2" y="0" width="4" height="1" />
+                            <rect x="1" y="1" width="1" height="1" />
+                            <rect x="6" y="1" width="1" height="1" />
+                            <rect x="0" y="2" width="1" height="4" />
+                            <rect x="7" y="2" width="1" height="4" />
+                            <rect x="1" y="6" width="1" height="1" />
+                            <rect x="6" y="6" width="1" height="1" />
+                            <rect x="2" y="7" width="4" height="1" />
+                            <rect x="3" y="0" width="2" height="8" />
+                            <rect x="1" y="3" width="6" height="2" />
+                          </svg>
+                          Idioma
+                          <span className="ml-auto text-[10px] text-neutral-500">PT-BR</span>
+                        </button>
+                      </div>
+
+                      {/* Logout */}
+                      <div className="border-t border-white/[0.06] p-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            logoutLocal();
+                          }}
+                          className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
+                        >
+                          {/* Pixel door/exit icon */}
+                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-80 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
+                            <rect x="0" y="0" width="4" height="8" />
+                            <rect x="5" y="2" width="3" height="1" />
+                            <rect x="5" y="5" width="3" height="1" />
+                            <rect x="6" y="3" width="2" height="2" />
+                            <rect x="4" y="3" width="4" height="2" fill="transparent" />
+                            <rect x="7" y="3" width="1" height="1" fill="currentColor" />
+                            <rect x="4" y="3" width="1" height="1" fill="currentColor" />
+                          </svg>
+                          Sair
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <Button
                 variant="ghost"
@@ -305,10 +429,10 @@ function TopNavContent({
           {gamesMenuOpen && (
             <motion.div
               ref={dropdownContainerRef}
-              initial={{ opacity: 0, y: -4, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, scale: 0.99 }}
-              transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ clipPath: 'inset(0% 0% 100% 0% round 24px)', opacity: 0 }}
+              animate={{ clipPath: 'inset(0% 0% 0% 0% round 24px)', opacity: 1 }}
+              exit={{ clipPath: 'inset(0% 0% 100% 0% round 24px)', opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               onMouseEnter={handleGamesMouseEnter}
               onMouseLeave={handleGamesMouseLeave}
               className="pointer-events-auto relative mt-1.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl border border-white/10 bg-[#121212] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] will-change-transform"
@@ -356,7 +480,7 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-all duration-100 ease-out hover:scale-[1.01] active:scale-[0.98] ${isTabActive
+                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-[transform,background-color,border-color,box-shadow] duration-[80ms] ease-out hover:scale-[1.01] active:scale-[0.98] ${isTabActive
                           ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
                           : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
                           }`}

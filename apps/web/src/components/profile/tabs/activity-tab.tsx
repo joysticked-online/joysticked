@@ -2,12 +2,15 @@
 
 import { BookmarkPlus, Gamepad2, Heart, ListPlus, Star, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
+import Link from 'next/link';
 
 import type { ProfileGame } from '../types';
+import type { GameReview } from '@/lib/games';
 
 type ActivityTabProps = {
   displayGames: ProfileGame[];
   displayName: string;
+  localReviews?: GameReview[];
 };
 
 type ActivityItem = {
@@ -19,104 +22,81 @@ type ActivityItem = {
   platform?: string;
 };
 
-export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
-  const activities: ActivityItem[] =
-    displayGames && displayGames.length > 0
-      ? displayGames.slice(0, 6).map((g, idx) => ({
-          id: `act-${g.id}`,
-          type: (idx % 4 === 0
-            ? 'played'
-            : idx % 4 === 1
-              ? 'rated'
-              : idx % 4 === 2
-                ? 'completed'
-                : 'liked') as ActivityItem['type'],
-          gameTitle: g.title,
-          detail: g.rating
-            ? `Avaliou com ${g.rating.toFixed(1)} estrelas`
-            : g.hours
-              ? `${g.hours}h registradas`
-              : 'Adicionado à coleção',
-          timeAgo: idx === 0 ? 'há 2 horas' : idx === 1 ? 'ontem' : `há ${idx + 1} dias`,
-          platform: g.platformTag || 'PC / Consoles'
-        }))
-      : [
-          {
-            id: 'act-1',
-            type: 'played',
-            gameTitle: 'Elden Ring',
-            detail: '142h registradas • Platinado',
-            timeAgo: 'há 2 horas',
-            platform: 'PC / Steam'
-          },
-          {
-            id: 'act-2',
-            type: 'rated',
-            gameTitle: "Baldur's Gate 3",
-            detail: 'Avaliou com 5.0 estrelas',
-            timeAgo: 'ontem',
-            platform: 'PC / Steam'
-          },
-          {
-            id: 'act-3',
-            type: 'liked',
-            gameTitle: 'Cyberpunk 2077',
-            detail: 'Curtiu o jogo',
-            timeAgo: 'há 2 dias',
-            platform: 'PS5'
-          },
-          {
-            id: 'act-4',
-            type: 'added_list',
-            gameTitle: 'Hollow Knight',
-            detail: 'Adicionou à lista "Obras-Primas Absolutas"',
-            timeAgo: 'há 4 dias',
-            platform: 'Steam Deck'
-          },
-          {
-            id: 'act-5',
-            type: 'completed',
-            gameTitle: 'God of War Ragnarök',
-            detail: 'História principal concluída • 48h',
-            timeAgo: 'há 1 semana',
-            platform: 'PS5'
-          },
-          {
-            id: 'act-6',
-            type: 'backlog',
-            gameTitle: 'The Legend of Zelda: Tears of the Kingdom',
-            detail: 'Adicionou à fila de espera',
-            timeAgo: 'há 2 semanas',
-            platform: 'Switch'
-          }
-        ];
+const EVENT_CONFIG = {
+  played: { icon: Gamepad2, actionText: 'jogou' },
+  rated: { icon: Star, actionText: 'avaliou' },
+  liked: { icon: Heart, actionText: 'curtiu' },
+  added_list: { icon: ListPlus, actionText: 'adicionou à lista' },
+  completed: { icon: Trophy, actionText: 'concluiu' },
+  backlog: { icon: BookmarkPlus, actionText: 'planeja jogar' }
+};
 
-  const EVENT_CONFIG = {
-    played: {
-      icon: Gamepad2,
-      actionText: 'jogou'
-    },
-    rated: {
-      icon: Star,
-      actionText: 'avaliou'
-    },
-    liked: {
-      icon: Heart,
-      actionText: 'curtiu'
-    },
-    added_list: {
-      icon: ListPlus,
-      actionText: 'adicionou à lista'
-    },
-    completed: {
-      icon: Trophy,
-      actionText: 'concluiu'
-    },
-    backlog: {
-      icon: BookmarkPlus,
-      actionText: 'planeja jogar'
-    }
-  };
+function timeAgoLabel(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `há ${mins || 1} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `há ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return 'ontem';
+  if (days < 30) return `há ${days} dias`;
+  return `há ${Math.floor(days / 30)} mês${Math.floor(days / 30) > 1 ? 'es' : ''}`;
+}
+
+export function ActivityTab({ displayGames, displayName, localReviews = [] }: ActivityTabProps) {
+  // Build activity from real localStorage reviews first
+  const reviewActivities: ActivityItem[] = localReviews.map((r) => ({
+    id: `act-rev-${r.id}`,
+    type: 'rated' as const,
+    gameTitle: r.gameTitle,
+    detail: `Avaliou com ${r.rating.toFixed(1)} estrelas${r.reviewText ? ' · com crítica' : ''}`,
+    timeAgo: timeAgoLabel(r.createdAt),
+    platform: r.platform ?? undefined
+  }));
+
+  // Fill remaining slots with liked games (no review = just "liked")
+  const reviewedSlugs = new Set(localReviews.map((r) => r.gameSlug));
+  const likedActivities: ActivityItem[] = displayGames
+    .filter((g) => !reviewedSlugs.has(g.id))
+    .slice(0, Math.max(0, 6 - reviewActivities.length))
+    .map((g) => ({
+      id: `act-liked-${g.id}`,
+      type: 'liked' as const,
+      gameTitle: g.title,
+      detail: 'Adicionado à coleção',
+      timeAgo: '—',
+      platform: g.platformTag
+    }));
+
+  const activities: ActivityItem[] = [...reviewActivities, ...likedActivities].slice(0, 6);
+
+  if (activities.length === 0) {
+    return (
+      <motion.div
+        key="activity-empty"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15 }}
+        className="flex flex-col items-center gap-4 py-16 text-center"
+      >
+        <div className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.03] text-neutral-600">
+          <Gamepad2 className="size-5" strokeWidth={1.5} />
+        </div>
+        <div className="space-y-1">
+          <p className="font-medium text-sm text-neutral-300">Nenhuma atividade ainda</p>
+          <p className="max-w-xs text-[12px] text-neutral-500 leading-relaxed">
+            Comece avaliando e registrando os jogos que você já jogou.
+          </p>
+        </div>
+        <Link
+          href="/games"
+          className="mt-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-white/[0.08] hover:text-white"
+        >
+          Explorar jogos
+        </Link>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -136,9 +116,8 @@ export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
             key={act.id}
             className="group flex items-center justify-between py-3.5 transition-colors hover:bg-white/[0.01]"
           >
-            {/* Left: Neutral Icon + User Name + Action + Game */}
             <div className="flex items-center gap-3">
-              <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-neutral-400">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-neutral-400">
                 <Icon className="size-3.5" strokeWidth={1.5} />
               </div>
 
@@ -154,8 +133,7 @@ export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
               </div>
             </div>
 
-            {/* Right: Platform + Time */}
-            <div className="flex items-center gap-2.5 text-[11px] text-neutral-500">
+            <div className="flex items-center gap-2.5 text-[11px] text-neutral-500 shrink-0">
               {act.platform && (
                 <span className="hidden rounded bg-white/[0.03] px-2 py-0.5 text-[10px] text-neutral-400 sm:inline-block">
                   {act.platform}

@@ -6,13 +6,43 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PixelHeart } from '@/components/landing/pixel-heart';
 import type { ProfileGame } from '../types';
+import type { GameReview } from '@/lib/games';
 
 type ReviewsTabProps = {
   displayGames: ProfileGame[];
+  localReviews?: GameReview[];
 };
 
 export function ReviewsTab({ displayGames }: ReviewsTabProps) {
   const reviewedGames = displayGames.filter((g) => g.rating);
+
+  if (reviewedGames.length === 0) {
+    return (
+      <motion.div
+        key="reviews-empty"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15 }}
+        className="flex flex-col items-center gap-4 py-16 text-center"
+      >
+        <div className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.03] text-neutral-600">
+          <PixelHeart size={22} variant="empty" color="#525252" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-medium text-sm text-neutral-300">Nenhuma avaliação ainda</p>
+          <p className="max-w-xs text-[12px] text-neutral-500 leading-relaxed">
+            Avalie os jogos que você já jogou para construir seu histórico de críticas.
+          </p>
+        </div>
+        <Link
+          href="/games"
+          className="mt-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-white/[0.08] hover:text-white"
+        >
+          Explorar jogos
+        </Link>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

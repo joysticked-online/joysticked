@@ -74,7 +74,7 @@ export function GameRecommendedTab({
             >
               <Link
                 href={`/games/${game.slug}`}
-                className="group hover:-translate-y-1 relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40 transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-500/10"
+                className="group hover:-translate-y-1 relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40 transition-[transform,box-shadow,border-color] duration-150 hover:border-white/20 hover:shadow-2xl hover:shadow-emerald-500/10"
               >
                 {/* Poster Artwork Container */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-900">
@@ -83,7 +83,7 @@ export function GameRecommendedTab({
                     alt={game.name}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover transition-transform duration-200 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
 

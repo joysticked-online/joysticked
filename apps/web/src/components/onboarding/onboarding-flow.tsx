@@ -3,7 +3,7 @@
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Logos } from '@/components/logos';
@@ -73,6 +73,27 @@ const GENRES = [
   'Story Rich'
 ];
 
+// Per-step ambient gradient hues — crossfade between steps
+const STEP_GRADIENTS = [
+  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(99,102,241,0.18) 0%, transparent 70%)', // indigo — step 1
+  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)', // violet — step 2
+  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(16,185,129,0.15) 0%, transparent 70%)', // emerald — step 3
+  'radial-gradient(ellipse 60% 40% at 50% -10%, rgba(245,158,11,0.15) 0%, transparent 70%)'  // amber — step 4
+];
+
+// Stagger container + item variants
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
+  exit: {}
+};
+
+const itemVariants = {
+  hidden: (dir: number) => ({ opacity: 0, x: dir * 24, y: 4 }),
+  show: { opacity: 1, x: 0, y: 0, transition: { type: 'spring' as const, stiffness: 380, damping: 30 } },
+  exit: (dir: number) => ({ opacity: 0, x: dir * -16, y: -4, transition: { duration: 0.12, ease: 'easeIn' as const } })
+};
+
 export function OnboardingFlow({
   isModal = false,
   onClose
@@ -90,6 +111,14 @@ export function OnboardingFlow({
   const [selectedGenres, setSelectedGenres] = useState<string[]>(['RPG', 'Action-Adventure']);
   const [likedGameIds, setLikedGameIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Track navigation direction for horizontal slide
+  const directionRef = useRef(1); // 1 = forward, -1 = backward
+
+  const goToStep = (next: number) => {
+    directionRef.current = next > currentStep ? 1 : -1;
+    setCurrentStep(next);
+  };
 
   // Initialize with current user info
   useEffect(() => {
@@ -146,6 +175,25 @@ export function OnboardingFlow({
         return;
       }
 
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('joysticked_session_user');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            localStorage.setItem(
+              'joysticked_session_user',
+              JSON.stringify({
+                ...parsed,
+                username: finalUsername,
+                displayName: finalDisplayName,
+                onboardingCompleted: true,
+                preferences: payload.preferences
+              })
+            );
+          } catch {}
+        }
+      }
+
       await refetch();
       toast.success('Perfil configurado com sucesso! Bem-vindo ao Joysticked.');
       if (onClose) {
@@ -161,16 +209,30 @@ export function OnboardingFlow({
   };
 
   const totalSteps = 4;
+  const dir = directionRef.current;
 
   const content = (
-    <div className="relative flex min-h-full w-full flex-col font-geist-sans text-foreground">
-      {/* Top Header with Progress Bars */}
+    <div className="relative flex min-h-full w-full flex-col font-geist-sans text-foreground overflow-hidden">
+      {/* Animated ambient background per step */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`bg-${currentStep}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{ background: STEP_GRADIENTS[currentStep - 1] }}
+        />
+      </AnimatePresence>
+
+      {/* Top Header with Progress Indicators */}
       <header className="relative flex h-16 w-full items-center justify-between px-6 md:px-10">
         <div className="flex items-center gap-4">
           {currentStep > 1 && (
             <button
               type="button"
-              onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
+              onClick={() => goToStep(currentStep - 1)}
               className="flex size-8 items-center justify-center rounded-xl border border-input bg-card/60 text-muted-foreground backdrop-blur-sm transition-all hover:bg-card hover:text-foreground active:scale-[0.97]"
               title="Voltar"
             >
@@ -180,7 +242,7 @@ export function OnboardingFlow({
           <Logos.Joysticked className="h-5 opacity-90" />
         </div>
 
-        {/* Step Indicator Segments */}
+        {/* Animated spring segment progress */}
         <div className="flex items-center gap-2">
           {Array.from({ length: totalSteps }).map((_, idx) => {
             const stepNum = idx + 1;
@@ -188,10 +250,12 @@ export function OnboardingFlow({
             const isCurrent = stepNum === currentStep;
 
             return (
-              <div
+              <motion.div
                 key={stepNum}
+                layout
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 className={cn(
-                  'h-1 rounded-full transition-all duration-300',
+                  'h-1 rounded-full',
                   isCurrent
                     ? 'w-8 bg-foreground'
                     : isCompleted
@@ -210,27 +274,28 @@ export function OnboardingFlow({
 
       {/* Main Step Container */}
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 py-6">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" custom={dir}>
           {/* ── STEP 1: Name & Handle ── */}
           {currentStep === 1 && (
             <motion.div
               key="step-1"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              custom={dir}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
               className="flex w-full max-w-md flex-col items-center gap-6 text-center"
             >
-              <div className="space-y-1.5">
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
                 <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
                   Diga-nos seu nome para começar
                 </h1>
                 <p className="text-muted-foreground text-xs">
                   Escolha como você será identificado pelos outros jogadores.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="w-full space-y-3.5 text-left">
+              <motion.div custom={dir} variants={itemVariants} className="w-full space-y-3.5 text-left">
                 <div className="space-y-1">
                   <label
                     htmlFor="displayName"
@@ -266,16 +331,18 @@ export function OnboardingFlow({
                     />
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <Button
-                size="lg"
-                disabled={!username.trim() || username.length < 3}
-                onClick={() => setCurrentStep(2)}
-                className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
-              >
-                Continuar
-              </Button>
+              <motion.div custom={dir} variants={itemVariants} className="w-full">
+                <Button
+                  size="lg"
+                  disabled={!username.trim() || username.length < 3}
+                  onClick={() => goToStep(2)}
+                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                >
+                  Continuar
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
@@ -283,22 +350,27 @@ export function OnboardingFlow({
           {currentStep === 2 && (
             <motion.div
               key="step-2"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              custom={dir}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
               className="flex w-full flex-col items-center gap-6 text-center"
             >
-              <div className="space-y-1.5">
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
                 <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
                   Onde você joga?
                 </h1>
                 <p className="text-muted-foreground text-xs">
                   Selecione todas as plataformas em que você joga regularmente.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+              <motion.div
+                custom={dir}
+                variants={itemVariants}
+                className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3"
+              >
                 {PLATFORMS.map((platform) => {
                   const isSelected = selectedPlatforms.includes(platform.id);
 
@@ -308,7 +380,7 @@ export function OnboardingFlow({
                       type="button"
                       onClick={() => togglePlatform(platform.id)}
                       className={cn(
-                        'relative flex flex-col items-start justify-between rounded-2xl border p-4 text-left transition-all duration-200 active:scale-[0.97]',
+                        'relative flex flex-col items-start justify-between rounded-2xl border p-4 text-left transition-all duration-150 active:scale-[0.97]',
                         isSelected
                           ? 'border-primary bg-primary/10 shadow-lg ring-1 ring-primary/30'
                           : 'border-border bg-card/80 hover:border-input hover:bg-card'
@@ -337,15 +409,17 @@ export function OnboardingFlow({
                     </button>
                   );
                 })}
-              </div>
+              </motion.div>
 
-              <Button
-                size="lg"
-                onClick={() => setCurrentStep(3)}
-                className="h-11 w-full max-w-sm rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
-              >
-                Continuar
-              </Button>
+              <motion.div custom={dir} variants={itemVariants} className="w-full max-w-sm">
+                <Button
+                  size="lg"
+                  onClick={() => goToStep(3)}
+                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                >
+                  Continuar
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
@@ -353,22 +427,27 @@ export function OnboardingFlow({
           {currentStep === 3 && (
             <motion.div
               key="step-3"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              custom={dir}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
               className="flex w-full max-w-lg flex-col items-center gap-6 text-center"
             >
-              <div className="space-y-1.5">
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1.5">
                 <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
                   Seus gêneros favoritos
                 </h1>
                 <p className="text-muted-foreground text-xs">
                   Selecione ao menos um gênero para personalizar o seu catálogo.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2">
+              <motion.div
+                custom={dir}
+                variants={itemVariants}
+                className="flex flex-wrap items-center justify-center gap-2"
+              >
                 {GENRES.map((genre) => {
                   const isSelected = selectedGenres.includes(genre);
 
@@ -378,7 +457,7 @@ export function OnboardingFlow({
                       type="button"
                       onClick={() => toggleGenre(genre)}
                       className={cn(
-                        'rounded-full border px-3.5 py-1.5 font-medium text-xs transition-all duration-150 active:scale-[0.96]',
+                        'rounded-full border px-3.5 py-1.5 font-medium text-xs transition-all duration-100 active:scale-[0.96]',
                         isSelected
                           ? 'border-primary bg-primary text-primary-foreground shadow-md'
                           : 'border-border bg-card text-muted-foreground hover:border-input hover:text-foreground'
@@ -388,17 +467,19 @@ export function OnboardingFlow({
                     </button>
                   );
                 })}
-              </div>
+              </motion.div>
 
-              <Button
-                size="lg"
-                disabled={selectedGenres.length === 0}
-                onClick={() => setCurrentStep(4)}
-                className="h-11 w-full max-w-sm rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
-              >
-                Continuar ({selectedGenres.length} selecionado{selectedGenres.length > 1 ? 's' : ''}
-                )
-              </Button>
+              <motion.div custom={dir} variants={itemVariants} className="w-full max-w-sm">
+                <Button
+                  size="lg"
+                  disabled={selectedGenres.length === 0}
+                  onClick={() => goToStep(4)}
+                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                >
+                  Continuar ({selectedGenres.length} selecionado{selectedGenres.length > 1 ? 's' : ''}
+                  )
+                </Button>
+              </motion.div>
             </motion.div>
           )}
 
@@ -406,49 +487,54 @@ export function OnboardingFlow({
           {currentStep === 4 && (
             <motion.div
               key="step-4"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              custom={dir}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
               className="flex w-full max-w-md flex-col items-center gap-5 text-center"
             >
-              <div className="space-y-1">
+              <motion.div custom={dir} variants={itemVariants} className="space-y-1">
                 <h1 className="font-bold font-redaction text-2xl tracking-tight md:text-3xl">
                   Descubra títulos
                 </h1>
                 <p className="text-muted-foreground text-xs">
                   Arraste os cards para calibrar suas preferências iniciais.
                 </p>
-              </div>
+              </motion.div>
 
               {/* Tinder-Style Gesture Deck */}
-              <TinderCardDeck
-                onRate={(gameId, liked) => {
-                  if (liked) {
-                    setLikedGameIds((prev) => [...prev, gameId]);
-                  }
-                }}
-                onFinish={(likedIds) => {
-                  handleFinish(likedIds);
-                }}
-              />
+              <motion.div custom={dir} variants={itemVariants} className="w-full">
+                <TinderCardDeck
+                  onRate={(gameId, liked) => {
+                    if (liked) {
+                      setLikedGameIds((prev) => [...prev, gameId]);
+                    }
+                  }}
+                  onFinish={(likedIds) => {
+                    handleFinish(likedIds);
+                  }}
+                />
+              </motion.div>
 
               {/* Finish Button Option */}
-              <Button
-                size="lg"
-                disabled={isSubmitting}
-                onClick={() => handleFinish()}
-                className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                    Finalizando perfil…
-                  </>
-                ) : (
-                  'Concluir Onboarding e ir para o Perfil'
-                )}
-              </Button>
+              <motion.div custom={dir} variants={itemVariants} className="w-full">
+                <Button
+                  size="lg"
+                  disabled={isSubmitting}
+                  onClick={() => handleFinish()}
+                  className="h-11 w-full rounded-xl font-medium text-xs transition-all active:scale-[0.97]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                      Finalizando perfil…
+                    </>
+                  ) : (
+                    'Concluir Onboarding e ir para o Perfil'
+                  )}
+                </Button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -468,7 +554,6 @@ export function OnboardingFlow({
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background">
-      <div className="-z-10 -translate-x-1/2 pointer-events-none absolute top-0 left-1/2 h-[500px] w-[700px] rounded-full bg-white/[0.02] blur-[150px]" />
       {content}
     </div>
   );

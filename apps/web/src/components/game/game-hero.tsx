@@ -111,7 +111,7 @@ export function GameHero({
             <img
               src={bannerImage}
               alt={game.name}
-              className="h-full w-full object-cover object-center brightness-90 transition-transform duration-700 hover:scale-105"
+              className="h-full w-full object-cover object-center brightness-90 transition-transform duration-300 hover:scale-105"
             />
             {/* Top Subtle Vignette */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-neutral-950/70 via-neutral-950/30 to-transparent" />

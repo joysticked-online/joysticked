@@ -168,7 +168,7 @@ export function CommunityReviewsShowcase() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.2 }}
-              className="group relative flex flex-col justify-between rounded-3xl border border-white/[0.08] bg-[#0E0E0E] p-6 transition-all duration-300 hover:border-white/20 hover:bg-[#121212] hover:shadow-[0_10px_35px_rgba(0,0,0,0.6)]"
+              className="group relative flex flex-col justify-between rounded-3xl border border-white/[0.08] bg-[#0E0E0E] p-6 transition-[box-shadow,border-color,background-color] duration-150 hover:border-white/20 hover:bg-[#121212] hover:shadow-[0_10px_35px_rgba(0,0,0,0.6)]"
             >
               <div>
                 {/* Header: Game Info + Red Pixel Hearts */}
@@ -179,7 +179,7 @@ export function CommunityReviewsShowcase() {
                       <img
                         src={review.coverUrl}
                         alt={review.gameTitle}
-                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="size-full object-cover transition-transform duration-150 group-hover:scale-105"
                       />
                     </div>
 
