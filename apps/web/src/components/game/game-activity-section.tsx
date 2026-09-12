@@ -10,10 +10,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
-import type { Game, GameActivity } from '@/lib/games';
+import type { GameActivity } from '@/lib/games';
 
 interface GameActivitySectionProps {
-  game: Game;
   activities: GameActivity[];
 }
 
@@ -34,7 +33,7 @@ function getActivityIcon(type: string) {
   }
 }
 
-export function GameActivitySection({ game, activities }: GameActivitySectionProps) {
+export function GameActivitySection({ activities }: GameActivitySectionProps) {
   if (activities.length === 0) {
     return (
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] p-10 text-center">

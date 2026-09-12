@@ -1,10 +1,10 @@
 'use client';
 
+import { BarChart3, CalendarDays, Gamepad2, Star, Users } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { BarChart3, CalendarDays, Gamepad2, Star, Users } from 'lucide-react';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
 import type { Game, GameActivity, GameReview } from '@/lib/games';
@@ -30,8 +30,7 @@ export function GameDetailView({
   game,
   initialReviews,
   initialActivities,
-  similarGames = [],
-  recommendedGames = []
+  similarGames = []
 }: GameDetailViewProps) {
   const router = useRouter();
   const { user: currentUser } = useAuth();
@@ -261,7 +260,7 @@ export function GameDetailView({
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.15 }}
             >
-              <GameActivitySection game={game} activities={activities} />
+              <GameActivitySection activities={activities} />
             </motion.div>
           )}
 
@@ -331,7 +330,7 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
             <span className="font-bold text-3xl text-white tracking-tight">
               {reviews.length ? average.toFixed(1) : '—'}
             </span>
-            <span className="pb-1 text-xs text-neutral-500">
+            <span className="pb-1 text-neutral-500 text-xs">
               {reviews.length ? `${reviews.length} avaliações` : 'seja o primeiro'}
             </span>
           </div>
@@ -369,7 +368,9 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
                 ? new Date(game.firstReleaseDate).getFullYear()
                 : 'Ainda não anunciado')}
           </p>
-          <p className="mt-1 truncate text-xs text-neutral-500">{game.developer || 'Desenvolvedor não informado'}</p>
+          <p className="mt-1 truncate text-neutral-500 text-xs">
+            {game.developer || 'Desenvolvedor não informado'}
+          </p>
         </div>
 
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
@@ -381,7 +382,10 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
             {(game.platforms?.length ? game.platforms : ['Plataformas não informadas'])
               .slice(0, 3)
               .map((platform) => (
-                <span key={platform} className="rounded-lg bg-white/[0.07] px-2 py-1 text-[10px] text-neutral-300">
+                <span
+                  key={platform}
+                  className="rounded-lg bg-white/[0.07] px-2 py-1 text-[10px] text-neutral-300"
+                >
                   {platform}
                 </span>
               ))}

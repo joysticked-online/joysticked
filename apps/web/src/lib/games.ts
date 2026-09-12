@@ -73,11 +73,12 @@ export interface GameDetailsResponse {
   recommendedGames?: Game[];
 }
 
-export async function searchGames(query: string): Promise<Game[]> {
+export async function searchGames(query: string, signal?: AbortSignal): Promise<Game[]> {
   if (!query.trim()) return [];
   try {
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/games?q=${encodeURIComponent(query)}`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      signal
     });
     if (!res.ok) throw new Error('Falha ao buscar jogos');
     const data = await res.json();
@@ -97,13 +98,11 @@ export interface DiscoverResponse {
 export async function getDiscoverGames({
   played = [],
   offset = 0,
-  limit = 21,
-  userId
+  limit = 21
 }: {
   played?: string[];
   offset?: number;
   limit?: number;
-  userId?: string;
 } = {}): Promise<DiscoverResponse> {
   try {
     const params = new URLSearchParams();
@@ -112,10 +111,6 @@ export async function getDiscoverGames({
     if (played.length > 0) {
       params.set('played', played.join(','));
     }
-    if (userId) {
-      params.set('userId', userId);
-    }
-
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/games/discover?${params.toString()}`, {
       cache: 'no-store'
     });
@@ -235,6 +230,18 @@ export async function submitGameReview(
   }
 
   return await res.json();
+}
+
+export async function deleteGameReview(slug: string, reviewId: string) {
+  const res = await fetch(
+    `${env.NEXT_PUBLIC_API_URL}/games/${encodeURIComponent(slug)}/reviews/${encodeURIComponent(reviewId)}`,
+    { method: 'DELETE', credentials: 'include' }
+  );
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao remover avaliação');
+  }
 }
 
 export interface HomeFeedData {

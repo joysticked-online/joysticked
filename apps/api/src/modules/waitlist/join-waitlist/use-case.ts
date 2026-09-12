@@ -17,13 +17,17 @@ export async function joinWaitlistUseCase(db: Database, { email }: { email: stri
   return executeTransaction(db, async (tx) => {
     const entry = await waitlistRepository.create(email, tx);
 
-    await emailService.sendEmailAndAddToAudience({
+    const { contactId } = await emailService.sendEmailAndAddToAudience({
       to: email,
       id: entry.id,
       template: 'waitlist-welcome',
       audienceId: envs.services.RESEND_WAITLIST_AUDIENCE_ID
     });
 
-    return { entry };
+    if (contactId) {
+      await waitlistRepository.setResendContactId(entry.id, contactId, tx);
+    }
+
+    return { entry: { ...entry, resendContactId: contactId } };
   });
 }

@@ -29,7 +29,8 @@ class UserRepository {
   }
 
   async findByEmail(email: string) {
-    const result = await this.db.select().from(users).where(eq(users.email, email));
+    const normalizedEmail = email.trim().toLowerCase();
+    const result = await this.db.select().from(users).where(eq(users.email, normalizedEmail));
 
     if (!result[0]) return null;
 
@@ -41,11 +42,12 @@ class UserRepository {
    * A temporary username is auto-generated; the user sets a real one via /profile.
    */
   async createWithEmail(email: string, tx?: Transaction) {
+    const normalizedEmail = email.trim().toLowerCase();
     const result = await (tx ?? this.db)
       .insert(users)
       .values({
         username: generateTempUsername(),
-        email,
+        email: normalizedEmail,
         emailVerified: false
       })
       .returning();
@@ -84,9 +86,10 @@ class UserRepository {
    * user who has no email yet.
    */
   async setEmail(id: string, email: string, verified: boolean, tx?: Transaction) {
+    const normalizedEmail = email.trim().toLowerCase();
     await (tx ?? this.db)
       .update(users)
-      .set({ email, emailVerified: verified })
+      .set({ email: normalizedEmail, emailVerified: verified })
       .where(eq(users.id, id));
   }
 }

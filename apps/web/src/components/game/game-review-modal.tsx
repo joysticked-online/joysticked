@@ -1,8 +1,11 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import confetti from 'canvas-confetti';
 import {
   AlertTriangle,
+<<<<<<< HEAD
   Clock,
   Gamepad2,
   Monitor,
@@ -10,6 +13,15 @@ import {
   Send,
   Smartphone,
   Tag,
+=======
+  Check,
+  Clock,
+  Gamepad2,
+  Monitor,
+  Send,
+  Smartphone,
+  Star,
+>>>>>>> origin/feature/cleanup-and-homepage
   Trash2,
   X
 } from 'lucide-react';
@@ -18,8 +30,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
+<<<<<<< HEAD
 import { type Game, type GameReview, submitGameReview } from '@/lib/games';
 import { PixelHeart } from '@/components/landing/pixel-heart';
+=======
+import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
+>>>>>>> origin/feature/cleanup-and-homepage
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -360,8 +376,16 @@ export function GameReviewModal({
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!initialReview) return;
+    setIsSubmitting(true);
+    try {
+      await deleteGameReview(game.slug, initialReview.id);
+    } catch (err: any) {
+      toast.error(err?.message || 'Erro ao remover avaliação.');
+      setIsSubmitting(false);
+      return;
+    }
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(`local_reviews_${game.slug}`) || '[]';
       try {
@@ -375,6 +399,7 @@ export function GameReviewModal({
     onReviewDeleted?.(initialReview.id);
     onClose();
     toast.info('Avaliação removida.');
+    setIsSubmitting(false);
   };
 
   return (
@@ -399,6 +424,7 @@ export function GameReviewModal({
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
             className="scrollbar-none relative z-10 max-h-[92vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-[32px] border-2 border-white/15 bg-[#0C0C0C] p-3 sm:p-4.5 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(239,68,68,0.12)]"
           >
+<<<<<<< HEAD
             {/* Top Console Shoulder Bar: [L] Bumper, Power LED & [R] Close Bumper */}
             <div className="relative mb-2.5 flex select-none items-center justify-between px-1">
               {/* [ L ] Bumper */}
@@ -406,6 +432,30 @@ export function GameReviewModal({
                 <span className="text-white">L</span>
                 <span className="text-neutral-500">//</span>
                 <span>REVIEW</span>
+=======
+            {/* Header with Game Info & Close Button */}
+            <div className="flex items-center justify-between gap-3 border-white/10 border-b bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.12),transparent_48%)] px-5 py-5 sm:px-7">
+              <div className="flex min-w-0 items-center gap-3.5">
+                <div className="size-12 shrink-0 overflow-hidden rounded-xl border border-white/15 bg-neutral-950 shadow-lg">
+                  {game.coverUrl ? (
+                    <img src={game.coverUrl} alt={game.name} className="size-full object-cover" />
+                  ) : (
+                    <div className="flex size-full items-center justify-center text-neutral-600">
+                      <Gamepad2 className="size-4" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <span className="block font-semibold text-[10px] text-neutral-400 uppercase tracking-[0.18em]">
+                    {isEditing ? 'Editar avaliação' : 'Avaliar jogo'}
+                  </span>
+                  <h3 className="mt-0.5 truncate font-bold text-base text-white">{game.name}</h3>
+                  <p className="mt-1 text-[11px] text-neutral-500">
+                    Sua nota ajuda a comunidade a descobrir bons jogos.
+                  </p>
+                </div>
+>>>>>>> origin/feature/cleanup-and-homepage
               </div>
 
               {/* Console Center Status LED & Brand */}
@@ -467,12 +517,72 @@ export function GameReviewModal({
                 {/* Touch Screen Dot-Matrix Texture */}
                 <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] bg-[size:16px_16px]" />
 
+<<<<<<< HEAD
                 <div className="relative z-10 space-y-3">
                   {/* Platforms (Strictly from game.platforms) */}
                   {game.platforms && game.platforms.length > 0 && (
                     <div>
                       <span className="mb-1.5 block font-mono text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                         Plataforma jogada
+=======
+              {/* Hours & Review Text */}
+              <div className="grid gap-4 sm:grid-cols-[minmax(0,0.38fr)_minmax(0,0.62fr)] sm:gap-3">
+                <div className="space-y-1">
+                  <label
+                    htmlFor="modal-hours-played"
+                    className="block font-semibold text-[11px] text-neutral-400 uppercase tracking-wider"
+                  >
+                    Tempo de Jogo (Opcional)
+                  </label>
+                  <div className="relative">
+                    <Clock className="-translate-y-1/2 absolute top-1/2 left-3 size-3 text-neutral-500" />
+                    <input
+                      id="modal-hours-played"
+                      type="text"
+                      value={hoursPlayed}
+                      onChange={(e) => setHoursPlayed(e.target.value)}
+                      placeholder="Ex: 85 horas"
+                      className="h-8.5 w-full rounded-lg border border-white/10 bg-black/50 pr-3 pl-8 text-white text-xs transition-colors placeholder:text-neutral-600 focus:border-white/30 focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label
+                    htmlFor="modal-review-text"
+                    className="block font-semibold text-[11px] text-neutral-400 uppercase tracking-wider"
+                  >
+                    Comentário (Opcional)
+                  </label>
+                  <textarea
+                    id="modal-review-text"
+                    rows={5}
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    placeholder="O que você achou do jogo? Jogabilidade, história, trilha sonora..."
+                    maxLength={500}
+                    className="w-full resize-none rounded-xl border border-white/10 bg-black/50 p-3.5 text-sm text-white leading-relaxed transition-colors placeholder:text-neutral-600 focus:border-white/30 focus:outline-hidden"
+                  />
+                  <div className="text-right text-[10px] text-neutral-600">
+                    {reviewText.length}/500
+                  </div>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200/15 bg-amber-200/[0.04] p-3 transition-colors hover:bg-amber-200/[0.07]">
+                    <input
+                      type="checkbox"
+                      checked={containsSpoiler}
+                      onChange={(event) => setContainsSpoiler(event.target.checked)}
+                      className="mt-0.5 size-4 accent-amber-300"
+                    />
+                    <span className="flex gap-2">
+                      <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-300" />
+                      <span>
+                        <span className="block font-semibold text-amber-100 text-xs">
+                          Contém spoiler
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-neutral-500 leading-relaxed">
+                          O texto ficará oculto até a pessoa escolher mostrar.
+                        </span>
+>>>>>>> origin/feature/cleanup-and-homepage
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {game.platforms.map((p) => {

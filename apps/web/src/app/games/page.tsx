@@ -1,10 +1,5 @@
 import type { Metadata } from 'next';
-import {
-  getDiscoverGames,
-  getPopularGames,
-  getPopularNewReleases,
-  getTopRatedGames
-} from '@/lib/games';
+import { getPopularGames, getPopularNewReleases, getTopRatedGames } from '@/lib/games';
 import { GamesExplorerView } from './games-explorer-view';
 
 export const metadata: Metadata = {
@@ -14,11 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default async function GamesPage() {
-  const [popularGames, topRatedGames, newReleases, discoverData] = await Promise.all([
-    getPopularGames(28),
-    getTopRatedGames(28),
-    getPopularNewReleases(28),
-    getDiscoverGames({ limit: 28, offset: 0 })
+  const [popularGames, topRatedGames, newReleases] = await Promise.all([
+    getPopularGames(18),
+    getTopRatedGames(18),
+    getPopularNewReleases(18)
   ]);
 
   return (
@@ -26,7 +20,6 @@ export default async function GamesPage() {
       initialPopularGames={popularGames}
       initialTopRatedGames={topRatedGames}
       initialUpcomingGames={newReleases}
-      initialDiscoverGames={discoverData.games}
     />
   );
 }

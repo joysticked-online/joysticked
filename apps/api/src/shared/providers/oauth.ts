@@ -27,7 +27,7 @@ export function getDiscordOAuthClient(): Discord {
   return new Discord(envs.auth.DISCORD_CLIENT_ID, envs.auth.DISCORD_CLIENT_SECRET, redirectURI);
 }
 
-export { generateState, generateCodeVerifier };
+export { generateCodeVerifier, generateState };
 
 export type OAuthStateData = {
   provider: 'google' | 'discord' | 'steam';
@@ -46,6 +46,7 @@ export async function createOAuthState(data: OAuthStateData): Promise<string> {
       'EX',
       OAUTH_STATE_TTL_SECONDS
     );
+    return state;
   } catch (_err) {
     console.warn('[OAuth] Redis unavailable, using in-memory state fallback');
   }
@@ -62,24 +63,22 @@ export async function consumeOAuthState(
   expectedProvider: 'google' | 'discord' | 'steam'
 ): Promise<OAuthStateData | null> {
   const key = `${OAUTH_STATE_PREFIX}${state}`;
-  let raw: string | null = null;
   try {
-    raw = await redis.get(key);
+    const raw = await redis.get(key);
     if (raw) {
       await redis.del(key);
+      inMemoryStates.delete(state);
+      try {
+        const data = JSON.parse(raw) as OAuthStateData;
+        return data.provider === expectedProvider ? data : null;
+      } catch {
+        return null;
+      }
     }
-  } catch {
-    // Redis unavailable
-  }
 
-  if (raw) {
-    try {
-      const data = JSON.parse(raw) as OAuthStateData;
-      if (data.provider !== expectedProvider) return null;
-      return data;
-    } catch {
-      return null;
-    }
+    return null;
+  } catch {
+    // Redis unavailable; only then use the process-local fallback.
   }
 
   // Check in-memory fallback

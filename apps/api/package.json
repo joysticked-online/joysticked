@@ -23,7 +23,6 @@
     "bunlimit": "^0.1.4",
     "drizzle-orm": "0.44.7",
     "elysia": "1.4.13",
-    "oslo": "^1.2.1",
     "postgres": "3.4.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",

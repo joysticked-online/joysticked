@@ -13,5 +13,5 @@ export async function discordOAuthUseCase() {
     'email'
   ]);
 
-  return { url: authorizationUrl.toString() };
+  return { state, url: authorizationUrl.toString() };
 }

@@ -40,15 +40,36 @@
     {
       "idx": 5,
       "version": "7",
-      "when": 1788963600000,
-      "tag": "20260909142000_unique-game-review-per-user",
+      "when": 1788962400000,
+      "tag": "20260909140000_create-game-reviews-and-activities",
       "breakpoints": true
     },
     {
       "idx": 6,
       "version": "7",
+      "when": 1788963600000,
+      "tag": "20260909142000_unique-game-review-per-user",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
       "when": 1788969600000,
       "tag": "20260909160000_add-spoiler-flag-to-game-reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789034400000,
+      "tag": "20260910100000_add-resend-contact-id-to-waitlists",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789038000000,
+      "tag": "20260910110000_add-case-insensitive-user-email-index",
       "breakpoints": true
     }
   ]

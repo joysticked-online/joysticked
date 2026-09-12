@@ -26,6 +26,19 @@ export type IgdbGame = {
   recommendedGames?: IgdbGame[];
 };
 
+export type IgdbPlatform = {
+  id: number;
+  name: string;
+  abbreviation?: string;
+};
+
+export type IgdbTimeToBeat = {
+  gameId: number;
+  completely?: number;
+  hastily?: number;
+  normally?: number;
+};
+
 type IgdbRawGame = {
   id: number;
   name: string;
@@ -61,7 +74,23 @@ function normalizeSearchText(value: string): string {
 }
 
 function removeSearchFillers(value: string): string {
-  const fillerWords = new Set(['a', 'an', 'and', 'da', 'das', 'de', 'do', 'dos', 'e', 'for', 'in', 'of', 'on', 'the', 'to']);
+  const fillerWords = new Set([
+    'a',
+    'an',
+    'and',
+    'da',
+    'das',
+    'de',
+    'do',
+    'dos',
+    'e',
+    'for',
+    'in',
+    'of',
+    'on',
+    'the',
+    'to'
+  ]);
   return value
     .split(' ')
     .filter((word) => word && !fillerWords.has(word))
@@ -80,7 +109,8 @@ function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string
   if (compactName === compactQuery) return 95;
   if (normalizedName.startsWith(normalizedQuery)) return 90;
   if (normalizedName.split(' ').some((word) => word.startsWith(normalizedQuery))) return 80;
-  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery)) return 70;
+  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery))
+    return 70;
 
   if (compactQuery.length > 1 && compactName.startsWith(compactQuery)) return 85;
 
@@ -88,6 +118,8 @@ function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string
 }
 
 class IgdbProvider {
+  private static readonly LIST_CACHE_TTL = 5 * 60 * 1000;
+  private static readonly SEARCH_CACHE_TTL = 60 * 1000;
   private clientId: string | undefined;
   private clientSecret: string | undefined;
   private accessToken: string | null = null;
@@ -104,6 +136,12 @@ class IgdbProvider {
   >();
   private gameDetailsCache = new Map<string, { data: IgdbGame; timestamp: number }>();
   private recommendedCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private popularCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private topRatedCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private upcomingCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private searchCache = new Map<string, { data: IgdbGame[]; timestamp: number }>();
+  private platformsCache: { data: IgdbPlatform[]; timestamp: number } | null = null;
+  private timeToBeatCache = new Map<string, { data: IgdbTimeToBeat | null; timestamp: number }>();
 
   constructor() {
     this.clientId = envs.services.TWITCH_CLIENT_ID;
@@ -290,19 +328,97 @@ class IgdbProvider {
     };
   }
 
+  /** Returns the compact platform catalogue used by discovery filters and clients. */
+  async getPlatforms(limit = 100): Promise<IgdbPlatform[]> {
+    const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 500);
+    if (
+      this.platformsCache &&
+      Date.now() - this.platformsCache.timestamp < IgdbProvider.LIST_CACHE_TTL
+    ) {
+      return this.platformsCache.data.slice(0, safeLimit);
+    }
+
+    const token = await this.getAccessToken();
+    if (!token || !this.clientId) return [];
+
+    try {
+      const res = await fetch('https://api.igdb.com/v4/platforms', {
+        method: 'POST',
+        headers: {
+          'Client-ID': this.clientId,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `fields name, abbreviation; sort name asc; limit ${safeLimit};`
+      });
+      if (!res.ok) return [];
+
+      const platforms = (await res.json()) as IgdbPlatform[];
+      this.platformsCache = { data: platforms, timestamp: Date.now() };
+      return platforms;
+    } catch {
+      return [];
+    }
+  }
+
+  /** Fetches playtime estimates using IGDB's game_time_to_beats endpoint. */
+  async getTimeToBeat(gameId: number): Promise<IgdbTimeToBeat | null> {
+    if (!Number.isInteger(gameId) || gameId <= 0) return null;
+    const cacheKey = String(gameId);
+    const cached = this.timeToBeatCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) return cached.data;
+
+    const token = await this.getAccessToken();
+    if (!token || !this.clientId) return null;
+
+    try {
+      const res = await fetch('https://api.igdb.com/v4/game_time_to_beats', {
+        method: 'POST',
+        headers: {
+          'Client-ID': this.clientId,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'text/plain'
+        },
+        body: `fields game_id, completely, hastily, normally; where game_id = ${gameId}; limit 1;`
+      });
+      if (!res.ok) return null;
+
+      const [result] = (await res.json()) as Array<{
+        game_id: number;
+        completely?: number;
+        hastily?: number;
+        normally?: number;
+      }>;
+      const data = result
+        ? {
+            gameId: result.game_id,
+            completely: result.completely,
+            hastily: result.hastily,
+            normally: result.normally
+          }
+        : null;
+      this.timeToBeatCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
   async searchGames(query: string, limit = 20): Promise<IgdbGame[]> {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return [];
+    const cacheKey = `${normalizedQuery}:${limit}`;
+    const cached = this.searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.SEARCH_CACHE_TTL) {
+      return cached.data;
+    }
 
     const rankMatches = (games: IgdbGame[]) => {
       const seenNames = new Set<string>();
       return games
         .map((game) => ({ game, relevance: getSearchRelevance(game, normalizedQuery) }))
         .filter(({ relevance }) => relevance > 0)
-        .sort(
-          (a, b) =>
-            b.relevance - a.relevance || (b.game.rating || 0) - (a.game.rating || 0)
-        )
+        .sort((a, b) => b.relevance - a.relevance || (b.game.rating || 0) - (a.game.rating || 0))
         .filter(({ game }) => {
           const name = normalizeSearchText(game.name);
           if (seenNames.has(name)) return false;
@@ -346,11 +462,13 @@ class IgdbProvider {
       }
 
       const rawGames = (await res.json()) as IgdbRawGame[];
-      return rankMatches(
+      const result = rankMatches(
         rawGames
           .map((g) => this.transformGame(g))
           .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category))
       );
+      this.searchCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return [];
     }
@@ -367,7 +485,7 @@ class IgdbProvider {
     genres?: string[];
     platforms?: string[];
   } | null> {
-    if (!title || !title.trim()) return null;
+    if (!title?.trim()) return null;
     const key = title.trim().toLowerCase();
     if (this.mediaCache.has(key)) {
       return this.mediaCache.get(key)!;
@@ -480,7 +598,13 @@ class IgdbProvider {
   }
 
   async getGameBySlugOrId(identifier: string): Promise<IgdbGame | null> {
-    const cacheKey = identifier.toLowerCase().trim();
+    const normalizedIdentifier = identifier.toLowerCase().trim();
+    const isNumeric = /^\d+$/.test(normalizedIdentifier);
+    if (!isNumeric && !/^[a-z0-9][a-z0-9-]{0,127}$/.test(normalizedIdentifier)) {
+      return null;
+    }
+
+    const cacheKey = normalizedIdentifier;
     const cached = this.gameDetailsCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < 1000 * 60 * 30) {
       return cached.data;
@@ -498,8 +622,9 @@ class IgdbProvider {
     }
 
     try {
-      const isNumeric = /^\d+$/.test(identifier);
-      const whereClause = isNumeric ? `where id = ${identifier};` : `where slug = "${identifier}";`;
+      const whereClause = isNumeric
+        ? `where id = ${normalizedIdentifier};`
+        : `where slug = "${normalizedIdentifier}";`;
 
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
@@ -2014,14 +2139,19 @@ class IgdbProvider {
       .slice(0, limit);
   }
 
-  async getPopularGames(limit = 12): Promise<IgdbGame[]> {
+  async getPopularGames(limit = 12, offset = 0): Promise<IgdbGame[]> {
+    const cacheKey = `${limit}:${offset}`;
+    const cached = this.popularCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
       return this.getFallbackGames().slice(0, limit);
     }
 
     try {
-      const fetchLimit = Math.max(limit * 2, 30);
+      const fetchLimit = Math.min(Math.max(limit * 2, 30), 500);
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
@@ -2030,6 +2160,7 @@ class IgdbProvider {
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 100 & cover != null;
         sort rating_count desc;
+        offset ${offset};
         limit ${fetchLimit};
       `;
 
@@ -2062,21 +2193,28 @@ class IgdbProvider {
         }
       }
 
-      return transformed.slice(0, limit);
+      const result = transformed.slice(0, limit);
+      this.popularCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch (err) {
       console.error('Error fetching popular games from IGDB:', err);
       return this.getFallbackGames().slice(0, limit);
     }
   }
 
-  async getTopRatedGames(limit = 6): Promise<IgdbGame[]> {
+  async getTopRatedGames(limit = 6, offset = 0): Promise<IgdbGame[]> {
+    const cacheKey = `${limit}:${offset}`;
+    const cached = this.topRatedCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
       return this.getFallbackGames().slice(0, limit);
     }
 
     try {
-      const fetchLimit = Math.max(limit * 3, 25);
+      const fetchLimit = Math.min(Math.max(limit * 3, 25), 500);
       const body = `
         fields name, slug, summary, storyline, category, cover.image_id, cover.url,
                artworks.image_id, artworks.url, screenshots.image_id, screenshots.url,
@@ -2085,6 +2223,7 @@ class IgdbProvider {
                involved_companies.developer, involved_companies.publisher, involved_companies.company.name;
         where rating_count > 500 & cover != null;
         sort rating desc;
+        offset ${offset};
         limit ${fetchLimit};
       `;
 
@@ -2107,7 +2246,9 @@ class IgdbProvider {
         .map((g) => this.transformGame(g))
         .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category));
 
-      return filtered.slice(0, limit);
+      const result = filtered.slice(0, limit);
+      this.topRatedCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return this.getFallbackGames().slice(0, limit);
     }
@@ -2244,6 +2385,11 @@ class IgdbProvider {
   }
 
   async getUpcomingGames(limit = 6): Promise<IgdbGame[]> {
+    const cacheKey = String(limit);
+    const cached = this.upcomingCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < IgdbProvider.LIST_CACHE_TTL) {
+      return cached.data;
+    }
     const upcomingFallbacks: IgdbGame[] = [
       {
         id: 119171,
@@ -2337,7 +2483,9 @@ class IgdbProvider {
         }
       }
 
-      return filtered.slice(0, limit);
+      const result = filtered.slice(0, limit);
+      this.upcomingCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
     } catch {
       return upcomingFallbacks.slice(0, limit);
     }

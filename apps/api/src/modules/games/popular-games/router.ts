@@ -63,9 +63,9 @@ export const popularGamesRouter = new Elysia()
     '/popular',
     async ({ query }) => {
       const limit = Math.max(parsePaginationValue(query.limit, 21, 100), 1);
-      const offset = parsePaginationValue(query.offset, 0, 10_000);
-      const games = await igdbProvider.getPopularGames(limit + offset);
-      return { games: games.slice(offset, offset + limit) };
+      const offset = parsePaginationValue(query.offset, 0, 400);
+      const games = await igdbProvider.getPopularGames(limit, offset);
+      return { games };
     },
     {
       query: t.Object({
@@ -75,12 +75,25 @@ export const popularGamesRouter = new Elysia()
     }
   )
   .get(
+    '/platforms',
+    async ({ query }) => {
+      const parsedLimit = Number(query.limit);
+      const limit = Number.isFinite(parsedLimit)
+        ? Math.min(Math.max(Math.trunc(parsedLimit), 1), 500)
+        : 100;
+      return { platforms: await igdbProvider.getPlatforms(limit) };
+    },
+    {
+      query: t.Object({ limit: t.Optional(t.String()) })
+    }
+  )
+  .get(
     '/top-rated',
     async ({ query }) => {
       const limit = Math.max(parsePaginationValue(query.limit, 18, 100), 1);
-      const offset = parsePaginationValue(query.offset, 0, 10_000);
-      const games = await igdbProvider.getTopRatedGames(limit + offset);
-      return { games: games.slice(offset, offset + limit) };
+      const offset = parsePaginationValue(query.offset, 0, 400);
+      const games = await igdbProvider.getTopRatedGames(limit, offset);
+      return { games };
     },
     {
       query: t.Object({

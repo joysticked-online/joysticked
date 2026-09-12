@@ -116,7 +116,8 @@ function TopNavContent({
   // Focus input on search open
   useEffect(() => {
     if (searchOpen) {
-      setTimeout(() => searchInputRef.current?.focus(), 50);
+      const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
+      return () => cancelAnimationFrame(frame);
     } else {
       setSearchQuery('');
       setSearchResults([]);
@@ -131,10 +132,11 @@ function TopNavContent({
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const results = await searchGames(searchQuery.trim());
+        const results = await searchGames(searchQuery.trim(), controller.signal);
         setSearchResults(results.slice(0, 6));
       } catch (err) {
         console.error('Search error:', err);
@@ -143,7 +145,10 @@ function TopNavContent({
       }
     }, 220);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [searchQuery]);
 
   const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
@@ -183,7 +188,7 @@ function TopNavContent({
   const NAV_ITEMS = [
     { href: '/home', label: 'Início', icon: Home, exact: true },
     { href: '/games', label: 'Jogos', icon: Gamepad2, exact: false, hasDropdown: true },
-    { href: '/lists', label: 'Listas', icon: ListFilter, exact: false },
+    { href: '/lists', label: 'Listas', icon: ListFilter, exact: false }
   ];
 
   return (
@@ -447,18 +452,22 @@ function TopNavContent({
                   onClick={() => setGamesMenuOpen(false)}
                   className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-all hover:bg-[#161616] hover:border-white/30"
                 >
-                  <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
-                    <img
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
+                    <Image
                       src={
                         featuredAwaited?.coverUrl ||
                         'https://images.igdb.com/igdb/image/upload/t_cover_big/coc6x4.webp'
                       }
                       alt={featuredAwaited?.name || 'Halloween: The Game'}
-                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="56px"
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="block text-[10px] text-neutral-500 uppercase tracking-wider">Em destaque</span>
+                    <span className="block text-[10px] text-neutral-500 uppercase tracking-wider">
+                      Em destaque
+                    </span>
                     <span className="mt-0.5 block truncate font-bold text-sm text-white transition-colors group-hover:text-neutral-300">
                       {featuredAwaited?.name || 'Halloween: The Game'}
                     </span>

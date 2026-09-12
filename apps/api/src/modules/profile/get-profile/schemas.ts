@@ -21,8 +21,6 @@ export const profileResponseSchema = z.object({
   id: z.string(),
   username: z.string(),
   displayName: z.string().nullable().optional(),
-  email: z.string().nullable().optional(),
-  emailVerified: z.boolean().optional(),
   onboardingCompleted: z.boolean().optional(),
   avatarUrl: z.string().nullable(),
   bannerUrl: z.string().nullable(),
@@ -31,3 +29,13 @@ export const profileResponseSchema = z.object({
   preferences: profilePreferencesSchema.nullable().optional(),
   createdAt: zDate
 });
+
+export function toPublicProfile<
+  T extends { email?: unknown; emailVerified?: unknown; socials?: any }
+>(profile: T) {
+  const { email: _email, emailVerified: _emailVerified, socials, ...publicProfile } = profile;
+  const publicSocials =
+    socials?.steamPublic === false ? { ...socials, steam: null, steamId: null } : socials;
+
+  return { ...publicProfile, socials: publicSocials };
+}

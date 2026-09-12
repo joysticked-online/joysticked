@@ -1,9 +1,11 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import { AlertTriangle, Edit3, Gamepad2, Monitor, Reply, Smartphone, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import type { GameReview } from '@/lib/games';
 import { PixelHeart } from '@/components/landing/pixel-heart';
 
@@ -156,11 +158,13 @@ export function GameReviewCard({
           {hasHiddenSpoiler && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-neutral-950/65 p-4 text-center backdrop-blur-sm">
               <AlertTriangle className="size-4 text-amber-300" />
-              <span className="font-semibold text-white text-xs">Esta avaliação contém spoiler</span>
+              <span className="font-semibold text-white text-xs">
+                Esta avaliação contém spoiler
+              </span>
               <button
                 type="button"
                 onClick={() => setShowSpoiler(true)}
-                className="cursor-pointer rounded-lg bg-white px-3 py-1.5 font-bold text-black text-[11px] transition-colors hover:bg-neutral-200"
+                className="cursor-pointer rounded-lg bg-white px-3 py-1.5 font-bold text-[11px] text-black transition-colors hover:bg-neutral-200"
               >
                 Mostrar spoiler
               </button>

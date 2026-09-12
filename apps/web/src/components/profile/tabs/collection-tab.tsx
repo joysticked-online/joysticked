@@ -1,3 +1,5 @@
+/* biome-ignore-all lint/performance/noImgElement: these dynamic external images require native rendering. */
+
 'use client';
 
 import { BookOpen, Star } from 'lucide-react';

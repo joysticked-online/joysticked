@@ -5,10 +5,11 @@ import { consumeMagicLinkToken } from '../../../shared/providers/magic-link';
 import { createSession } from '../../../shared/providers/session';
 
 export async function verifyMagicLinkUseCase(db: Database, { token }: { token: string }) {
-  const email = await consumeMagicLinkToken(token);
-  if (!email) {
+  const storedEmail = await consumeMagicLinkToken(token);
+  if (!storedEmail) {
     return null;
   }
+  const email = storedEmail.trim().toLowerCase();
 
   const userRepository = createUserRepository(db);
 

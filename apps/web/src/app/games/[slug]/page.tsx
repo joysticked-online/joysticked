@@ -34,7 +34,7 @@ export default async function GamePage({ params }: Props) {
   const { slug } = await params;
   const data = await getGameDetails(slug);
 
-  if (!data || !data.game) {
+  if (!data?.game) {
     notFound();
   }
 

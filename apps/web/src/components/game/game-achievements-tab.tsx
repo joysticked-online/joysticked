@@ -108,7 +108,7 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
         setIsLoading(false);
       }
     },
-    [game.slug, steamAccount, isGameDetailsPrivate]
+    [game.slug, isGameDetailsPrivate]
   );
 
   // Load automatically as soon as tab is opened or user/game changes
@@ -230,7 +230,6 @@ export function GameAchievementsTab({ game }: GameAchievementsTabProps) {
                     <span>Conectar com a Steam</span>
                     <ArrowRight className="size-3.5" />
                   </button>
-
                 </div>
               </div>
             </div>

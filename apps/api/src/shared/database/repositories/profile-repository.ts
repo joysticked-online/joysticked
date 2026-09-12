@@ -18,6 +18,8 @@ type CreateProfileData = {
     twitch?: string | null;
     discord?: string | null;
     steam?: string | null;
+    steamId?: string | null;
+    steamPublic?: boolean | null;
     instagram?: string | null;
   } | null;
   preferences?: {

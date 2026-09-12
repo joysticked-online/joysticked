@@ -1,3 +1,4 @@
+import { fixedWindow } from 'bunlimit';
 import { eq } from 'drizzle-orm';
 import { Elysia } from 'elysia';
 import z from 'zod';
@@ -9,15 +10,30 @@ import { users } from '../../shared/database/schemas/users';
 import { executeTransaction } from '../../shared/database/transaction';
 import { authMiddleware } from '../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../shared/http/middlewares/database';
+import { rateLimitMiddleware } from '../../shared/http/middlewares/rate-limitter';
 import { consumeOAuthState, createOAuthState } from '../../shared/providers/oauth';
 import { createSession } from '../../shared/providers/session';
 import { steamService } from '../../shared/providers/steam/steam-service';
 
 const STEAM_STATE_TTL_SECONDS = 60 * 10;
 const STEAM_ID_PATTERN = /^7656119\d{10}$/;
+const KNOWN_SLUGS: Record<string, number> = {
+  'elden-ring': 1245620,
+  'cyberpunk-2077': 1091500,
+  'the-witcher-3-wild-hunt': 292030,
+  'hollow-knight': 367520,
+  balatro: 2379780,
+  'red-dead-redemption-2': 1174180,
+  'god-of-war': 1593500,
+  'baldurs-gate-3': 1086940,
+  'monster-hunter-world': 582010,
+  'sekiro-shadows-die-twice': 814380,
+  hades: 1145360,
+  celeste: 504230
+};
 
 function getSafeReturnPath(value: string | undefined): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/profile';
+  if (!value?.startsWith('/') || value.startsWith('//')) return '/profile';
 
   try {
     const parsed = new URL(value, envs.app.CLIENT_URL);
@@ -29,6 +45,7 @@ function getSafeReturnPath(value: string | undefined): string {
 }
 
 export const steamRouter = new Elysia({ prefix: '/steam' })
+  .use(rateLimitMiddleware({ strategy: fixedWindow(60, 60), key: 'steam' }))
   .use(databaseMiddleware)
   .use(authMiddleware)
 
@@ -133,21 +150,6 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
           linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
       }
 
-      const KNOWN_SLUGS: Record<string, number> = {
-        'elden-ring': 1245620,
-        'cyberpunk-2077': 1091500,
-        'the-witcher-3-wild-hunt': 292030,
-        'hollow-knight': 367520,
-        balatro: 2379780,
-        'red-dead-redemption-2': 1174180,
-        'god-of-war': 1593500,
-        'baldurs-gate-3': 1086940,
-        'monster-hunter-world': 582010,
-        'sekiro-shadows-die-twice': 814380,
-        hades: 1145360,
-        celeste: 504230
-      };
-
       const raw = params.identifier.trim();
       let resolvedAppId: number | null = /^\d+$/.test(raw)
         ? parseInt(raw, 10)
@@ -192,29 +194,27 @@ export const steamRouter = new Elysia({ prefix: '/steam' })
   /**
    * Get Steam owned games & playtimes
    */
-  .get(
-    '/games',
-    async ({ db, userId, status }) => {
-      let targetSteamId: string | undefined;
+  .get('/games', async ({ db, userId, status }) => {
+    let targetSteamId: string | undefined;
 
-      if (userId) {
-        const userRepo = createUserRepository(db);
-        const user = await userRepo.findById(userId);
-        const linkedSteamId = user?.socials?.steamId;
-        targetSteamId =
-          linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
-      }
-
-      if (!targetSteamId) {
-        return status(404, { message: 'Nenhuma conta Steam vinculada.' });
-      }
-
-      const games = await steamService.getOwnedGames(targetSteamId);
-      return status(200, { games });
+    if (userId) {
+      const userRepo = createUserRepository(db);
+      const user = await userRepo.findById(userId);
+      const linkedSteamId = user?.socials?.steamId;
+      targetSteamId =
+        linkedSteamId && STEAM_ID_PATTERN.test(linkedSteamId) ? linkedSteamId : undefined;
     }
-  );
+
+    if (!targetSteamId) {
+      return status(404, { message: 'Nenhuma conta Steam vinculada.' });
+    }
+
+    const games = await steamService.getOwnedGames(targetSteamId);
+    return status(200, { games });
+  });
 
 export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
+  .use(rateLimitMiddleware({ strategy: fixedWindow(20, 60), key: 'steam-auth' }))
   .use(databaseMiddleware)
   .use(authMiddleware)
 
@@ -294,7 +294,8 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
       if (typeof v === 'string') queryParams[k] = v;
     }
 
-    const steamId = await steamService.verifyOpenIdCallback(queryParams);
+    const expectedReturnUrl = `${envs.auth.AUTH_CALLBACK_URL}/auth/steam/callback`;
+    const steamId = await steamService.verifyOpenIdCallback(queryParams, expectedReturnUrl);
 
     if (!steamId) {
       const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
@@ -309,6 +310,11 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
     if (userId) {
       const user = await userRepo.findById(userId);
       if (user) {
+        const existingAccount = await oauthRepo.findByProvider('steam', steamId);
+        if (existingAccount && existingAccount.userId !== userId) {
+          const errDest = dest.includes('?') ? `${dest}&steam=error` : `${dest}?steam=error`;
+          return redirect(errDest, 302);
+        }
         const currentSocials = user.socials || {};
         const updatedSocials = {
           ...currentSocials,
@@ -317,7 +323,12 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
           steamPublic: currentSocials.steamPublic ?? true
         };
 
-        await db.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+        await executeTransaction(db, async (tx) => {
+          await tx.update(users).set({ socials: updatedSocials }).where(eq(users.id, userId));
+          if (!existingAccount) {
+            await oauthRepo.create({ provider: 'steam', providerId: steamId, userId }, tx);
+          }
+        });
       }
       return redirect(finalRedirect, 302);
     }

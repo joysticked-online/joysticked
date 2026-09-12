@@ -142,7 +142,7 @@ class EmailService {
 
       const result = await this.sendEmail({ to, template, idempotencyKey, id });
 
-      return result;
+      return { contactId: contact?.id ?? null, result };
     } catch (error) {
       if (contact) {
         await this.client.contacts.remove({ id: contact.id, audienceId });

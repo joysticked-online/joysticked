@@ -1,24 +1,16 @@
 'use client';
 
-import {
-  Check,
-  ChevronDown,
-  Gamepad2,
-  Loader2,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  Star,
-  X
-} from 'lucide-react';
+import { Gamepad2, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActiveGameFilters } from '@/components/game-explorer/active-game-filters';
+import { GameExplorerCard } from '@/components/game-explorer/game-explorer-card';
+import { GameFilterControls } from '@/components/game-explorer/game-filter-controls';
 import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { FadeDots } from '@/components/ui/fade-dots';
-import { PosterImage } from '@/components/ui/poster-image';
 import {
   type Game,
   getDiscoverGames,
@@ -74,87 +66,6 @@ const GENRES = [
 
 const PLATFORMS = ['Todas', 'PC', 'PlayStation', 'Xbox', 'Nintendo Switch'];
 const MODES = ['Todos', 'Single player', 'Multiplayer'];
-
-interface FilterSelectProps {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}
-
-function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [isOpen]);
-
-  return (
-    <div ref={containerRef} className={`relative space-y-1 ${isOpen ? 'z-30' : 'z-10'}`}>
-      <span className="font-medium text-[11px] text-neutral-400">{label}</span>
-      <button
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((open) => !open)}
-        className={`flex h-9.5 w-full items-center justify-between rounded-xl border px-3 text-left text-xs transition-all duration-200 ${
-          isOpen
-            ? 'border-white/25 bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_0_3px_rgba(255,255,255,0.04)]'
-            : 'border-white/[0.08] bg-white/[0.04] text-neutral-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-white/[0.16] hover:bg-white/[0.07]'
-        }`}
-      >
-        <span className="truncate">{value}</span>
-        <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="size-3.5 text-neutral-400" />
-        </motion.span>
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            role="listbox"
-            initial={{ opacity: 0, y: -4, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute top-full right-0 left-0 z-30 mt-1 max-h-48 overflow-y-auto rounded-xl bg-[#161616]/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_18px_36px_rgba(0,0,0,0.8)] backdrop-blur-2xl"
-          >
-            {options.map((option) => (
-              <button
-                key={option}
-                type="button"
-                role="option"
-                aria-selected={option === value}
-                onClick={() => {
-                  onChange(option);
-                  setIsOpen(false);
-                }}
-                className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition-colors ${
-                  option === value
-                    ? 'bg-white font-medium text-black shadow-sm'
-                    : 'text-neutral-300 hover:bg-white/[0.08] hover:text-white'
-                }`}
-              >
-                <span>{option}</span>
-                {option === value && <Check className="size-3.5" />}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 /**
  * Extracts played game slugs from local storage (reviews, collection status, played list).
@@ -273,15 +184,19 @@ function ExplorerContent({
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(() => {
       setIsSearching(true);
-      searchGames(query.trim())
+      searchGames(query.trim(), controller.signal)
         .then((games) => setSearchResults(games))
         .catch(() => setSearchResults([]))
         .finally(() => setIsSearching(false));
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   // Reset or personalize gamesList whenever tab changes or on mount
@@ -553,7 +468,7 @@ function ExplorerContent({
               >
                 <SlidersHorizontal className="size-4.5" />
                 {activeFilterCount > 0 && (
-                  <span className="-top-1 -right-1 absolute flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
+                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
                     {activeFilterCount}
                   </span>
                 )}
@@ -601,92 +516,21 @@ function ExplorerContent({
                         </button>
                       </div>
 
-                      <div className="relative max-h-[min(68vh,520px)] space-y-3.5 overflow-y-auto pr-0.5">
-                        <div className="relative flex items-center">
-                          <Search className="pointer-events-none absolute left-3 size-3.5 text-neutral-500" />
-                          <input
-                            type="search"
-                            value={query}
-                            onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Buscar pelo título exato..."
-                            className="h-9.5 w-full rounded-xl border border-white/[0.08] bg-white/[0.04] pr-8 pl-8 text-white text-xs shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] outline-none transition-all placeholder:text-neutral-500 hover:border-white/[0.16] hover:bg-white/[0.06] focus:border-white/25 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]"
-                          />
-                          {query && (
-                            <button
-                              type="button"
-                              onClick={() => setQuery('')}
-                              aria-label="Limpar busca"
-                              className="absolute right-2.5 text-neutral-500 transition-colors hover:text-white"
-                            >
-                              <X className="size-3" />
-                            </button>
-                          )}
-                        </div>
-
-                        <FilterSelect
-                          label="Gênero"
-                          value={selectedGenre}
-                          options={GENRES}
-                          onChange={setSelectedGenre}
-                        />
-                        <FilterSelect
-                          label="Plataforma"
-                          value={selectedPlatform}
-                          options={PLATFORMS}
-                          onChange={setSelectedPlatform}
-                        />
-
-                        <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-                          <div className="flex items-center justify-between">
-                            <label
-                              htmlFor="minimum-score"
-                              className="font-medium text-[11px] text-neutral-400"
-                            >
-                              Nota mínima
-                            </label>
-                            <output
-                              htmlFor="minimum-score"
-                              className="rounded-md border border-white/10 bg-white/[0.08] px-1.5 py-0.5 font-semibold text-[10px] text-white"
-                            >
-                              {minimumScore === 0 ? 'Todas' : `${minimumScore.toFixed(1)}+`}
-                            </output>
-                          </div>
-                          <div className="relative px-1 pt-2">
-                            <input
-                              id="minimum-score"
-                              type="range"
-                              min="0"
-                              max="5"
-                              step="0.5"
-                              value={minimumScore}
-                              onChange={(event) => setMinimumScore(Number(event.target.value))}
-                              className="relative z-10 h-1.5 w-full cursor-pointer accent-white"
-                            />
-                            <div className="mt-1.5 flex justify-between text-[9px] text-neutral-500">
-                              {Array.from({ length: 11 }, (_, index) => {
-                                const score = index / 2;
-                                return (
-                                  <span
-                                    key={score}
-                                    className={
-                                      minimumScore === score ? 'font-semibold text-white' : ''
-                                    }
-                                  >
-                                    {score % 1 === 0 ? score : score.toFixed(1)}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-
-                        <FilterSelect
-                          label="Modo de jogo"
-                          value={selectedMode}
-                          options={MODES}
-                          onChange={setSelectedMode}
-                        />
-                      </div>
+                      <GameFilterControls
+                        query={query}
+                        selectedGenre={selectedGenre}
+                        selectedPlatform={selectedPlatform}
+                        minimumScore={minimumScore}
+                        selectedMode={selectedMode}
+                        genres={GENRES}
+                        platforms={PLATFORMS}
+                        modes={MODES}
+                        onQueryChange={setQuery}
+                        onGenreChange={setSelectedGenre}
+                        onPlatformChange={setSelectedPlatform}
+                        onMinimumScoreChange={setMinimumScore}
+                        onModeChange={setSelectedMode}
+                      />
 
                       <div className="relative mt-3 grid grid-cols-2 gap-2 border-white/[0.08] border-t pt-3">
                         <button
@@ -740,49 +584,16 @@ function ExplorerContent({
               </span>
             )}
 
-            {selectedGenre !== 'Todos' && (
-              <button
-                type="button"
-                onClick={() => setSelectedGenre('Todos')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedGenre}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {selectedPlatform !== 'Todas' && (
-              <button
-                type="button"
-                onClick={() => setSelectedPlatform('Todas')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedPlatform}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {minimumScore > 0 && (
-              <button
-                type="button"
-                onClick={() => setMinimumScore(0)}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>Nota {minimumScore.toFixed(1)}+</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
-
-            {selectedMode !== 'Todos' && (
-              <button
-                type="button"
-                onClick={() => setSelectedMode('Todos')}
-                className="inline-flex items-center gap-1 rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[10.5px] text-white transition-colors hover:bg-white/[0.12]"
-              >
-                <span>{selectedMode}</span>
-                <X className="size-3 text-neutral-400" />
-              </button>
-            )}
+            <ActiveGameFilters
+              genre={selectedGenre}
+              platform={selectedPlatform}
+              minimumScore={minimumScore}
+              mode={selectedMode}
+              onGenreReset={() => setSelectedGenre('Todos')}
+              onPlatformReset={() => setSelectedPlatform('Todas')}
+              onScoreReset={() => setMinimumScore(0)}
+              onModeReset={() => setSelectedMode('Todos')}
+            />
           </div>
         </header>
 
@@ -811,54 +622,7 @@ function ExplorerContent({
         ) : (
           <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
             {displayGames.map((game, idx) => (
-              <motion.div
-                key={`${game.id || game.slug}-${idx}`}
-                whileHover={{ y: -5, scale: 1.025 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              >
-                <Link
-                  href={`/games/${game.slug}`}
-                  className="group relative block aspect-[2/3] cursor-pointer overflow-hidden rounded-xl border border-white/[0.04] bg-neutral-900 shadow-md transition-all hover:border-white/20 hover:shadow-[0_12px_28px_rgba(0,0,0,0.8)]"
-                >
-                  {/* Poster Cover Image with Smooth Skeleton Shimmer */}
-                  <PosterImage src={game.coverUrl} alt={game.name} />
-
-                  {/* Rating / Steam Awaited / Steam New Release Badge */}
-                  {game.isSteamNewRelease ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md border border-emerald-500/30 bg-black/85 px-1.5 py-0.5 font-bold text-[8.5px] text-emerald-400 shadow backdrop-blur-md">
-                      <Sparkles className="size-2" />
-                      <span>Steam</span>
-                    </div>
-                  ) : game.isSteamAwaited ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md border border-amber-500/30 bg-black/85 px-1.5 py-0.5 font-bold text-[8.5px] text-amber-400 shadow backdrop-blur-md">
-                      <Sparkles className="size-2" />
-                      <span>Aguardado</span>
-                    </div>
-                  ) : game.rating ? (
-                    <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/75 px-1.5 py-0.5 font-bold text-[9px] text-amber-300 shadow backdrop-blur-md">
-                      <Star className="size-2 fill-amber-300 text-amber-300" />
-                      <span>{game.rating.toFixed(1)}</span>
-                    </div>
-                  ) : game.releaseYear ? (
-                    <div className="absolute top-1.5 right-1.5 rounded-md bg-black/75 px-1.5 py-0.5 font-semibold text-[8.5px] text-neutral-300 backdrop-blur-md">
-                      {game.releaseYear}
-                    </div>
-                  ) : null}
-
-                  {/* Bottom Dark Gradient with Game Title */}
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/25 to-transparent p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                    <span className="line-clamp-2 font-semibold text-[11px] text-white leading-tight">
-                      {game.name}
-                    </span>
-                    {game.genres?.[0] && (
-                      <span className="mt-0.5 truncate text-[9px] text-neutral-400">
-                        {game.genres[0]}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              </motion.div>
+              <GameExplorerCard key={`${game.id || game.slug}-${idx}`} game={game} />
             ))}
           </div>
         )}

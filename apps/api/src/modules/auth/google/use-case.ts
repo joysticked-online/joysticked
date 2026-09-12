@@ -14,5 +14,5 @@ export async function googleOAuthUseCase() {
     'email'
   ]);
 
-  return { url: authorizationUrl.toString() };
+  return { state, url: authorizationUrl.toString() };
 }
