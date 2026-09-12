@@ -319,6 +319,22 @@ export function GameReviewModal({
             );
           }
 
+          const existingMeta = JSON.parse(localStorage.getItem(`game_meta_${game.slug}`) || '{}');
+          const gameMeta = {
+            ...existingMeta,
+            id: game.slug,
+            title: game.name,
+            coverUrl: game.coverUrl || game.bannerUrl || existingMeta.coverUrl || '',
+            backdropUrl: game.bannerUrl || existingMeta.backdropUrl || '',
+            year: game.firstReleaseDate ? new Date(game.firstReleaseDate).getFullYear().toString() : existingMeta.year || '',
+            developer: game.developer || existingMeta.developer || '',
+            genres: game.genres || existingMeta.genres || [],
+            status: existingMeta.status || 'Jogado',
+            rating: updatedReview.rating,
+            platformTag: updatedReview.platform || game.platforms?.[0] || existingMeta.platformTag
+          };
+          localStorage.setItem(`game_meta_${game.slug}`, JSON.stringify(gameMeta));
+
           window.dispatchEvent(new Event('storage'));
           window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: updatedReview }));
         } catch {}

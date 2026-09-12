@@ -15,26 +15,40 @@ type CollectionTabProps = {
 export function CollectionTab({ displayGames }: CollectionTabProps) {
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilter>('all');
 
-  const counts = {
-    all: displayGames.length,
-    playing: displayGames.filter((g) => g.status.toLowerCase().includes('jogando')).length,
-    completed: displayGames.filter(
-      (g) =>
-        g.status.toLowerCase().includes('concluído') || g.status.toLowerCase().includes('platin')
-    ).length,
-    backlog: displayGames.filter((g) => g.status.toLowerCase().includes('fila')).length
+  const matchesStatus = (statusStr: string, filter: CollectionFilter, hasRating?: boolean) => {
+    const s = (statusStr || '').toLowerCase();
+    if (filter === 'playing') return s.includes('jogando');
+    if (filter === 'completed') {
+      return (
+        s.includes('concluído') ||
+        s.includes('jogado') ||
+        s.includes('zerado') ||
+        s.includes('avaliado') ||
+        s.includes('platin') ||
+        Boolean(hasRating)
+      );
+    }
+    if (filter === 'backlog') {
+      return (
+        s.includes('fila') ||
+        s.includes('quero jogar') ||
+        s.includes('planeja') ||
+        s.includes('backlog')
+      );
+    }
+    return true;
   };
 
-  const filteredCollection = displayGames.filter((game) => {
-    if (collectionFilter === 'playing') return game.status.toLowerCase().includes('jogando');
-    if (collectionFilter === 'completed')
-      return (
-        game.status.toLowerCase().includes('concluído') ||
-        game.status.toLowerCase().includes('platin')
-      );
-    if (collectionFilter === 'backlog') return game.status.toLowerCase().includes('fila');
-    return true;
-  });
+  const counts = {
+    all: displayGames.length,
+    playing: displayGames.filter((g) => matchesStatus(g.status, 'playing', Boolean(g.rating))).length,
+    completed: displayGames.filter((g) => matchesStatus(g.status, 'completed', Boolean(g.rating))).length,
+    backlog: displayGames.filter((g) => matchesStatus(g.status, 'backlog', Boolean(g.rating))).length
+  };
+
+  const filteredCollection = displayGames.filter((game) =>
+    collectionFilter === 'all' ? true : matchesStatus(game.status, collectionFilter, Boolean(game.rating))
+  );
 
   const FILTERS: { id: CollectionFilter; label: string; count: number }[] = [
     { id: 'all', label: 'Todos', count: counts.all },
@@ -99,11 +113,31 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
             >
               {/* Poster Image */}
               <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-neutral-900 shadow-md ring-1 ring-white/10 transition-all duration-200 group-hover:ring-white/25">
-                <img
-                  src={item.coverUrl}
-                  alt={item.title}
-                  className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.04]"
-                />
+                {item.coverUrl ? (
+                  <img
+                    src={item.coverUrl}
+                    alt={item.title}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                      const fallback = e.currentTarget.parentElement?.querySelector('.poster-fallback');
+                      if (fallback) fallback.classList.remove('hidden');
+                    }}
+                    className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.04]"
+                  />
+                ) : null}
+
+                {/* Graceful Poster Fallback */}
+                <div
+                  className={cn(
+                    'poster-fallback flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-neutral-800 to-neutral-950 p-2 text-center',
+                    item.coverUrl ? 'hidden' : ''
+                  )}
+                >
+                  <BookOpen className="size-5 text-neutral-500 mb-1" strokeWidth={1.5} />
+                  <span className="text-[10px] font-medium text-neutral-300 line-clamp-2 leading-tight">
+                    {item.title}
+                  </span>
+                </div>
 
                 {/* Rating Badge */}
                 {item.rating && (

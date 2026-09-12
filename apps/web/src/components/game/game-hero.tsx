@@ -57,6 +57,15 @@ export function GameHero({
       setCollectionStatus(null);
       setShowStatusMenu(false);
       toast.info(`"${game.name}" removido da sua lista.`);
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem(`game_status_${game.slug}`);
+          localStorage.removeItem(`game_meta_${game.slug}`);
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: { slug: game.slug, removed: true } }));
+        } catch {}
+      }
     } else {
       setInCollection(true);
       setCollectionStatus(status);
@@ -70,6 +79,23 @@ export function GameHero({
             localStorage.setItem('joysticked_played_games', JSON.stringify([game.slug, ...stored]));
           }
           localStorage.setItem(`game_status_${game.slug}`, status);
+
+          const gameMeta = {
+            id: game.slug,
+            title: game.name,
+            coverUrl: game.coverUrl || game.bannerUrl || '',
+            backdropUrl: game.bannerUrl || '',
+            year: game.firstReleaseDate ? new Date(game.firstReleaseDate).getFullYear().toString() : '',
+            developer: game.developer || '',
+            genres: game.genres || [],
+            status: status,
+            rating: userReview?.rating,
+            platformTag: game.platforms?.[0]
+          };
+          localStorage.setItem(`game_meta_${game.slug}`, JSON.stringify(gameMeta));
+
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: gameMeta }));
         } catch {}
       }
     }

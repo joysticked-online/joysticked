@@ -44,23 +44,44 @@ function readLocalReviews(userId: string, username?: string): GameReview[] {
   return allReviews;
 }
 
+// Read all game_meta_* keys stored from game pages
+function readLocalGameMetas(): Record<string, Partial<ProfileGame>> {
+  if (typeof window === 'undefined') return {};
+  const map: Record<string, Partial<ProfileGame>> = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith('game_meta_')) continue;
+      const slug = key.replace('game_meta_', '');
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      map[slug] = JSON.parse(raw);
+    }
+  } catch {}
+  return map;
+}
+
 // Convert a GameReview into a ProfileGame shape for the collection / activity tabs
-function reviewToProfileGame(review: GameReview): ProfileGame {
-  // Try to enrich with cover data from the catalog if the slug matches
+function reviewToProfileGame(
+  review: GameReview,
+  metaMap: Record<string, Partial<ProfileGame>>
+): ProfileGame {
   const catalogEntry = GAME_CATALOG_LOOKUP[review.gameSlug];
+  const metaEntry = metaMap[review.gameSlug];
+  const rawStatus = metaEntry?.status || localStorage.getItem(`game_status_${review.gameSlug}`) || 'Jogado';
   return {
     id: review.gameSlug,
-    title: review.gameTitle,
-    coverUrl: catalogEntry?.coverUrl ?? `https://images.igdb.com/igdb/image/upload/t_cover_big/${review.gameSlug}.webp`,
-    backdropUrl: catalogEntry?.backdropUrl,
-    year: catalogEntry?.year ?? new Date(review.createdAt).getFullYear().toString(),
-    developer: catalogEntry?.developer ?? '',
-    status: 'Avaliado',
+    title: metaEntry?.title || review.gameTitle,
+    coverUrl: metaEntry?.coverUrl || catalogEntry?.coverUrl || '',
+    backdropUrl: metaEntry?.backdropUrl || catalogEntry?.backdropUrl,
+    year: metaEntry?.year || catalogEntry?.year || new Date(review.createdAt).getFullYear().toString(),
+    developer: metaEntry?.developer || catalogEntry?.developer || '',
+    status: rawStatus,
     rating: review.rating,
-    hours: review.hoursPlayed ?? undefined,
+    hours: review.hoursPlayed ?? metaEntry?.hours,
     reviewSnippet: review.reviewText ?? undefined,
-    genres: catalogEntry?.genres ?? [],
-    platformTag: review.platform ?? catalogEntry?.platformTag,
+    genres: metaEntry?.genres || catalogEntry?.genres || [],
+    platformTag: review.platform ?? metaEntry?.platformTag ?? catalogEntry?.platformTag,
     completedDate: new Date(review.createdAt).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
   };
 }
@@ -69,23 +90,26 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
   const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('activity');
   const [localReviews, setLocalReviews] = useState<GameReview[]>([]);
+  const [gameMetas, setGameMetas] = useState<Record<string, Partial<ProfileGame>>>({});
 
   const isOwnProfile = Boolean(
     currentUser && (currentUser.id === profile.id || currentUser.username.toLowerCase() === profile.username.toLowerCase())
   );
 
-  // On mount and review events, scan localStorage for this user's reviews
+  // On mount and review/status events, scan localStorage for this user's data
   useEffect(() => {
-    const fetchReviews = () => {
+    const fetchLocalData = () => {
       const userId = isOwnProfile && currentUser ? currentUser.id : profile.id;
       const username = isOwnProfile && currentUser ? currentUser.username : profile.username;
       const reviews = readLocalReviews(userId, username);
+      const metas = readLocalGameMetas();
       setLocalReviews(reviews);
+      setGameMetas(metas);
     };
 
-    fetchReviews();
+    fetchLocalData();
 
-    const handleSync = () => fetchReviews();
+    const handleSync = () => fetchLocalData();
     window.addEventListener('storage', handleSync);
     window.addEventListener('joysticked:review-updated', handleSync);
 
@@ -102,15 +126,34 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
   // Games from onboarding preferences
   const likedGames = likedGameIds.map((id) => GAME_CATALOG_LOOKUP[id]).filter(Boolean);
 
-  // Games derived from real localStorage reviews (deduplicated by slug)
-  const reviewedGames: ProfileGame[] = localReviews.map(reviewToProfileGame);
+  // Games derived from real localStorage reviews
+  const reviewedGames: ProfileGame[] = localReviews.map((r) => reviewToProfileGame(r, gameMetas));
   const reviewedSlugs = new Set(reviewedGames.map((g) => g.id));
 
-  // Merge: reviewed games take priority (they have real rating/review data),
-  // then fill in liked games that weren't reviewed
+  // Games saved via status buttons (Jogando, Jogado, Quero Jogar) without a review
+  const statusGames: ProfileGame[] = Object.values(gameMetas)
+    .filter((m): m is ProfileGame => Boolean(m && m.id && m.title && !reviewedSlugs.has(m.id)))
+    .map((m) => ({
+      id: m.id,
+      title: m.title,
+      coverUrl: m.coverUrl || GAME_CATALOG_LOOKUP[m.id]?.coverUrl || '',
+      backdropUrl: m.backdropUrl || GAME_CATALOG_LOOKUP[m.id]?.backdropUrl,
+      year: m.year || GAME_CATALOG_LOOKUP[m.id]?.year || '',
+      developer: m.developer || GAME_CATALOG_LOOKUP[m.id]?.developer || '',
+      status: m.status || 'Jogado',
+      rating: m.rating,
+      hours: m.hours,
+      genres: m.genres || GAME_CATALOG_LOOKUP[m.id]?.genres || [],
+      platformTag: m.platformTag || GAME_CATALOG_LOOKUP[m.id]?.platformTag
+    }));
+
+  const knownSlugs = new Set([...reviewedGames.map((g) => g.id), ...statusGames.map((g) => g.id)]);
+
+  // Merge all sources: reviewed games > status-tagged games > liked games
   const displayGames: ProfileGame[] = [
     ...reviewedGames,
-    ...likedGames.filter((g) => !reviewedSlugs.has(g.id))
+    ...statusGames,
+    ...likedGames.filter((g) => !knownSlugs.has(g.id))
   ];
 
   return (

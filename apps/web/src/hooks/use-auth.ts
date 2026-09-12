@@ -72,7 +72,7 @@ export function useAuth() {
     retry: false
   });
 
-  const loginLocal = (identifier = 'jogador') => {
+  const loginLocal = (identifier = 'jogador', onboardingCompleted = false) => {
     const rawName = identifier.includes('@') ? identifier.split('@')[0] : identifier;
     const username = rawName.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'jogador';
     const newUser: AuthUser = {
@@ -81,7 +81,7 @@ export function useAuth() {
       displayName: rawName,
       email: identifier.includes('@') ? identifier : `${username}@joysticked.com`,
       emailVerified: true,
-      onboardingCompleted: true,
+      onboardingCompleted,
       avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
       bannerUrl: null,
       bio: 'Jogador no Joysticked',
