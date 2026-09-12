@@ -215,9 +215,19 @@ export function OnboardingFlow({
 
       // 2. Fire backend update asynchronously without blocking UI navigation
       if (effectiveUser?.id) {
-        api.profile({ id: effectiveUser.id }).put(payload).catch((err) => {
-          console.warn('API profile update background error:', err);
-        });
+        const token =
+          typeof window !== 'undefined' ? localStorage.getItem('joysticked_session_token') : null;
+        api
+          .profile({ id: effectiveUser.id })
+          .put(payload, {
+            fetch: {
+              credentials: 'include',
+              headers: token ? { Authorization: `Bearer ${token}` } : {}
+            }
+          })
+          .catch((err) => {
+            console.warn('API profile update background error:', err);
+          });
       }
 
       toast.success('Perfil configurado!');

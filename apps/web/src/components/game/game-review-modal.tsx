@@ -85,7 +85,7 @@ function TopScreenRating({
           <span className="font-mono text-[10px] text-neutral-400">
             {game.developer || game.publisher || 'Jogo'} {game.releaseYear ? `• ${game.releaseYear}` : ''}
           </span>
-          <h3 className="truncate font-redaction text-base sm:text-lg font-bold tracking-tight text-white">
+          <h3 className="truncate font-sans text-base sm:text-lg font-bold tracking-tight text-white">
             {game.name}
           </h3>
         </div>

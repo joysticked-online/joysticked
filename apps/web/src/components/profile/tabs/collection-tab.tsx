@@ -2,7 +2,7 @@
 
 'use client';
 
-import { BookOpen, Star } from 'lucide-react';
+import { BookOpen, Gamepad2, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -60,9 +60,9 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Liquid Filter Capsule Bar */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+    <div className="space-y-5">
+      {/* Liquid Filter Capsule Bar with Concentric Radii */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         {FILTERS.map((f) => {
           const isActive = collectionFilter === f.id;
           return (
@@ -71,20 +71,20 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
               type="button"
               onClick={() => setCollectionFilter(f.id)}
               className={cn(
-                'relative flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-xs transition-colors duration-150 active:scale-[0.96]',
+                'relative flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-1.5 font-medium text-xs transition-colors active:scale-[0.96]',
                 isActive
                   ? 'font-semibold text-black'
-                  : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
+                  : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="liquidCollectionFilterPill"
-                  className="absolute inset-0 rounded-lg bg-white shadow-sm"
+                  className="absolute inset-0 rounded-xl bg-white shadow-sm"
                   transition={{
                     type: 'spring',
-                    stiffness: 450,
-                    damping: 32
+                    duration: 0.24,
+                    bounce: 0
                   }}
                 />
               )}
@@ -92,8 +92,8 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                 <span>{f.label}</span>
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.2 font-bold text-[9px] transition-colors',
-                    isActive ? 'bg-black/15 text-black' : 'bg-white/[0.06] text-neutral-400'
+                    'rounded-md px-1.5 py-0.2 font-mono text-[9px] font-bold tabular-nums transition-colors',
+                    isActive ? 'bg-black/15 text-black' : 'bg-white/[0.06] text-zinc-400'
                   )}
                 >
                   {f.count}
@@ -104,7 +104,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
         })}
       </div>
 
-      {/* Pure Edge-to-Edge Poster Grid (Letterboxd / Plotwist Style) */}
+      {/* Pure Edge-to-Edge Poster Grid with 1px Hairline Outlines */}
       {filteredCollection.length > 0 ? (
         <div className="grid grid-cols-3 gap-3.5 sm:grid-cols-4 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {filteredCollection.map((item) => (
@@ -113,8 +113,8 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
               href={`/games/${item.id}`}
               className="group relative flex cursor-pointer flex-col space-y-1.5 focus:outline-hidden"
             >
-              {/* Poster Image */}
-              <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-neutral-900 shadow-md ring-1 ring-white/10 transition-all duration-200 group-hover:ring-white/25">
+              {/* Poster Image with Depth Rim */}
+              <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-md ring-1 ring-white/10 transition-all duration-200 group-hover:ring-white/30">
                 {item.coverUrl ? (
                   <img
                     src={item.coverUrl}
@@ -124,38 +124,38 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                       const fallback = e.currentTarget.parentElement?.querySelector('.poster-fallback');
                       if (fallback) fallback.classList.remove('hidden');
                     }}
-                    className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.04]"
+                    className="h-full w-full object-cover transition-transform duration-250 ease-out group-hover:scale-[1.04]"
                   />
                 ) : null}
 
-                {/* Graceful Poster Fallback */}
+                {/* Graceful Fallback */}
                 <div
                   className={cn(
-                    'poster-fallback flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-neutral-800 to-neutral-950 p-2 text-center',
+                    'poster-fallback flex h-full w-full flex-col items-center justify-center bg-zinc-900 p-2 text-center ring-1 ring-white/5',
                     item.coverUrl ? 'hidden' : ''
                   )}
                 >
-                  <BookOpen className="size-5 text-neutral-500 mb-1" strokeWidth={1.5} />
-                  <span className="text-[10px] font-medium text-neutral-300 line-clamp-2 leading-tight">
+                  <BookOpen className="mb-1 size-5 text-zinc-600" strokeWidth={1.5} />
+                  <span className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-400">
                     {item.title}
                   </span>
                 </div>
 
-                {/* Rating Badge */}
+                {/* Star Rating Badge in Monochrome Glass */}
                 {item.rating && (
-                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded bg-black/75 px-1.5 py-0.5 font-bold text-[9px] text-amber-400 backdrop-blur-md">
-                    <Star className="size-2.5 fill-current" />
+                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white shadow-sm ring-1 ring-white/15 backdrop-blur-md">
+                    <Star className="size-2.5 fill-current text-white" />
                     <span>{item.rating.toFixed(1)}</span>
                   </div>
                 )}
               </div>
 
               {/* Title & Metadata */}
-              <div className="space-y-0.5 px-0.5">
-                <h4 className="truncate font-medium text-white text-xs transition-colors group-hover:text-indigo-400">
+              <div className="space-y-0.5 px-0.5 text-left">
+                <h4 className="truncate text-xs font-medium text-white transition-colors group-hover:text-zinc-200">
                   {item.title}
                 </h4>
-                <p className="truncate text-[10px] text-neutral-500">
+                <p className="truncate font-mono text-[10px] text-zinc-500">
                   {item.year} {item.platformTag ? `• ${item.platformTag}` : ''}
                 </p>
               </div>
@@ -163,11 +163,13 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl bg-white/[0.01] p-12 text-center">
-          <BookOpen className="mb-3 size-6 text-neutral-600" strokeWidth={1.5} />
-          <h3 className="font-semibold text-sm text-white">Nenhum jogo nesta categoria</h3>
-          <p className="mt-1 text-neutral-500 text-xs">
-            Altere os filtros acima para visualizar o catálogo completo.
+        <div className="flex flex-col items-center justify-center rounded-2xl bg-white/[0.02] p-12 text-center ring-1 ring-white/[0.05]">
+          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] mb-3">
+            <Gamepad2 className="size-5" strokeWidth={1.5} />
+          </div>
+          <h3 className="font-sans text-base font-bold text-white tracking-tight">Nenhum título nesta categoria</h3>
+          <p className="mt-1 max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
+            Adicione ou avalie jogos para preencher esta seção da sua coleção.
           </p>
         </div>
       )}

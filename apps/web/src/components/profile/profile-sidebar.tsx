@@ -15,7 +15,7 @@ import {
   UserPlus
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -37,8 +37,13 @@ function formatJoinDate(iso: string) {
 }
 
 export function ProfileSidebar({ profile, isOwnProfile, displayGames }: ProfileSidebarProps) {
+  const [mounted, setMounted] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [copiedDiscord, setCopiedDiscord] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const displayName = profile.displayName || profile.username;
   const socials = profile.socials;
@@ -90,7 +95,7 @@ export function ProfileSidebar({ profile, isOwnProfile, displayGames }: ProfileS
         <div className="space-y-1">
           <h1 className="font-bold text-2xl text-white tracking-tight">{displayName}</h1>
 
-          {/* Username + LVL side-by-side */}
+          {/* Username */}
           <div className="flex items-center justify-center gap-2">
             <p className="font-medium text-neutral-500 text-sm">@{profile.username}</p>
           </div>
@@ -102,9 +107,9 @@ export function ProfileSidebar({ profile, isOwnProfile, displayGames }: ProfileS
           <span>Membro desde {formatJoinDate(profile.createdAt)}</span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex w-full items-center justify-center gap-2 pt-1">
-          {isOwnProfile ? (
+        {/* Action Buttons with Safe Hydration */}
+        <div className="flex w-full items-center justify-center gap-2 pt-1" suppressHydrationWarning>
+          {mounted && isOwnProfile ? (
             <Button
               variant="outline"
               size="sm"
@@ -118,12 +123,12 @@ export function ProfileSidebar({ profile, isOwnProfile, displayGames }: ProfileS
             </Button>
           ) : (
             <Button
-              variant={isFollowing ? 'outline' : 'default'}
+              variant={mounted && isFollowing ? 'outline' : 'default'}
               size="sm"
               onClick={toggleFollow}
               className="h-9 flex-1 rounded-full px-4 font-medium text-xs active:scale-[0.96]"
             >
-              {isFollowing ? (
+              {mounted && isFollowing ? (
                 <>
                   <UserCheck className="mr-1.5 size-3.5" strokeWidth={1.5} />
                   Seguindo

@@ -62,19 +62,19 @@ export function GameReviewsSection({
   return (
     <div className="space-y-4">
       {/* Header & Filter Controls with Liquid Spring Animation */}
-      <div className="flex flex-col justify-between gap-3 border-white/[0.08] border-b pb-2 sm:flex-row sm:items-center">
-        <h4 className="flex items-center gap-2 font-semibold text-neutral-400 text-xs uppercase tracking-wider">
+      <div className="flex flex-col justify-between gap-3 border-white/[0.08] border-b pb-3 sm:flex-row sm:items-center">
+        <h4 className="flex items-center gap-2 font-medium text-neutral-400 text-xs uppercase tracking-wider">
           <MessageSquare className="size-3.5 text-neutral-400" />
           <span>Avaliações da Comunidade ({activeReviews.length})</span>
         </h4>
 
         {activeReviews.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-neutral-500 text-xs">
+            <span className="flex items-center gap-1 font-medium text-neutral-500 text-xs">
               <ArrowUpDown className="size-3" />
               <span>Ordenar:</span>
             </span>
-            <div className="relative flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+            <div className="relative flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1 backdrop-blur-md">
               {(
                 [
                   { id: 'recent', label: 'Recentes' },
@@ -98,12 +98,12 @@ export function GameReviewsSection({
                         className="absolute inset-0 rounded-lg bg-white shadow-sm"
                         transition={{
                           type: 'spring',
-                          stiffness: 420,
-                          damping: 30
+                          duration: 0.24,
+                          bounce: 0
                         }}
                       />
                     )}
-                    <span className="relative z-10">{opt.label}</span>
+                    <span className="relative z-10 tracking-tight">{opt.label}</span>
                   </button>
                 );
               })}
@@ -114,20 +114,20 @@ export function GameReviewsSection({
 
       {/* Reviews Feed */}
       {sortedReviews.length === 0 ? (
-        <div className="space-y-3 rounded-3xl border border-white/[0.08] bg-white/[0.02] p-12 text-center">
+        <div className="space-y-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-12 text-center backdrop-blur-md">
           <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-neutral-400">
             <MessageSquare className="size-6" />
           </div>
           <div className="space-y-1">
-            <p className="font-semibold text-sm text-white">Nenhuma avaliação ainda</p>
-            <p className="mx-auto max-w-sm text-neutral-400 text-xs">
+            <p className="font-medium text-sm text-white">Nenhuma avaliação ainda</p>
+            <p className="mx-auto max-w-sm text-neutral-400 text-xs [text-wrap:balance]">
               Seja o primeiro a compartilhar sua experiência sobre {game.name} com a comunidade!
             </p>
           </div>
           <button
             type="button"
             onClick={onOpenReviewModal}
-            className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 font-bold text-black text-xs transition-colors hover:bg-neutral-200"
+            className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-4 py-2 font-semibold text-black text-xs transition-colors hover:bg-neutral-200 active:scale-95"
           >
             <span>Avaliar agora</span>
           </button>

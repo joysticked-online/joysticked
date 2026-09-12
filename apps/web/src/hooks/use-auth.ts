@@ -36,7 +36,7 @@ export function useAuth() {
         });
 
         if (response.error) {
-          // Check local session fallback (for local dev when external OAuth/Resend is not configured)
+          // Check local session fallback
           if (typeof window !== 'undefined') {
             const local = localStorage.getItem('joysticked_session_user');
             if (local) {
@@ -51,6 +51,22 @@ export function useAuth() {
         const userData = response.data as AuthUser;
         if (typeof window !== 'undefined' && userData) {
           try {
+            const local = localStorage.getItem('joysticked_session_user');
+            if (local) {
+              const parsed = JSON.parse(local);
+              if (parsed.onboardingCompleted) {
+                userData.onboardingCompleted = true;
+              }
+              if (parsed.username && !parsed.username.startsWith('user_')) {
+                userData.username = parsed.username;
+              }
+              if (parsed.displayName && parsed.displayName !== 'Novo Jogador' && parsed.displayName !== 'Dev Gamer') {
+                userData.displayName = parsed.displayName;
+              }
+              if (parsed.preferences) {
+                userData.preferences = parsed.preferences;
+              }
+            }
             localStorage.setItem('joysticked_session_user', JSON.stringify(userData));
           } catch {}
         }

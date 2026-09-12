@@ -150,7 +150,7 @@ export function GameDetailView({
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-white/20">
+    <div className="min-h-screen bg-[#08080a] text-neutral-100 selection:bg-white/20">
       <TopNav />
 
       {/* Hero Section */}
@@ -168,7 +168,7 @@ export function GameDetailView({
       <main className="mx-auto max-w-5xl space-y-6 px-3 pt-5 pb-16 sm:space-y-8 sm:px-6 sm:pt-8 sm:pb-24">
         {/* Scrollable on narrow screens so every destination remains reachable. */}
         <div className="-mx-3 flex items-center justify-start overflow-x-auto px-3 pb-1 sm:mx-0 sm:justify-center sm:px-0 sm:pb-2">
-          <nav className="inline-flex min-w-max items-center justify-center gap-1 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-1.5 backdrop-blur-md">
+          <nav className="inline-flex min-w-max items-center justify-center gap-1 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-1.5 backdrop-blur-xl">
             {TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -176,7 +176,7 @@ export function GameDetailView({
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex cursor-pointer select-none items-center gap-1.5 rounded-xl px-3 py-1.5 font-medium text-xs transition-colors sm:px-4 sm:py-2 sm:text-sm ${
+                  className={`relative flex cursor-pointer select-none items-center gap-1.5 rounded-xl px-3.5 py-1.5 font-medium text-xs transition-colors sm:px-4 sm:py-2 sm:text-sm ${
                     isActive
                       ? 'font-semibold text-black'
                       : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
@@ -188,15 +188,15 @@ export function GameDetailView({
                       className="absolute inset-0 rounded-xl bg-white shadow-[0_2px_12px_rgba(255,255,255,0.25)]"
                       transition={{
                         type: 'spring',
-                        stiffness: 420,
-                        damping: 30
+                        duration: 0.24,
+                        bounce: 0
                       }}
                     />
                   )}
-                  <span className="relative z-10">{tab.label}</span>
+                  <span className="relative z-10 tracking-tight">{tab.label}</span>
                   {typeof tab.count === 'number' && (
                     <span
-                      className={`relative z-10 rounded-full px-1.5 py-0.2 font-bold text-[10px] transition-colors ${
+                      className={`relative z-10 rounded-full px-1.5 py-0.2 font-mono font-bold text-[10px] transition-colors ${
                         isActive ? 'bg-black text-white' : 'bg-white/[0.08] text-neutral-400'
                       }`}
                     >
@@ -217,7 +217,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameReviewsSection
                 game={game}
@@ -234,7 +234,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameAchievementsTab game={game} />
             </motion.div>
@@ -246,7 +246,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameSimilarTab currentGame={game} similarGames={similarList} />
             </motion.div>
@@ -258,7 +258,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameActivitySection activities={activities} />
             </motion.div>
@@ -270,7 +270,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameGalleryTab
                 game={game}
@@ -286,7 +286,7 @@ export function GameDetailView({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
             >
               <GameDetailsTab game={game} />
             </motion.div>
@@ -321,77 +321,81 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
   return (
     <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6" aria-label="Resumo do jogo">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+        {/* Community Rating Card */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-[11px] uppercase tracking-wider">Nota da comunidade</span>
+            <span className="font-medium text-[11px] uppercase tracking-wider">Nota da comunidade</span>
             <Star className="size-4 text-amber-400" />
           </div>
           <div className="mt-3 flex items-end gap-2">
-            <span className="font-bold text-3xl text-white tracking-tight">
+            <span className="font-mono font-bold text-3xl text-white tracking-tight sm:text-4xl">
               {reviews.length ? average.toFixed(1) : '—'}
             </span>
-            <span className="pb-1 text-neutral-500 text-xs">
-              {reviews.length ? `${reviews.length} avaliações` : 'seja o primeiro'}
+            <span className="pb-1 text-neutral-500 text-xs tracking-tight">
+              {reviews.length ? `${reviews.length} ${reviews.length === 1 ? 'avaliação' : 'avaliações'}` : 'seja o primeiro'}
             </span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+        {/* Rating Breakdown Histogram */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-[11px] uppercase tracking-wider">Avaliações</span>
-            <BarChart3 className="size-4" />
+            <span className="font-medium text-[11px] uppercase tracking-wider">Distribuição</span>
+            <BarChart3 className="size-4 text-neutral-400" />
           </div>
           <div className="mt-3 space-y-1.5">
             {ratingBuckets.map(({ rating, count }) => (
-              <div key={rating} className="flex items-center gap-2 text-[10px] text-neutral-500">
-                <span className="w-3">{rating}</span>
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+              <div key={rating} className="flex items-center gap-2 font-mono text-[10px] text-neutral-500">
+                <span className="w-3 text-neutral-400">{rating}★</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                   <div
-                    className="h-full rounded-full bg-amber-400 transition-all"
+                    className="h-full rounded-full bg-amber-400/90 transition-all duration-300"
                     style={{ width: `${reviews.length ? (count / reviews.length) * 100 : 0}%` }}
                   />
                 </div>
-                <span className="w-3 text-right">{count}</span>
+                <span className="w-4 text-right text-neutral-400">{count}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+        {/* Release & Developer Card */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-[11px] uppercase tracking-wider">Lançamento</span>
-            <CalendarDays className="size-4" />
+            <span className="font-medium text-[11px] uppercase tracking-wider">Lançamento</span>
+            <CalendarDays className="size-4 text-neutral-400" />
           </div>
-          <p className="mt-3 font-semibold text-lg text-white">
+          <p className="mt-3 font-mono font-bold text-xl text-white sm:text-2xl">
             {game.releaseYear ||
               (game.firstReleaseDate
                 ? new Date(game.firstReleaseDate).getFullYear()
-                : 'Ainda não anunciado')}
+                : 'A anunciar')}
           </p>
-          <p className="mt-1 truncate text-neutral-500 text-xs">
-            {game.developer || 'Desenvolvedor não informado'}
+          <p className="mt-1 truncate font-medium text-neutral-400 text-xs tracking-tight">
+            {game.developer || 'Estúdio independente'}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 backdrop-blur-md">
+        {/* Platforms & Community Activity */}
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="text-[11px] uppercase tracking-wider">Disponível em</span>
-            <Gamepad2 className="size-4" />
+            <span className="font-medium text-[11px] uppercase tracking-wider">Disponibilidade</span>
+            <Gamepad2 className="size-4 text-neutral-400" />
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {(game.platforms?.length ? game.platforms : ['Plataformas não informadas'])
+            {(game.platforms?.length ? game.platforms : ['Multiplataforma'])
               .slice(0, 3)
               .map((platform) => (
                 <span
                   key={platform}
-                  className="rounded-lg bg-white/[0.07] px-2 py-1 text-[10px] text-neutral-300"
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 font-medium text-[10px] text-neutral-300 tracking-tight"
                 >
                   {platform}
                 </span>
               ))}
           </div>
-          <p className="mt-2 flex items-center gap-1 text-[10px] text-neutral-500">
-            <Users className="size-3" /> Veja o que a comunidade está jogando
+          <p className="mt-2.5 flex items-center gap-1.5 text-[10px] text-neutral-500">
+            <Users className="size-3 text-neutral-400" /> Veja o que a comunidade está jogando
           </p>
         </div>
       </div>

@@ -21,7 +21,7 @@ type ProfileTabsProps = {
 
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
-    <div className="flex items-center gap-1 overflow-x-auto border-white/[0.04] border-b pb-3">
+    <div className="flex items-center gap-1.5 overflow-x-auto border-b border-white/[0.06] pb-3">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -32,20 +32,20 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
             type="button"
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              'relative flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-xs transition-colors duration-150 active:scale-[0.96]',
+              'relative flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 font-medium text-xs transition-colors active:scale-[0.96]',
               isActive
-                ? 'font-semibold text-black'
-                : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
+                ? 'text-black font-semibold'
+                : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white'
             )}
           >
             {isActive && (
               <motion.div
                 layoutId="liquidActiveTabPill"
-                className="absolute inset-0 rounded-lg bg-white"
+                className="absolute inset-0 rounded-xl bg-white shadow-sm"
                 transition={{
                   type: 'spring',
-                  stiffness: 450,
-                  damping: 32
+                  duration: 0.24,
+                  bounce: 0
                 }}
               />
             )}

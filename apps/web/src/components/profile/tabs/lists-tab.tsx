@@ -6,6 +6,7 @@ import { List, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import type { ProfileGame } from '../types';
 
 type ListsTabProps = {
@@ -13,31 +14,30 @@ type ListsTabProps = {
 };
 
 export function ListsTab({ displayGames }: ListsTabProps) {
-  // Only render real lists if there's actual game data to populate them
   if (!displayGames || displayGames.length < 4) {
     return (
       <motion.div
         key="lists-empty"
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15 }}
-        className="flex flex-col items-center gap-4 py-16 text-center"
+        transition={{ duration: 0.18 }}
+        className="flex flex-col items-center gap-4 rounded-2xl bg-white/[0.02] p-12 text-center ring-1 ring-white/[0.05]"
       >
-        <div className="flex size-12 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.03] text-neutral-600">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08]">
           <List className="size-5" strokeWidth={1.5} />
         </div>
         <div className="space-y-1">
-          <p className="font-medium text-sm text-neutral-300">Nenhuma lista ainda</p>
-          <p className="max-w-xs text-[12px] text-neutral-500 leading-relaxed">
-            Crie listas para organizar seus jogos favoritos, platinados ou que pretende jogar.
+          <p className="font-medium text-sm text-white">Nenhuma lista personalizada ainda</p>
+          <p className="max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
+            Crie listas temáticas para catalogar franquias, platinas ou recomendações.
           </p>
         </div>
         <button
           type="button"
-          className="mt-1 flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs text-neutral-300 transition-colors hover:bg-white/[0.08] hover:text-white"
+          className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 font-medium text-xs text-black transition-all hover:bg-zinc-200 active:scale-[0.96]"
         >
-          <Plus className="size-3" />
-          Criar lista
+          <Plus className="size-3.5" />
+          <span>Criar primeira lista</span>
         </button>
       </motion.div>
     );
@@ -46,32 +46,32 @@ export function ListsTab({ displayGames }: ListsTabProps) {
   return (
     <motion.div
       key="lists"
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
-      transition={{ duration: 0.15 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.18 }}
       className="grid grid-cols-1 gap-4 md:grid-cols-2"
     >
-      <div className="space-y-3 rounded-2xl bg-neutral-900/30 p-5 transition-colors hover:bg-neutral-900/60">
+      <div className="space-y-3 rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all hover:bg-white/[0.04] hover:ring-white/[0.08]">
         <div className="flex items-center justify-between">
-          <span className="rounded bg-white/[0.05] px-2 py-0.5 font-medium text-[10px] text-neutral-400">
+          <span className="rounded-md bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-zinc-400 ring-1 ring-white/[0.06]">
             {displayGames.slice(0, 6).length} jogos
           </span>
-          <span className="text-[11px] text-neutral-500">Atualizado recentemente</span>
+          <span className="font-mono text-[11px] text-zinc-500">atualizado recente</span>
         </div>
         <div>
-          <h3 className="font-bold text-base text-white">Favoritos</h3>
-          <p className="mt-1 text-neutral-400 text-xs leading-relaxed">
-            Jogos que você mais curtiu e quer lembrar sempre.
+          <h3 className="font-sans text-lg font-bold text-white tracking-tight">Favoritos de Sempre</h3>
+          <p className="mt-0.5 text-xs text-zinc-400 leading-relaxed [text-wrap:pretty]">
+            Os títulos mais marcantes da sua jornada nos games.
           </p>
         </div>
-        <div className="-space-x-2 flex pt-2">
-          {displayGames.slice(0, 4).map((g) => (
+        <div className="-space-x-2.5 flex pt-2">
+          {displayGames.slice(0, 5).map((g) => (
             <img
               key={g.id}
               src={g.coverUrl}
               alt={g.title}
-              className="size-10 rounded-lg object-cover ring-2 ring-[#070709]"
+              className="size-11 rounded-xl object-cover ring-2 ring-[#08080a] shadow-md"
             />
           ))}
         </div>

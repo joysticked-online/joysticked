@@ -28,7 +28,6 @@ function readLocalReviews(userId: string, username?: string): GameReview[] {
       const raw = localStorage.getItem(key);
       if (!raw) continue;
       const list: GameReview[] = JSON.parse(raw);
-      // Include reviews written by this user matching either ID or username
       for (const r of list) {
         const matchesUser =
           (userId && (r.userId === userId || r.user?.id === userId)) ||
@@ -39,7 +38,6 @@ function readLocalReviews(userId: string, username?: string): GameReview[] {
       }
     }
   } catch {}
-  // Sort newest first
   allReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   return allReviews;
 }
@@ -61,7 +59,7 @@ function readLocalGameMetas(): Record<string, Partial<ProfileGame>> {
   return map;
 }
 
-// Convert a GameReview into a ProfileGame shape for the collection / activity tabs
+// Convert a GameReview into a ProfileGame shape
 function reviewToProfileGame(
   review: GameReview,
   metaMap: Record<string, Partial<ProfileGame>>
@@ -86,17 +84,29 @@ function reviewToProfileGame(
   };
 }
 
-export function PublicProfileView({ profile }: { profile: Profile }) {
+export function PublicProfileView({ profile: initialProfile }: { profile: Profile }) {
   const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('activity');
   const [localReviews, setLocalReviews] = useState<GameReview[]>([]);
   const [gameMetas, setGameMetas] = useState<Record<string, Partial<ProfileGame>>>({});
 
   const isOwnProfile = Boolean(
-    currentUser && (currentUser.id === profile.id || currentUser.username.toLowerCase() === profile.username.toLowerCase())
+    currentUser && (currentUser.id === initialProfile.id || currentUser.username.toLowerCase() === initialProfile.username.toLowerCase())
   );
 
-  // On mount and review/status events, scan localStorage for this user's data
+  // If viewing own profile, prioritize freshest client auth state & localStorage
+  const profile: Profile = isOwnProfile && currentUser ? {
+    id: currentUser.id || initialProfile.id,
+    username: currentUser.username || initialProfile.username,
+    displayName: currentUser.displayName ?? initialProfile.displayName,
+    avatarUrl: currentUser.avatarUrl ?? initialProfile.avatarUrl,
+    bannerUrl: currentUser.bannerUrl ?? initialProfile.bannerUrl,
+    bio: currentUser.bio ?? initialProfile.bio,
+    socials: currentUser.socials ?? initialProfile.socials,
+    preferences: currentUser.preferences ?? initialProfile.preferences,
+    createdAt: (currentUser.createdAt ? String(currentUser.createdAt) : null) || initialProfile.createdAt
+  } : initialProfile;
+
   useEffect(() => {
     const fetchLocalData = () => {
       const userId = isOwnProfile && currentUser ? currentUser.id : profile.id;
@@ -123,14 +133,10 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
   const genres = profile.preferences?.genres || [];
   const likedGameIds = profile.preferences?.likedGames || [];
 
-  // Games from onboarding preferences
   const likedGames = likedGameIds.map((id) => GAME_CATALOG_LOOKUP[id]).filter(Boolean);
-
-  // Games derived from real localStorage reviews
   const reviewedGames: ProfileGame[] = localReviews.map((r) => reviewToProfileGame(r, gameMetas));
   const reviewedSlugs = new Set(reviewedGames.map((g) => g.id));
 
-  // Games saved via status buttons (Jogando, Jogado, Quero Jogar) without a review
   const statusGames: ProfileGame[] = Object.values(gameMetas)
     .filter((m): m is ProfileGame => Boolean(m && m.id && m.title && !reviewedSlugs.has(m.id)))
     .map((m) => ({
@@ -149,7 +155,6 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
 
   const knownSlugs = new Set([...reviewedGames.map((g) => g.id), ...statusGames.map((g) => g.id)]);
 
-  // Merge all sources: reviewed games > status-tagged games > liked games
   const displayGames: ProfileGame[] = [
     ...reviewedGames,
     ...statusGames,
@@ -157,26 +162,32 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#070709] font-geist-sans text-neutral-100 selection:bg-neutral-100 selection:text-black">
-      {/* ── Top Navigation Bar ── */}
+    <div className="relative min-h-screen bg-[#08080a] font-geist-sans text-white selection:bg-white selection:text-black">
+      {/* Subtle Background Matrix Texture */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_30%,#000_60%,transparent_100%)] opacity-70"
+        aria-hidden="true"
+      />
+
+      {/* Top Navigation Bar */}
       <TopNav />
 
-      {/* ── Cinematic Hero Banner ── */}
+      {/* Monochrome Hero Banner */}
       <ProfileBanner bannerUrl={profile.bannerUrl} displayGames={displayGames} />
 
-      {/* ── Main Layout Container ── */}
-      <div className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 md:px-8">
-        <div className="-mt-20 md:-mt-28 relative grid grid-cols-1 gap-10 lg:grid-cols-12">
-          {/* ── LEFT COLUMN: Centered Player Profile Card ── */}
+      {/* Main Grid Container */}
+      <main className="relative z-10 mx-auto max-w-6xl px-4 pb-24 sm:px-6 md:px-8">
+        <div className="-mt-16 sm:-mt-20 md:-mt-24 grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* Left Column: Player Profile Sidebar */}
           <ProfileSidebar
             profile={profile}
             isOwnProfile={isOwnProfile}
             displayGames={displayGames}
           />
 
-          {/* ── RIGHT COLUMN: Content Stream & Lower Tabs ── */}
-          <div className="space-y-6 pt-10 lg:col-span-8 lg:pt-20 xl:col-span-8.5">
-            {/* Pill Tab Navigation with Liquid Morphing Indicator */}
+          {/* Right Column: Tab Navigation & Content Feed */}
+          <section className="space-y-5 pt-4 sm:pt-6 lg:col-span-8 lg:pt-14 xl:col-span-8.5">
+            {/* Liquid Pill Tab Navigation */}
             <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             {/* Dynamic Tab Views */}
@@ -214,9 +225,9 @@ export function PublicProfileView({ profile }: { profile: Profile }) {
                 />
               )}
             </AnimatePresence>
-          </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

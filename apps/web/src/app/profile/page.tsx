@@ -7,10 +7,14 @@ import {
   ArrowLeft,
   Camera,
   Check,
+  Gamepad2,
+  Globe,
   ImageIcon,
+  Instagram,
   Loader2,
   MessageSquare,
   Save,
+  Sparkles,
   Twitch,
   Twitter,
   User
@@ -61,7 +65,7 @@ const SOCIAL_FIELDS: SocialField[] = [
   {
     key: 'instagram',
     label: 'Instagram',
-    icon: Twitter,
+    icon: Instagram,
     placeholder: 'usuario',
     prefix: 'instagram.com/'
   }
@@ -72,26 +76,26 @@ const PLATFORMS = [
   { id: 'playstation', name: 'PlayStation 5' },
   { id: 'xbox', name: 'Xbox Series X|S' },
   { id: 'switch', name: 'Nintendo Switch' },
-  { id: 'handheld', name: 'Handheld & Retro' }
+  { id: 'handheld', name: 'Portáteis & Retro' }
 ];
 
 const GENRES = [
   'RPG',
-  'Action-Adventure',
+  'Ação',
   'Souls-like',
   'FPS / Shooter',
   'Indie',
-  'Survival Horror',
+  'Terror',
   'Roguelike',
-  'Open World',
-  'Strategy',
-  'Platformer',
+  'Mundo Aberto',
+  'Estratégia',
+  'Plataforma',
   'Cyberpunk',
-  'Fighting',
-  'Racing',
+  'Luta',
+  'Corrida',
   'MMO',
   'Metroidvania',
-  'Story Rich'
+  'Narrativo'
 ];
 
 export default function ProfileSetupPage() {
@@ -117,7 +121,7 @@ export default function ProfileSetupPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('steam') === 'connected') {
-        toast.success('Conta Steam conectada com sucesso!');
+        toast.success('Conta Steam vinculada com sucesso!');
         const url = new URL(window.location.href);
         url.searchParams.delete('steam');
         window.history.replaceState({}, '', url.toString());
@@ -146,11 +150,11 @@ export default function ProfileSetupPage() {
     },
     onSubmit: async ({ value }) => {
       const payload = {
-        username: value.username,
-        displayName: value.displayName || null,
+        username: value.username.toLowerCase().trim(),
+        displayName: value.displayName?.trim() || null,
         avatarUrl: value.avatarUrl || null,
         bannerUrl: value.bannerUrl || null,
-        bio: value.bio || null,
+        bio: value.bio?.trim() || null,
         socials: {
           twitter: value.socials.twitter || null,
           twitch: value.socials.twitch || null,
@@ -176,7 +180,23 @@ export default function ProfileSetupPage() {
           return;
         }
 
-        const { error } = await api.profile({ id: userId }).put(payload);
+        // 1. Update local storage directly for instant responsiveness
+        if (typeof window !== 'undefined') {
+          const currentLocal = localStorage.getItem('joysticked_session_user');
+          const parsed = currentLocal ? JSON.parse(currentLocal) : {};
+          localStorage.setItem('joysticked_session_user', JSON.stringify({ ...parsed, ...payload }));
+        }
+
+        // 2. Persist to API
+        const token =
+          typeof window !== 'undefined' ? localStorage.getItem('joysticked_session_token') : null;
+
+        const { error } = await api.profile({ id: userId }).put(payload, {
+          fetch: {
+            credentials: 'include',
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          }
+        });
         if (error) {
           const msg =
             typeof error.value === 'object' && error.value && 'message' in error.value
@@ -185,12 +205,13 @@ export default function ProfileSetupPage() {
           toast.error(msg);
           return;
         }
+
         await refetch();
         setSaved(true);
         toast.success('Perfil atualizado com sucesso!');
         router.push(`/${payload.username}`);
       } catch {
-        toast.error('Erro ao conectar ao servidor.');
+        toast.error('Erro ao salvar no servidor.');
       }
     }
   });
@@ -261,8 +282,8 @@ export default function ProfileSetupPage() {
 
   if (isAuthLoading || isLoadingProfile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <Loader2 className="size-6 animate-spin text-neutral-500" />
+      <div className="flex min-h-screen items-center justify-center bg-[#08080a]">
+        <Loader2 className="size-6 animate-spin text-zinc-500" />
       </div>
     );
   }
@@ -270,22 +291,28 @@ export default function ProfileSetupPage() {
   const currentUsername = form.getFieldValue('username') || user?.username || 'profile';
 
   return (
-    <div className="relative min-h-screen bg-black font-geist-sans text-neutral-100 selection:bg-neutral-100 selection:text-black">
-      {/* ── Liquid-Glass Floating Top Bar ── */}
+    <div className="relative min-h-screen bg-[#08080a] font-geist-sans text-white selection:bg-white selection:text-black">
+      {/* Subtle Retro Dot Matrix Background */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000_60%,transparent_100%)] opacity-70"
+        aria-hidden="true"
+      />
+
+      {/* Floating Top Bar with Concentric Radii and Hairline Rim */}
       <div className="pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-4">
-        <header className="pointer-events-auto flex h-12 w-full max-w-4xl items-center justify-between rounded-full border border-white/10 bg-neutral-950/60 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur-2xl">
+        <header className="pointer-events-auto flex h-12 w-full max-w-4xl items-center justify-between rounded-full bg-[#111114]/90 px-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] ring-1 ring-white/[0.08] backdrop-blur-2xl">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="icon"
               asChild
-              className="size-8 rounded-full text-neutral-400 hover:bg-white/[0.06] hover:text-white active:scale-[0.96]"
+              className="size-8 rounded-full text-zinc-400 hover:bg-white/[0.06] hover:text-white active:scale-[0.96]"
             >
               <Link href={`/${currentUsername}`} title="Voltar ao perfil">
                 <ArrowLeft className="size-4" strokeWidth={1.5} />
               </Link>
             </Button>
-            <span className="font-semibold text-white text-xs">
+            <span className="font-redaction font-medium text-white text-sm tracking-tight">
               {isNewProfile ? 'Criar Perfil' : 'Editar Perfil'}
             </span>
           </div>
@@ -295,7 +322,7 @@ export default function ProfileSetupPage() {
               type="button"
               size="sm"
               onClick={() => form.handleSubmit()}
-              className="h-7.5 rounded-full px-4 font-medium text-xs transition-transform duration-150 ease-out active:scale-[0.96]"
+              className="h-8 rounded-full bg-white px-4 font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96]"
             >
               {saved ? (
                 <>
@@ -313,8 +340,8 @@ export default function ProfileSetupPage() {
         </header>
       </div>
 
-      {/* ── Banner Area ── */}
-      <div className="relative h-60 w-full overflow-hidden bg-neutral-950 md:h-72">
+      {/* Banner Customization Area */}
+      <div className="relative h-52 w-full overflow-hidden bg-[#0c0c0e] sm:h-60 md:h-72">
         <form.Field name="bannerUrl">
           {(field) => (
             <>
@@ -322,29 +349,28 @@ export default function ProfileSetupPage() {
                 <img
                   src={field.state.value}
                   alt="Banner do perfil"
-                  className="-outline-offset-1 h-full w-full object-cover opacity-80 outline outline-1 outline-white/10"
+                  className="h-full w-full object-cover opacity-75"
                 />
               ) : (
-                <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-neutral-900/40 via-neutral-950/70 to-black">
-                  <div className="-top-10 -translate-x-1/2 absolute left-1/3 h-72 w-72 rounded-full bg-indigo-500/10 blur-[120px]" />
-                  <div className="flex flex-col items-center gap-2 text-neutral-500">
+                <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-white/[0.03] to-transparent">
+                  <div className="flex flex-col items-center gap-2 text-zinc-500">
                     <ImageIcon className="size-6 opacity-40" strokeWidth={1.5} />
-                    <span className="text-xs opacity-50">Nenhum banner personalizado</span>
+                    <span className="font-mono text-[11px] text-zinc-500">Sem banner personalizado</span>
                   </div>
                 </div>
               )}
 
-              {/* Bottom gradient fade */}
-              <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black via-black/80 to-transparent" />
+              {/* Bottom gradient vignette */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#08080a] via-[#08080a]/80 to-transparent" />
 
-              {/* Change banner floating button */}
+              {/* Change banner button */}
               <button
                 type="button"
                 onClick={() => {
                   const url = prompt('Cole a URL da imagem para o banner:');
                   if (url) field.handleChange(url);
                 }}
-                className="absolute right-6 bottom-6 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/60 px-3.5 py-1.5 font-medium text-white text-xs shadow-lg backdrop-blur-md transition-all duration-150 ease-out hover:bg-black/80 active:scale-[0.96]"
+                className="absolute right-6 bottom-6 flex items-center gap-1.5 rounded-xl bg-black/70 px-3.5 py-1.5 font-medium text-white text-xs ring-1 ring-white/15 backdrop-blur-md transition-all hover:bg-black/90 active:scale-[0.96]"
               >
                 <Camera className="size-3.5" strokeWidth={1.5} />
                 <span>Alterar banner</span>
@@ -354,22 +380,22 @@ export default function ProfileSetupPage() {
         </form.Field>
       </div>
 
-      {/* ── Main Form Content ── */}
-      <div className="mx-auto max-w-3xl px-4 pb-28 md:px-8">
+      {/* Main Form Content Container */}
+      <div className="relative z-10 mx-auto max-w-3xl px-4 pb-28 md:px-8">
         {/* Avatar + Title Row */}
-        <div className="-mt-16 md:-mt-20 relative mb-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
+        <div className="-mt-14 sm:-mt-16 md:-mt-20 relative mb-8 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
           <form.Field name="avatarUrl">
             {(field) => (
               <div className="relative shrink-0">
-                <div className="size-28 overflow-hidden rounded-full border-2 border-white/10 bg-neutral-900 p-1 shadow-2xl md:size-32">
+                <div className="size-28 overflow-hidden rounded-full bg-zinc-900 p-0.5 shadow-2xl ring-2 ring-white/10 md:size-32">
                   {field.state.value ? (
                     <img
                       src={field.state.value}
                       alt="Avatar"
-                      className="-outline-offset-1 h-full w-full rounded-full object-cover outline outline-1 outline-white/10"
+                      className="h-full w-full rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-tr from-neutral-900 via-indigo-950 to-neutral-800 font-bold text-2xl text-white">
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-zinc-900 font-bold text-2xl text-white">
                       <User className="size-8 opacity-40" strokeWidth={1.5} />
                     </div>
                   )}
@@ -381,7 +407,7 @@ export default function ProfileSetupPage() {
                     const url = prompt('Cole a URL da imagem para o seu avatar:');
                     if (url) field.handleChange(url);
                   }}
-                  className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full border border-white/15 bg-neutral-900 text-white shadow-lg transition-transform duration-150 ease-out hover:bg-neutral-800 active:scale-[0.96]"
+                  className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-full bg-white text-black shadow-lg transition-transform hover:bg-zinc-200 active:scale-[0.96]"
                   title="Alterar avatar"
                 >
                   <Camera className="size-3.5" strokeWidth={1.5} />
@@ -391,11 +417,11 @@ export default function ProfileSetupPage() {
           </form.Field>
 
           <div className="mb-2 space-y-0.5">
-            <h1 className="font-bold text-white text-xl tracking-tight md:text-2xl">
+            <h1 className="font-redaction text-2xl font-medium tracking-tight text-white md:text-3xl [text-wrap:balance]">
               {isNewProfile ? 'Configure seu Perfil' : 'Personalizar Perfil'}
             </h1>
-            <p className="text-neutral-400 text-xs">
-              Atualize suas informações, redes sociais e preferências de jogos.
+            <p className="text-xs text-zinc-400 [text-wrap:pretty]">
+              Atualize suas informações públicas, redes sociais e preferências.
             </p>
           </div>
         </div>
@@ -405,20 +431,20 @@ export default function ProfileSetupPage() {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="space-y-8"
+          className="space-y-6"
         >
           {/* ── 1. IDENTIDADE ── */}
-          <section className="space-y-3">
-            <h2 className="font-bold text-[11px] text-neutral-400 uppercase tracking-wider">
+          <section className="space-y-2.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
               Identidade
             </h2>
 
-            <div className="space-y-4 rounded-3xl bg-neutral-950/40 p-6 backdrop-blur-xl">
+            <div className="space-y-4 rounded-[24px] bg-[#111114]/90 p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.08] backdrop-blur-2xl">
               {/* Display Name */}
               <form.Field name="displayName">
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="displayName" className="font-medium text-neutral-300 text-xs">
+                    <label htmlFor="displayName" className="block text-[11px] font-medium text-zinc-300">
                       Nome de exibição
                     </label>
                     <Input
@@ -427,7 +453,7 @@ export default function ProfileSetupPage() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      className="h-10 rounded-xl border-white/[0.06] bg-white/[0.02] text-sm text-white placeholder:text-neutral-600 focus-visible:border-white/20 focus-visible:ring-0"
+                      className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
                     />
                     <FieldInfo field={field} />
                   </div>
@@ -449,11 +475,11 @@ export default function ProfileSetupPage() {
               >
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="username" className="font-medium text-neutral-300 text-xs">
+                    <label htmlFor="username" className="block text-[11px] font-medium text-zinc-300">
                       Nome de usuário (@handle)
                     </label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3.5 select-none font-medium text-neutral-500 text-xs">
+                      <span className="pointer-events-none absolute left-3.5 select-none font-mono text-xs text-zinc-500">
                         @
                       </span>
                       <Input
@@ -469,7 +495,7 @@ export default function ProfileSetupPage() {
                         aria-invalid={
                           field.state.meta.isTouched && field.state.meta.errors.length > 0
                         }
-                        className="h-10 rounded-xl border-white/[0.06] bg-white/[0.02] pl-8 text-sm text-white placeholder:text-neutral-600 focus-visible:border-white/20 focus-visible:ring-0"
+                        className="h-11 rounded-xl border-0 bg-white/[0.03] pl-8 pr-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
                       />
                     </div>
                     <FieldInfo field={field} />
@@ -489,24 +515,21 @@ export default function ProfileSetupPage() {
                 {(field) => (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label htmlFor="bio" className="font-medium text-neutral-300 text-xs">
+                      <label htmlFor="bio" className="block text-[11px] font-medium text-zinc-300">
                         Bio
                       </label>
-                      <span className="text-[11px] text-neutral-500 tabular-nums">
+                      <span className="font-mono text-[10px] text-zinc-500 tabular-nums">
                         {field.state.value?.length || 0}/500
                       </span>
                     </div>
                     <textarea
                       id="bio"
                       rows={3}
-                      placeholder="Conte um pouco sobre suas preferências gamer..."
+                      placeholder="Conte um pouco sobre suas preferências nos games..."
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      className={cn(
-                        'w-full resize-none rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-2.5 text-sm text-white shadow-xs outline-none placeholder:text-neutral-600',
-                        'focus:border-white/20 focus:ring-0'
-                      )}
+                      className="w-full resize-none rounded-xl border-0 bg-white/[0.03] p-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/30"
                     />
                     <FieldInfo field={field} />
                   </div>
@@ -516,15 +539,15 @@ export default function ProfileSetupPage() {
           </section>
 
           {/* ── 2. PLATAFORMAS & GÊNEROS ── */}
-          <section className="space-y-3">
-            <h2 className="font-bold text-[11px] text-neutral-400 uppercase tracking-wider">
+          <section className="space-y-2.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
               Preferências Gamer
             </h2>
 
-            <div className="space-y-5 rounded-3xl bg-neutral-950/40 p-6 backdrop-blur-xl">
+            <div className="space-y-5 rounded-[24px] bg-[#111114]/90 p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.08] backdrop-blur-2xl">
               {/* Platforms */}
               <div className="space-y-2">
-                <span className="block font-medium text-neutral-300 text-xs">
+                <span className="block text-[11px] font-medium text-zinc-300">
                   Plataformas que você joga
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -537,10 +560,10 @@ export default function ProfileSetupPage() {
                         type="button"
                         onClick={() => togglePlatform(platform.id)}
                         className={cn(
-                          'rounded-full px-3.5 py-1.5 font-medium text-xs transition-all duration-150 ease-out active:scale-[0.96]',
+                          'rounded-xl px-3.5 py-2 font-medium text-xs transition-all active:scale-[0.96]',
                           isSelected
-                            ? 'bg-white text-black shadow-md'
-                            : 'border border-white/[0.05] bg-white/[0.02] text-neutral-400 hover:border-white/10 hover:text-white'
+                            ? 'bg-white text-black ring-0'
+                            : 'bg-white/[0.03] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-white'
                         )}
                       >
                         {platform.name}
@@ -552,7 +575,7 @@ export default function ProfileSetupPage() {
 
               {/* Genres */}
               <div className="space-y-2">
-                <span className="block font-medium text-neutral-300 text-xs">
+                <span className="block text-[11px] font-medium text-zinc-300">
                   Gêneros favoritos
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -565,10 +588,10 @@ export default function ProfileSetupPage() {
                         type="button"
                         onClick={() => toggleGenre(genre)}
                         className={cn(
-                          'rounded-full px-3 py-1 font-medium text-xs transition-all duration-150 ease-out active:scale-[0.96]',
+                          'rounded-full px-3.5 py-1.5 font-medium text-xs transition-all active:scale-[0.96]',
                           isSelected
-                            ? 'bg-indigo-500 text-white shadow-md'
-                            : 'border border-white/[0.03] bg-white/[0.015] text-neutral-400 hover:border-white/[0.08] hover:text-white'
+                            ? 'bg-white text-black ring-0'
+                            : 'bg-white/[0.03] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.06] hover:text-white'
                         )}
                       >
                         {genre}
@@ -580,26 +603,26 @@ export default function ProfileSetupPage() {
             </div>
           </section>
 
-          {/* ── 3. REDES SOCIAIS ── */}
-          <section className="space-y-3">
-            <h2 className="font-bold text-[11px] text-neutral-400 uppercase tracking-wider">
-              Conexões & Redes
+          {/* ── 3. REDES SOCIAIS & STEAM ── */}
+          <section className="space-y-2.5">
+            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+              Conexões &amp; Redes
             </h2>
 
-            <div className="space-y-3.5 rounded-3xl bg-neutral-950/40 p-6 backdrop-blur-xl">
+            <div className="space-y-3.5 rounded-[24px] bg-[#111114]/90 p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.08] backdrop-blur-2xl">
               {SOCIAL_FIELDS.map(({ key, label, icon: Icon, placeholder, prefix }) => (
                 <form.Field key={key} name={`socials.${key}`}>
                   {(field) => (
                     <div className="space-y-1.5">
                       <label
                         htmlFor={`social-${key}`}
-                        className="flex items-center gap-1.5 font-medium text-neutral-300 text-xs"
+                        className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300"
                       >
-                        <Icon className="size-3.5 text-neutral-400" strokeWidth={1.5} />
-                        {label}
+                        <Icon className="size-3.5 text-zinc-400" strokeWidth={1.5} />
+                        <span>{label}</span>
                       </label>
-                      <div className="flex items-center rounded-xl border border-white/[0.06] bg-white/[0.02] focus-within:border-white/20">
-                        <span className="select-none px-3 py-2 text-neutral-500 text-xs">
+                      <div className="flex items-center rounded-xl bg-white/[0.03] ring-1 ring-white/[0.08] focus-within:ring-1 focus-within:ring-white/30">
+                        <span className="select-none px-3.5 py-2 font-mono text-xs text-zinc-500">
                           {prefix}
                         </span>
                         <input
@@ -609,7 +632,7 @@ export default function ProfileSetupPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
-                          className="h-10 flex-1 bg-transparent pr-3 text-sm text-white outline-none placeholder:text-neutral-600"
+                          className="h-11 flex-1 bg-transparent pr-3.5 text-base sm:text-xs text-white outline-none placeholder:text-zinc-600"
                         />
                       </div>
                       <FieldInfo field={field} />
@@ -620,7 +643,7 @@ export default function ProfileSetupPage() {
             </div>
 
             {/* Steam Integration Card */}
-            <div className="pt-2">
+            <div className="pt-1">
               <SteamConnectionCard
                 steam={steamData.steam}
                 steamId={steamData.steamId}
@@ -642,21 +665,21 @@ export default function ProfileSetupPage() {
                 type="submit"
                 size="lg"
                 disabled={!canSubmit || isSubmitting}
-                className="h-12 w-full rounded-full font-medium text-xs transition-transform duration-150 ease-out active:scale-[0.96]"
+                className="h-12 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-1.5 size-4 animate-spin" />
+                    <Loader2 className="mr-2 size-4 animate-spin" />
                     Salvando perfil…
                   </>
                 ) : saved ? (
                   <>
-                    <Check className="mr-1.5 size-4" strokeWidth={2} />
+                    <Check className="mr-2 size-4" strokeWidth={2} />
                     Perfil Atualizado!
                   </>
                 ) : (
                   <>
-                    <Save className="mr-1.5 size-4" strokeWidth={1.5} />
+                    <Save className="mr-2 size-4" strokeWidth={1.5} />
                     {isNewProfile ? 'Criar Perfil' : 'Salvar Alterações'}
                   </>
                 )}

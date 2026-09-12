@@ -11,43 +11,44 @@ type ProfileBannerProps = {
 
 export function ProfileBanner({ bannerUrl, displayGames }: ProfileBannerProps) {
   return (
-    <div className="relative h-40 w-full overflow-hidden bg-black sm:h-48 md:h-56">
+    <div className="relative h-44 w-full overflow-hidden bg-[#08080a] sm:h-52 md:h-64">
       {bannerUrl ? (
         <img
           src={bannerUrl}
           alt="Banner do perfil"
-          className="-outline-offset-1 h-full w-full object-cover opacity-75 outline outline-1 outline-white/10"
+          className="h-full w-full object-cover opacity-60"
         />
       ) : (
-        /* Rich Atmospheric Game Art Collage Backdrop */
-        <div className="relative h-full w-full overflow-hidden bg-gradient-to-b from-neutral-900/60 via-neutral-950/80 to-[#070709]">
-          {/* Ambient Lighting Blooms */}
-          <div className="-top-16 -translate-x-1/2 absolute left-1/3 h-96 w-96 rounded-full bg-indigo-600/25 blur-[140px]" />
-          <div className="absolute top-8 right-1/4 h-80 w-80 rounded-full bg-purple-600/20 blur-[120px]" />
-          <div className="absolute top-20 left-2/3 h-64 w-64 rounded-full bg-blue-600/15 blur-[100px]" />
+        /* High-contrast Monochrome Retro Arcade & Fan-out Backdrop */
+        <div className="relative h-full w-full overflow-hidden bg-[#08080a]">
+          {/* Subtle Retro Dot Matrix Mask */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0c_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_75%_65%_at_50%_40%,#000_60%,transparent_100%)] opacity-80"
+            aria-hidden="true"
+          />
 
-          {/* Subtle game artwork fan-out in background */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-around px-16 opacity-25 mix-blend-screen">
-            {displayGames.slice(0, 4).map((g, i) => (
+          {/* Monochrome Game Poster Fan-out in Background */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-around px-12 opacity-15 grayscale contrast-125">
+            {displayGames.slice(0, 5).map((g, i) => (
               <div
                 key={g.id}
-                className="hidden h-64 w-44 overflow-hidden rounded-2xl shadow-2xl transition-transform duration-700 md:block"
+                className="hidden h-64 w-44 overflow-hidden rounded-2xl ring-1 ring-white/10 md:block"
                 style={{
-                  transform: `rotate(${(i - 1.5) * 7}deg) translateY(${i % 2 === 0 ? '16px' : '-12px'})`
+                  transform: `rotate(${(i - 2) * 6}deg) translateY(${i % 2 === 0 ? '12px' : '-8px'})`
                 }}
               >
-                <img src={g.coverUrl} alt="" className="h-full w-full object-cover brightness-60" />
+                <img src={g.coverUrl} alt="" className="h-full w-full object-cover brightness-50" />
               </div>
             ))}
           </div>
 
-          {/* Subtle Grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_65%_at_50%_30%,#000_50%,transparent_100%)]" />
+          {/* Top Hairline Ambient Inset */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
       )}
 
-      {/* Seamless bottom blend into page background */}
-      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#070709] via-[#070709]/80 to-transparent" />
+      {/* Seamless Bottom Vignette Fade into Page */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#08080a] via-[#08080a]/80 to-transparent" />
     </div>
   );
 }

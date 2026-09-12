@@ -45,8 +45,10 @@ export function GameReviewCard({
 
   return (
     <div
-      className={`space-y-3 rounded-2xl p-4 transition-colors sm:p-5 ${
-        isMine ? 'bg-white/[0.02]' : 'bg-white/[0.02]'
+      className={`space-y-3.5 rounded-2xl border p-4.5 transition-all sm:p-5 ${
+        isMine
+          ? 'border-white/15 bg-white/[0.035] shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
+          : 'border-white/[0.07] bg-white/[0.02] hover:border-white/12'
       }`}
     >
       {/* Author row */}
@@ -55,7 +57,7 @@ export function GameReviewCard({
           {/* User Avatar */}
           <Link
             href={`/${review.user?.username || ''}`}
-            className="size-8.5 shrink-0 overflow-hidden rounded-full bg-neutral-800"
+            className="size-9 shrink-0 overflow-hidden rounded-full border border-white/10 bg-neutral-800 transition-transform hover:scale-105 active:scale-95"
           >
             {review.user?.avatarUrl ? (
               <img
@@ -75,13 +77,13 @@ export function GameReviewCard({
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/${review.user?.username || ''}`}
-                className="font-bold text-white hover:underline"
+                className="font-bold text-white transition-colors hover:text-neutral-300"
               >
                 {review.user?.displayName || review.user?.username}
               </Link>
 
               {isMine && (
-                <span className="rounded-md bg-white/15 px-1.5 py-0.2 font-semibold text-[10px] text-neutral-200">
+                <span className="rounded-md border border-white/15 bg-white/10 px-1.5 py-0.2 font-mono font-medium text-[10px] text-neutral-200">
                   Você
                 </span>
               )}
@@ -100,7 +102,7 @@ export function GameReviewCard({
                     />
                   );
                 })}
-                <span className="ml-1 font-mono text-[10px] font-bold text-neutral-300">
+                <span className="ml-1 font-mono text-[11px] font-bold text-neutral-300">
                   {Number(review.rating).toFixed(1)}
                 </span>
               </div>
@@ -117,7 +119,7 @@ export function GameReviewCard({
               {review.hoursPlayed && (
                 <>
                   <span>•</span>
-                  <span>{review.hoursPlayed}</span>
+                  <span className="font-mono">{review.hoursPlayed}</span>
                 </>
               )}
             </div>
@@ -129,7 +131,7 @@ export function GameReviewCard({
           {review.platform && (
             <span className="hidden items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[11px] text-neutral-300 sm:inline-flex">
               {getPlatformIcon(review.platform)}
-              <span>{review.platform}</span>
+              <span className="tracking-tight">{review.platform}</span>
             </span>
           )}
 
@@ -138,7 +140,7 @@ export function GameReviewCard({
             <button
               type="button"
               onClick={() => onEdit(review)}
-              className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 font-medium text-[11px] text-neutral-300 transition-colors hover:bg-white hover:text-black"
+              className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 font-medium text-[11px] text-neutral-300 transition-colors hover:bg-white hover:text-black active:scale-95"
             >
               <Edit3 className="size-3" />
               <span>Editar</span>
@@ -149,22 +151,22 @@ export function GameReviewCard({
 
       {/* Review Text */}
       {review.reviewText && (
-        <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/20">
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/30">
           <div className={hasHiddenSpoiler ? 'select-none blur-md' : 'whitespace-pre-line'}>
-            <div className="p-3 text-neutral-300 text-xs leading-relaxed sm:p-4 sm:text-sm">
+            <div className="p-3.5 text-neutral-200 text-xs leading-relaxed sm:p-4 sm:text-sm [text-wrap:pretty]">
               {review.reviewText}
             </div>
           </div>
           {hasHiddenSpoiler && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-neutral-950/65 p-4 text-center backdrop-blur-sm">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#08080a]/80 p-4 text-center backdrop-blur-sm">
               <AlertTriangle className="size-4 text-amber-300" />
-              <span className="font-semibold text-white text-xs">
+              <span className="font-medium text-white text-xs">
                 Esta avaliação contém spoiler
               </span>
               <button
                 type="button"
                 onClick={() => setShowSpoiler(true)}
-                className="cursor-pointer rounded-lg bg-white px-3 py-1.5 font-bold text-[11px] text-black transition-colors hover:bg-neutral-200"
+                className="cursor-pointer rounded-lg bg-white px-3 py-1.5 font-semibold text-[11px] text-black transition-colors hover:bg-neutral-200 active:scale-95"
               >
                 Mostrar spoiler
               </button>
@@ -174,22 +176,22 @@ export function GameReviewCard({
       )}
 
       {/* Social Actions Row */}
-      <div className="flex items-center gap-4 border-white/[0.04] border-t pt-2 text-neutral-500 text-xs">
+      <div className="flex items-center gap-4 border-white/[0.04] border-t pt-2.5 text-neutral-500 text-xs">
         <button
           type="button"
           onClick={() => onToggleLike(review.id)}
-          className={`inline-flex cursor-pointer items-center gap-1.5 transition-colors ${
-            isLiked ? 'font-semibold text-white' : 'hover:text-neutral-300'
+          className={`inline-flex cursor-pointer items-center gap-1.5 transition-colors active:scale-95 ${
+            isLiked ? 'font-medium text-white' : 'hover:text-neutral-300'
           }`}
         >
           <ThumbsUp className={`size-3 ${isLiked ? 'fill-white text-white' : ''}`} />
           <span>Curtir {review.likesCount > 0 ? `(${review.likesCount})` : ''}</span>
         </button>
-        <span>•</span>
+        <span className="text-neutral-700">•</span>
         <button
           type="button"
           onClick={() => toast.info('Respostas em breve!')}
-          className="inline-flex cursor-pointer items-center gap-1 transition-colors hover:text-neutral-300"
+          className="inline-flex cursor-pointer items-center gap-1 transition-colors hover:text-neutral-300 active:scale-95"
         >
           <Reply className="size-3" />
           <span>Responder</span>

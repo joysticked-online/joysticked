@@ -109,11 +109,13 @@ function getStoredPlayedSlugs(): string[] {
   }
 }
 
+const EMPTY_GAMES: Game[] = [];
+
 function ExplorerContent({
-  initialPopularGames,
-  initialTopRatedGames = [],
-  initialUpcomingGames = [],
-  initialDiscoverGames = []
+  initialPopularGames = EMPTY_GAMES,
+  initialTopRatedGames = EMPTY_GAMES,
+  initialUpcomingGames = EMPTY_GAMES,
+  initialDiscoverGames = EMPTY_GAMES
 }: GamesExplorerViewProps) {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get('tab') || 'descobrir';
@@ -154,8 +156,8 @@ function ExplorerContent({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showFilters]);
 
-  // Dynamic paginated list for the active tab
-  const [gamesList, setGamesList] = useState<Game[]>(() => {
+  // Memoized fallback list for current tab
+  const defaultList = useMemo(() => {
     if (tab === 'descobrir') {
       return initialDiscoverGames.length > 0 ? initialDiscoverGames : initialPopularGames;
     }
@@ -166,8 +168,10 @@ function ExplorerContent({
       return initialUpcomingGames.length > 0 ? initialUpcomingGames : initialPopularGames;
     }
     return initialPopularGames;
-  });
+  }, [tab, initialDiscoverGames, initialPopularGames, initialTopRatedGames, initialUpcomingGames]);
 
+  // Dynamic paginated list for the active tab
+  const [gamesList, setGamesList] = useState<Game[]>(defaultList);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [basedOnTitles, setBasedOnTitles] = useState<string[]>([]);
@@ -211,7 +215,6 @@ function ExplorerContent({
         getDiscoverGames({ played, limit: 21, offset: 0 })
           .then((res) => {
             if (res.games.length > 0) {
-              // Ensure we display at least 21 titles: if personalized has less than 21, supplement from initial games
               const combined = [...res.games];
               if (combined.length < 21) {
                 const pool =
@@ -227,32 +230,22 @@ function ExplorerContent({
               setBasedOnTitles(res.basedOn);
               setHasMore(res.hasMore);
             } else {
-              setGamesList(
-                initialDiscoverGames.length > 0 ? initialDiscoverGames : initialPopularGames
-              );
+              setGamesList(defaultList);
             }
           })
           .catch(() => {
-            setGamesList(
-              initialDiscoverGames.length > 0 ? initialDiscoverGames : initialPopularGames
-            );
+            setGamesList(defaultList);
           })
           .finally(() => setIsPersonalizing(false));
       } else {
-        setGamesList(initialDiscoverGames.length > 0 ? initialDiscoverGames : initialPopularGames);
+        setGamesList(defaultList);
         setBasedOnTitles([]);
       }
-    } else if (tab === 'bem-avaliados') {
-      setGamesList(initialTopRatedGames.length > 0 ? initialTopRatedGames : initialPopularGames);
-      setBasedOnTitles([]);
-    } else if (tab === 'lancamentos') {
-      setGamesList(initialUpcomingGames.length > 0 ? initialUpcomingGames : initialPopularGames);
-      setBasedOnTitles([]);
     } else {
-      setGamesList(initialPopularGames);
+      setGamesList(defaultList);
       setBasedOnTitles([]);
     }
-  }, [tab, initialDiscoverGames, initialPopularGames, initialTopRatedGames, initialUpcomingGames]);
+  }, [tab, defaultList, initialDiscoverGames, initialPopularGames]);
 
   // Infinite Scroll fetcher (loads in batches of 21 titles)
   const loadMoreGames = useCallback(async () => {

@@ -14,14 +14,27 @@ export function FirstTimeOnboardingGuard() {
     setMounted(true);
   }, []);
 
-  // Don't show if unmounted, loading, unauthenticated, already completed, or on dedicated auth pages
+  // Don't show if unmounted, loading, unauthenticated, or on dedicated auth/onboarding pages
   if (!mounted || isLoading || !isAuthenticated || !user) {
     return null;
   }
 
-  // Already completed onboarding
+  // Already completed onboarding according to state
   if (user.onboardingCompleted) {
     return null;
+  }
+
+  // Check localStorage flag as secondary ground truth
+  if (typeof window !== 'undefined') {
+    const local = localStorage.getItem('joysticked_session_user');
+    if (local) {
+      try {
+        const parsed = JSON.parse(local);
+        if (parsed.onboardingCompleted) {
+          return null;
+        }
+      } catch {}
+    }
   }
 
   // Don't duplicate if already on dedicated onboarding page or auth route

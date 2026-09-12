@@ -104,9 +104,9 @@ export function GameGalleryTab({ game, onSelectBanner, activeBannerUrl }: GameGa
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ type: 'spring', duration: 0.24, bounce: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-h-[90vh] max-w-5xl space-y-3 overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 p-3 shadow-2xl sm:p-4"
+              className="relative max-h-[90vh] max-w-5xl space-y-3 overflow-hidden rounded-2xl border border-white/15 bg-[#08080a] p-3 shadow-2xl sm:p-4"
             >
               <img
                 src={selectedImage}
@@ -115,27 +115,26 @@ export function GameGalleryTab({ game, onSelectBanner, activeBannerUrl }: GameGa
               />
 
               {/* Lightbox Footer Toolbar */}
-              <div className="flex items-center justify-between gap-3 border-white/10 border-t pt-2">
-                <span className="text-neutral-400 text-xs">
-                  {game.name} • Imagem em Alta Resolução (1080p)
+              <div className="flex items-center justify-between gap-3 border-white/10 border-t pt-2.5">
+                <span className="font-mono text-neutral-400 text-xs">
+                  {game.name} • 1080p HD
                 </span>
 
                 <div className="flex items-center gap-2">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => handleSetBanner(selectedImage)}
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 font-semibold text-black text-xs shadow-sm transition-colors hover:bg-neutral-200"
                   >
                     <Sparkles className="size-3.5 text-black" />
-                    <span>Definir como Banner do Jogo</span>
+                    <span>Definir como Banner</span>
                   </motion.button>
 
                   <button
                     type="button"
                     onClick={() => setSelectedImage(null)}
-                    className="cursor-pointer rounded-lg border border-white/15 bg-white/[0.06] px-3 py-1.5 text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white"
+                    className="cursor-pointer rounded-lg border border-white/15 bg-white/[0.06] px-3 py-1.5 text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white active:scale-95"
                   >
                     Fechar ✕
                   </button>
@@ -156,42 +155,42 @@ interface GameDetailsTabProps {
 export function GameDetailsTab({ game }: GameDetailsTabProps) {
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white/[0.06] to-white/[0.015] p-5 sm:p-6">
+      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 backdrop-blur-md sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-semibold text-[11px] text-neutral-400 uppercase tracking-wider">
+            <p className="font-medium text-[11px] text-neutral-400 uppercase tracking-wider">
               Ficha do jogo
             </p>
-            <h2 className="mt-1 font-bold text-white text-xl tracking-tight sm:text-2xl">
+            <h2 className="mt-1 font-sans font-bold text-white text-xl tracking-tight sm:text-2xl [text-wrap:balance]">
               Tudo sobre {game.name}
             </h2>
           </div>
-          <div className="rounded-xl bg-white/[0.08] px-2.5 py-1.5 font-mono text-[10px] text-neutral-300">
-            {game.id}
+          <div className="rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5 font-mono text-[10px] text-neutral-400">
+            ID: {game.id}
           </div>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl bg-black/20 p-3">
-            <span className="block text-[10px] text-neutral-500">Gêneros</span>
-            <span className="mt-1 block truncate font-medium text-white text-xs">
+          <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Gêneros</span>
+            <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.genres?.slice(0, 2).join(' • ') || 'Não informado'}
             </span>
           </div>
-          <div className="rounded-xl bg-black/20 p-3">
-            <span className="block text-[10px] text-neutral-500">Publicadora</span>
-            <span className="mt-1 block truncate font-medium text-white text-xs">
+          <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Publicadora</span>
+            <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.publisher || 'Não informado'}
             </span>
           </div>
-          <div className="rounded-xl bg-black/20 p-3">
-            <span className="block text-[10px] text-neutral-500">Nota crítica</span>
-            <span className="mt-1 block font-medium text-white text-xs">
+          <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Nota crítica</span>
+            <span className="mt-1 block font-mono font-bold text-white text-xs">
               {game.aggregatedRating ? `${game.aggregatedRating.toFixed(1)} / 100` : '—'}
             </span>
           </div>
-          <div className="rounded-xl bg-black/20 p-3">
-            <span className="block text-[10px] text-neutral-500">Plataformas</span>
-            <span className="mt-1 block truncate font-medium text-white text-xs">
+          <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Plataformas</span>
+            <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.platforms?.length || 0} disponíveis
             </span>
           </div>
@@ -203,48 +202,48 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
 
       {/* 4. Storyline */}
       {game.storyline && (
-        <div className="space-y-2 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
-          <h3 className="font-semibold text-neutral-400 text-xs uppercase tracking-wider">
+        <div className="space-y-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-md sm:p-6">
+          <h3 className="font-medium text-neutral-400 text-xs uppercase tracking-wider">
             Enredo & História
           </h3>
-          <p className="whitespace-pre-line text-neutral-300 text-xs leading-relaxed sm:text-sm">
+          <p className="whitespace-pre-line text-neutral-300 text-xs leading-relaxed sm:text-sm [text-wrap:pretty]">
             {game.storyline}
           </p>
         </div>
       )}
 
       {/* 5. Meta Specs Grid */}
-      <div className="space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
-        <h3 className="font-semibold text-neutral-400 text-xs uppercase tracking-wider">
+      <div className="space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-md sm:p-6">
+        <h3 className="font-medium text-neutral-400 text-xs uppercase tracking-wider">
           Ficha Técnica
         </h3>
 
-        <div className="grid grid-cols-1 gap-x-8 gap-y-3 text-xs sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-3.5 text-xs sm:grid-cols-2">
           {game.firstReleaseDate && (
-            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Data de Lançamento</span>
-              <span className="font-medium text-neutral-200">
+              <span className="font-mono font-medium text-neutral-200">
                 {new Date(game.firstReleaseDate).toLocaleDateString('pt-BR')}
               </span>
             </div>
           )}
 
           {game.developer && (
-            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Desenvolvedor</span>
               <span className="font-medium text-neutral-200">{game.developer}</span>
             </div>
           )}
 
           {game.publisher && (
-            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Publicadora</span>
               <span className="font-medium text-neutral-200">{game.publisher}</span>
             </div>
           )}
 
           {game.genres && game.genres.length > 0 && (
-            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Gêneros</span>
               <span className="font-medium text-neutral-200 sm:text-right">
                 {game.genres.join(', ')}
@@ -253,7 +252,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           )}
 
           {game.platforms && game.platforms.length > 0 && (
-            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Plataformas</span>
               <span className="font-medium text-neutral-200 sm:text-right">
                 {game.platforms.join(', ')}

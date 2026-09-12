@@ -132,39 +132,39 @@ export function GameHero({
 
   return (
     <div className="relative w-full">
-      {/* Cinematic Banner Background - A Little Bigger with Seamless Rich Fade */}
-      <div className="relative mx-auto h-48 w-full max-w-5xl overflow-hidden bg-neutral-950 sm:h-56 md:h-64 lg:h-72">
+      {/* Cinematic Banner Background */}
+      <div className="relative mx-auto h-52 w-full max-w-5xl overflow-hidden bg-[#08080a] sm:h-64 md:h-72 lg:h-80">
         {bannerImage ? (
           <>
             <img
               src={bannerImage}
               alt={game.name}
-              className="h-full w-full object-cover object-center brightness-90 transition-transform duration-300 hover:scale-105"
+              className="h-full w-full object-cover object-center brightness-90 transition-transform duration-500 hover:scale-105"
             />
-            {/* Top Subtle Vignette */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-neutral-950/70 via-neutral-950/30 to-transparent" />
+            {/* Top Vignette */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#08080a]/80 via-[#08080a]/40 to-transparent" />
 
-            {/* Seamless Bottom Fade Melting into Background */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-transparent sm:h-48 md:h-56" />
+            {/* Seamless Bottom Fade */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#08080a] via-[#08080a]/90 to-transparent sm:h-52 md:h-60" />
 
-            {/* Subtle Horizontal Edge Vignettes */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-neutral-950/40 via-transparent to-neutral-950/40" />
+            {/* Edge Vignettes */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#08080a]/50 via-transparent to-[#08080a]/50" />
           </>
         ) : (
-          <div className="h-full w-full bg-gradient-to-b from-neutral-900 to-neutral-950" />
+          <div className="h-full w-full bg-gradient-to-b from-neutral-900 to-[#08080a]" />
         )}
       </div>
 
-      {/* Main Content Info overlapping the banner - Moved down with generous fade */}
-      <div className="-mt-10 sm:-mt-14 md:-mt-16 relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
+      {/* Main Content Info overlapping the banner */}
+      <div className="-mt-14 sm:-mt-20 md:-mt-24 relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
         <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row">
           {/* Overlapping Poster on the Left */}
           <motion.div
-            whileHover={{ y: -3, scale: 1.02 }}
-            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="mx-auto w-20 flex-shrink-0 sm:w-24 md:mx-0 md:w-28"
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: 'spring', duration: 0.24, bounce: 0 }}
+            className="mx-auto w-24 flex-shrink-0 sm:w-28 md:mx-0 md:w-32"
           >
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/15 bg-neutral-900 shadow-[0_12px_32px_rgba(0,0,0,0.9)]">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/15 bg-neutral-900 shadow-[0_16px_36px_rgba(0,0,0,0.85)] ring-1 ring-white/5">
               {posterImage ? (
                 <img src={posterImage} alt={game.name} className="h-full w-full object-cover" />
               ) : (
@@ -176,29 +176,29 @@ export function GameHero({
           </motion.div>
 
           {/* Right Details Stack */}
-          <div className="flex-1 space-y-3 pt-0 sm:pt-2">
+          <div className="flex-1 space-y-3.5 pt-0 sm:pt-2">
             {/* Release Date & Developer */}
-            <div className="flex items-center gap-2 font-medium text-neutral-400 text-xs">
+            <div className="flex items-center gap-2 font-medium text-neutral-400 text-xs tracking-tight">
               {formattedDate && <span>{formattedDate}</span>}
               {game.developer && (
                 <>
-                  <span>•</span>
+                  <span className="text-neutral-600">•</span>
                   <span className="text-neutral-300">{game.developer}</span>
                 </>
               )}
             </div>
 
-            {/* Title */}
-            <h1 className="font-extrabold text-2xl text-white tracking-tight sm:text-3xl md:text-4xl">
+            {/* Title with Geist Sans */}
+            <h1 className="font-sans font-bold text-3xl text-white tracking-tight sm:text-4xl md:text-5xl [text-wrap:balance]">
               {game.name}
             </h1>
 
-            {/* Genres, Score & Multi-Currency Price Row */}
+            {/* Genres, Score & Rating Row */}
             <div className="flex flex-wrap items-center gap-2">
               {game.genres?.map((genre) => (
                 <span
                   key={genre}
-                  className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-neutral-300 text-xs"
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs font-medium tracking-tight text-neutral-300"
                 >
                   {genre}
                 </span>
@@ -206,18 +206,18 @@ export function GameHero({
 
               {/* IGDB Score */}
               {(game.rating || game.aggregatedRating) && (
-                <span className="inline-flex items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2 py-0.5 font-bold text-white text-xs backdrop-blur-md">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md">
                   <Star className="size-3 fill-white text-white" />
-                  <span>{(game.rating || game.aggregatedRating)?.toFixed(1)}</span>
-                  <span className="font-normal text-[10px] text-neutral-400">IGDB</span>
+                  <span className="font-mono">{(game.rating || game.aggregatedRating)?.toFixed(1)}</span>
+                  <span className="text-[10px] font-normal text-neutral-400">IGDB</span>
                 </span>
               )}
 
               {/* Community Review Tag */}
               {communityRating && communityRating.count > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.06] px-2 py-0.5 font-medium text-neutral-200 text-xs">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-neutral-200">
                   <Star className="size-3 fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-white">{communityRating.average}</span>
+                  <span className="font-mono font-bold text-white">{communityRating.average}</span>
                   <span className="text-[10px] text-neutral-400">
                     ({communityRating.count}{' '}
                     {communityRating.count === 1 ? 'avaliação' : 'avaliações'})
@@ -228,13 +228,13 @@ export function GameHero({
 
             {/* Description / Synopsis */}
             {game.summary && (
-              <div className="max-w-2xl text-neutral-300 text-xs leading-relaxed sm:text-sm">
+              <div className="max-w-2xl text-neutral-300 text-xs leading-relaxed sm:text-sm [text-wrap:pretty]">
                 <p className={!expandedSummary ? 'line-clamp-3' : ''}>{game.summary}</p>
                 {game.summary.length > 200 && (
                   <button
                     type="button"
                     onClick={() => setExpandedSummary(!expandedSummary)}
-                    className="mt-1 inline-flex cursor-pointer items-center gap-1 font-medium text-neutral-400 text-xs transition-colors hover:text-white"
+                    className="mt-1.5 inline-flex cursor-pointer items-center gap-1 font-medium text-neutral-400 text-xs transition-colors hover:text-white active:scale-95"
                   >
                     <span>{expandedSummary ? 'Mostrar menos' : 'Ler mais'}</span>
                     {expandedSummary ? (
@@ -248,44 +248,32 @@ export function GameHero({
             )}
 
             {/* Action Buttons Row */}
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-2.5 pt-1.5">
               {/* Collection Dropdown Button */}
               <div className="relative">
                 <motion.button
                   type="button"
-                  layout
-                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                   onMouseEnter={() => setIsCollectionHovered(true)}
                   onMouseLeave={() => setIsCollectionHovered(false)}
                   onClick={() => setShowStatusMenu(!showStatusMenu)}
-                  whileTap={{ scale: 0.94 }}
-                  animate={{
-                    paddingLeft: isCollectionHovered ? 16 : 14,
-                    paddingRight: isCollectionHovered ? 16 : 14,
-                    backgroundColor: inCollection
-                      ? 'rgba(255, 255, 255, 0.12)'
-                      : isCollectionHovered
-                        ? 'rgba(255, 255, 255, 0.08)'
-                        : 'rgba(255, 255, 255, 0.04)'
-                  }}
-                  className="relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden"
+                  whileTap={{ scale: 0.96 }}
+                  className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border px-4 font-medium text-xs backdrop-blur-md transition-all ${
+                    inCollection
+                      ? 'border-white/30 bg-white/15 text-white shadow-[0_2px_12px_rgba(255,255,255,0.1)]'
+                      : 'border-white/15 bg-white/[0.04] text-neutral-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white'
+                  }`}
                 >
                   <div className="relative flex size-3.5 shrink-0 items-center justify-center">
                     {inCollection ? (
                       <Check className="size-3.5 text-white" />
                     ) : (
-                      <Plus className="size-3.5 text-neutral-400 group-hover:text-white" />
+                      <Plus className="size-3.5 text-neutral-400" />
                     )}
                   </div>
-                  <motion.span
-                    layout
-                    className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
-                      inCollection ? 'font-semibold text-white' : 'text-neutral-300'
-                    }`}
-                  >
+                  <span className="ml-2 whitespace-nowrap tracking-tight">
                     {collectionStatus || 'Adicionar à lista'}
-                  </motion.span>
-                  <span className="ml-1 text-[10px] text-neutral-500">▾</span>
+                  </span>
+                  <span className="ml-1.5 text-[10px] text-neutral-500">▾</span>
                 </motion.button>
 
                 <AnimatePresence>
@@ -294,8 +282,8 @@ export function GameHero({
                       initial={{ opacity: 0, y: -4, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                      transition={{ duration: 0.12 }}
-                      className="absolute top-11 left-0 z-30 min-w-[180px] overflow-hidden rounded-2xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                      transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
+                      className="absolute top-11 left-0 z-30 min-w-[190px] overflow-hidden rounded-2xl border border-white/15 bg-[#0e0e11]/95 p-1.5 shadow-2xl backdrop-blur-2xl"
                     >
                       <button
                         type="button"
@@ -373,13 +361,12 @@ export function GameHero({
               {userReview ? (
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.96 }}
                   onClick={onOpenReviewModal}
                   className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3.5 font-semibold text-white text-xs backdrop-blur-md transition-colors hover:bg-red-500/20"
                 >
                   <PixelHeart size={14} variant="full" color="#EF4444" />
-                  <span>Sua Nota: {Number(userReview.rating).toFixed(1)}</span>
+                  <span className="font-mono">Sua Nota: {Number(userReview.rating).toFixed(1)}</span>
                   <PenLine className="ml-0.5 size-3 text-neutral-400" />
                 </motion.button>
               ) : (

@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PublicProfileView } from './public-profile-view';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 type Props = {
   params: Promise<{ username: string }>;
 };
@@ -32,7 +35,7 @@ async function fetchProfile(username: string): Promise<Profile | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
     const res = await fetch(`${apiUrl}/profile/u/${username}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (res.status === 404) return null;
@@ -49,13 +52,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const profile = await fetchProfile(username);
 
   const title = profile?.displayName || profile?.username || username;
-  const desc = profile?.bio ?? `Check out ${title}'s gaming profile on Joysticked.`;
+  const desc = profile?.bio ?? `Confira o perfil de jogos de ${title} no Joysticked.`;
 
   return {
     title: `${title} — Joysticked`,
     description: desc,
     openGraph: {
-      title: `${title} on Joysticked`,
+      title: `${title} no Joysticked`,
       description: desc,
       images: profile?.avatarUrl ? [{ url: profile.avatarUrl }] : []
     }
