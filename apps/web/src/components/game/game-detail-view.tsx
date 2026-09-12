@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { BarChart3, CalendarDays, Gamepad2, Star, Users } from 'lucide-react';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
@@ -31,6 +33,7 @@ export function GameDetailView({
   similarGames = [],
   recommendedGames = []
 }: GameDetailViewProps) {
+  const router = useRouter();
   const { user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('reviews');
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -81,11 +84,21 @@ export function GameDetailView({
   }, [reviews]);
 
   const handleOpenReview = () => {
+    if (!currentUser) {
+      toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
+      router.push(`/auth?redirect=/games/${game.slug}`);
+      return;
+    }
     setEditingReview(userReview || null);
     setIsReviewModalOpen(true);
   };
 
   const handleEditReview = (review: GameReview) => {
+    if (!currentUser) {
+      toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
+      router.push(`/auth?redirect=/games/${game.slug}`);
+      return;
+    }
     setEditingReview(review);
     setIsReviewModalOpen(true);
   };

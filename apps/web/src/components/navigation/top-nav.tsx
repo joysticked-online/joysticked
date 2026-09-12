@@ -71,8 +71,13 @@ function TopNavContent({
   const pathname = usePathname();
   const router = useRouter();
   const { user: currentUser } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const isGamesPage = pathname === '/games';
   const currentTab = isGamesPage ? searchParams?.get('tab') || 'descobrir' : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -131,6 +136,8 @@ function TopNavContent({
   const [gamesMenuOpen, setGamesMenuOpen] = useState(false);
   const [featuredAwaited, setFeaturedAwaited] = useState<Game | null>(null);
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const gamesButtonRef = useRef<HTMLDivElement>(null);
+  const dropdownContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getFeaturedAwaitedGame()
@@ -151,7 +158,7 @@ function TopNavContent({
   const handleGamesMouseLeave = () => {
     closeTimerRef.current = setTimeout(() => {
       setGamesMenuOpen(false);
-    }, 280);
+    }, 120);
   };
 
   // Close menus on path change
@@ -170,7 +177,7 @@ function TopNavContent({
     <>
       {/* Centralized Floating Capsule Bar */}
       <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex flex-col items-center px-3 sm:top-4 sm:px-4">
-        <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
+        <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full  bg-[#121212]/95 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
@@ -192,6 +199,7 @@ function TopNavContent({
                     // biome-ignore lint/a11y/noStaticElementInteractions: Dropdown hover container
                     <div
                       key={item.href}
+                      ref={gamesButtonRef}
                       onMouseEnter={handleGamesMouseEnter}
                       onMouseLeave={handleGamesMouseLeave}
                       className="relative"
@@ -199,7 +207,8 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className="relative flex select-none items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11.5px] text-neutral-300 transition-colors hover:text-white sm:px-3 sm:text-xs"
+                        className={`relative flex select-none items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11.5px] transition-colors sm:px-3 sm:text-xs ${gamesMenuOpen ? 'text-white' : 'text-neutral-300 hover:text-white'
+                          }`}
                       >
                         {(isActive || gamesMenuOpen) && (
                           <motion.div
@@ -212,7 +221,7 @@ function TopNavContent({
                           <Icon className="size-3.5" />
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`size-3 opacity-70 transition-transform duration-200 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : ''
+                            className={`size-3 transition-transform duration-200 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : 'opacity-70'
                               }`}
                           />
                         </span>
@@ -260,7 +269,7 @@ function TopNavContent({
             </button>
 
             {/* User Avatar Circle */}
-            {currentUser ? (
+            {mounted && currentUser ? (
               <Link
                 href={`/${currentUser.username}`}
                 title={`@${currentUser.username}`}
@@ -291,28 +300,28 @@ function TopNavContent({
           </div>
         </header>
 
-        {/* Mega Menu Flyout Dropdown for "Jogos" with Rich Spring Animations */}
+        {/* Mega Menu Flyout Dropdown for "Jogos" */}
         <AnimatePresence>
           {gamesMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.97 }}
+              ref={dropdownContainerRef}
+              initial={{ opacity: 0, y: -4, scale: 0.99 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+              exit={{ opacity: 0, y: -4, scale: 0.99 }}
+              transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
               onMouseEnter={handleGamesMouseEnter}
               onMouseLeave={handleGamesMouseLeave}
-              className="pointer-events-auto mt-2.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl bg-[#121212]/[0.98] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
+              className="pointer-events-auto relative mt-1.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl border border-white/10 bg-[#121212] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] will-change-transform"
             >
+              {/* Invisible Hover Zone bridge so cursor movement between navbar and dropdown is 100% uninterrupted */}
+              <div className="pointer-events-auto absolute -top-3 inset-x-0 h-4 z-10" />
+
               {/* Compact featured game */}
-              <motion.div
-                whileHover={{ y: -1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="w-full"
-              >
+              <div className="w-full">
                 <Link
                   href={`/games/${featuredAwaited?.slug || 'halloween-the-game'}`}
                   onClick={() => setGamesMenuOpen(false)}
-                  className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-colors hover:border-white/30"
+                  className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-all hover:bg-[#161616] hover:border-white/30"
                 >
                   <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
                     <img
@@ -321,7 +330,7 @@ function TopNavContent({
                         'https://images.igdb.com/igdb/image/upload/t_cover_big/coc6x4.webp'
                       }
                       alt={featuredAwaited?.name || 'Halloween: The Game'}
-                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -335,7 +344,7 @@ function TopNavContent({
                   </div>
                   <ChevronDown className="-rotate-90 size-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                 </Link>
-              </motion.div>
+              </div>
 
               {/* Short category links */}
               <div className="grid grid-cols-2 gap-2">
@@ -343,16 +352,11 @@ function TopNavContent({
                   const isTabActive = currentTab === item.tab;
                   const Icon = item.icon;
                   return (
-                    <motion.div
-                      key={item.tab}
-                      whileHover={{ scale: 1.025, x: 2 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-                    >
+                    <div key={item.tab}>
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-all ${isTabActive
+                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-all duration-100 ease-out hover:scale-[1.01] active:scale-[0.98] ${isTabActive
                           ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
                           : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
                           }`}
@@ -373,7 +377,7 @@ function TopNavContent({
                           {item.desc}
                         </p>
                       </Link>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>

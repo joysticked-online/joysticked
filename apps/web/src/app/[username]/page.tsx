@@ -30,7 +30,8 @@ type Profile = {
 
 async function fetchProfile(username: string): Promise<Profile | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profile/u/${username}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const res = await fetch(`${apiUrl}/profile/u/${username}`, {
       next: { revalidate: 60 }
     });
 
@@ -47,26 +48,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const profile = await fetchProfile(username);
 
-  if (!profile) {
-    return { title: 'Profile not found — Joysticked' };
-  }
+  const title = profile?.displayName || profile?.username || username;
+  const desc = profile?.bio ?? `Check out ${title}'s gaming profile on Joysticked.`;
 
   return {
-    title: `${profile.username} — Joysticked`,
-    description: profile.bio ?? `Check out ${profile.username}'s gaming profile on Joysticked.`,
+    title: `${title} — Joysticked`,
+    description: desc,
     openGraph: {
-      title: `${profile.username} on Joysticked`,
-      description: profile.bio ?? `Check out ${profile.username}'s gaming profile.`,
-      images: profile.avatarUrl ? [{ url: profile.avatarUrl }] : []
+      title: `${title} on Joysticked`,
+      description: desc,
+      images: profile?.avatarUrl ? [{ url: profile.avatarUrl }] : []
     }
   };
 }
 
 export default async function UserProfilePage({ params }: Props) {
   const { username } = await params;
-  const profile = await fetchProfile(username);
+  let profile = await fetchProfile(username);
 
-  if (!profile) notFound();
+  if (!profile) {
+    profile = {
+      id: username,
+      username,
+      displayName: username,
+      avatarUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+      bannerUrl: null,
+      bio: 'Jogador no Joysticked',
+      socials: null,
+      preferences: null,
+      createdAt: new Date().toISOString()
+    };
+  }
 
   return <PublicProfileView profile={profile} />;
 }

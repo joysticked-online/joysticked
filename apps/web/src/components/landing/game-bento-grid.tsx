@@ -1,14 +1,44 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 import { PixelHeart, PixelHeartRatingPicker } from './pixel-heart';
 import { PixelGamepad, PixelSword, PixelTrophy, PixelCartridge } from './game-pixel-icons';
+import { GameReviewModal } from '../game/game-review-modal';
+import type { Game } from '@/lib/games';
+
+const DEMO_GAME: Game = {
+  id: 9999,
+  slug: 'elden-ring',
+  name: 'Elden Ring',
+  coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co4jni.webp',
+  bannerUrl: 'https://images.igdb.com/igdb/image/upload/t_1080p/sc6udq.webp',
+  releaseYear: '2022',
+  developer: 'FromSoftware',
+  publisher: 'Bandai Namco',
+  genres: ['Action RPG', 'Open World', 'Souls-like'],
+  platforms: ['PC', 'PlayStation 5', 'Xbox Series X', 'Steam Deck'],
+};
 
 export function GameBentoGrid() {
+  const router = useRouter();
+  const { user: currentUser } = useAuth();
   // Card 3 state: interactive heart review rating (0.5 to 5.0)
   const [heartRating, setHeartRating] = useState(4.5);
   const [selectedPlatform, setSelectedPlatform] = useState('Steam');
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
+  const handleTestReview = () => {
+    if (!currentUser) {
+      toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
+      router.push('/auth');
+      return;
+    }
+    setIsDemoModalOpen(true);
+  };
 
   // Dynamic verdict based on heart rating
   const getRatingVerdict = (score: number) => {
@@ -319,6 +349,19 @@ export function GameBentoGrid() {
               <p className="text-[11px] text-neutral-500">
                 {verdict.desc}
               </p>
+
+              {/* Button to test the 3DS / Game Boy Review Console */}
+              <button
+                type="button"
+                onClick={handleTestReview}
+                className="mt-3.5 inline-flex cursor-pointer select-none items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 font-mono text-[11px] text-neutral-300 transition-all hover:border-red-500/40 hover:bg-red-500/10 hover:text-white group/btn"
+              >
+                <PixelHeart size={11} variant="full" color="#EF4444" />
+                <span>Testar Pop-up 3DS</span>
+                <span className="text-[10px] text-neutral-500 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:text-neutral-300">
+                  →
+                </span>
+              </button>
             </div>
           </div>
 
@@ -464,6 +507,13 @@ export function GameBentoGrid() {
         </div>
 
       </div>
+
+      {/* 3DS Dual-Screen Review Pop-up Interactive Test Modal */}
+      <GameReviewModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+        game={DEMO_GAME}
+      />
     </section>
   );
 }

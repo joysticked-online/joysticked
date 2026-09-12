@@ -1,15 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { OnboardingFlow } from './onboarding-flow';
 
 export function FirstTimeOnboardingGuard() {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
-  // Don't show if loading, unauthenticated, already completed, or on dedicated auth pages
-  if (isLoading || !isAuthenticated || !user) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't show if unmounted, loading, unauthenticated, already completed, or on dedicated auth pages
+  if (!mounted || isLoading || !isAuthenticated || !user) {
     return null;
   }
 

@@ -125,7 +125,7 @@ export function PixelHeartRatingPicker({
               size={size}
               variant={currentVariant}
               color="#EF4444"
-              className="transition-transform duration-150 group-hover/heart:scale-110"
+              className="transition-transform duration-75 ease-out group-hover/heart:scale-110"
             />
 
             {/* Clickable transparent split overlays for half vs full */}

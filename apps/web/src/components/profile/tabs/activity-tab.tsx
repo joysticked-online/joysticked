@@ -19,7 +19,7 @@ type ActivityItem = {
   platform?: string;
 };
 
-export function ActivityTab({ displayGames, displayName: _displayName }: ActivityTabProps) {
+export function ActivityTab({ displayGames, displayName }: ActivityTabProps) {
   const activities: ActivityItem[] =
     displayGames && displayGames.length > 0
       ? displayGames.slice(0, 6).map((g, idx) => ({
@@ -32,13 +32,13 @@ export function ActivityTab({ displayGames, displayName: _displayName }: Activit
                 ? 'completed'
                 : 'liked') as ActivityItem['type'],
           gameTitle: g.title,
-          detail: g.userRating
-            ? `Avaliou com ${g.userRating.toFixed(1)} estrelas`
-            : g.hoursPlayed
-              ? `${g.hoursPlayed}h registradas`
+          detail: g.rating
+            ? `Avaliou com ${g.rating.toFixed(1)} estrelas`
+            : g.hours
+              ? `${g.hours}h registradas`
               : 'Adicionado à coleção',
           timeAgo: idx === 0 ? 'há 2 horas' : idx === 1 ? 'ontem' : `há ${idx + 1} dias`,
-          platform: g.platforms?.[0] || 'PC / Consoles'
+          platform: g.platformTag || 'PC / Consoles'
         }))
       : [
           {

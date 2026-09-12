@@ -17,11 +17,14 @@ import { errorHandler } from './middlewares/error-handler';
 const app = new Elysia()
   .use(
     cors({
-      origin: [
-        envs.app.CLIENT_URL || 'http://localhost:3000',
-        'http://localhost:3000',
-        'http://localhost:3001'
-      ],
+      origin:
+        envs.app.NODE_ENV === 'dev'
+          ? true
+          : [
+              envs.app.CLIENT_URL || 'http://localhost:3000',
+              'http://localhost:3000',
+              'http://localhost:3001'
+            ],
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
     })
@@ -50,7 +53,7 @@ const app = new Elysia()
   .use(steamRouter)
   .use(steamAuthRouter)
 
-  .listen(envs.app.PORT, ({ port, hostname }) =>
+  .listen({ port: envs.app.PORT, hostname: '0.0.0.0' }, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );
 

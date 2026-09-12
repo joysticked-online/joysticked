@@ -86,7 +86,7 @@ export const homeRouter = new Elysia().get('/home', async () => {
       user: {
         id: r.userId,
         username: r.username,
-        displayName: r.displayName,
+        displayName: r.displayName || r.username,
         avatarUrl: r.avatarUrl
       }
     }));
@@ -147,7 +147,7 @@ export const homeRouter = new Elysia().get('/home', async () => {
       user: {
         id: a.userId,
         username: a.username,
-        displayName: a.displayName,
+        displayName: a.displayName || a.username,
         avatarUrl: a.avatarUrl
       }
     }));

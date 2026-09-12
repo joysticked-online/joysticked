@@ -121,7 +121,7 @@ export function GameReviewsSection({
           <div className="space-y-1">
             <p className="font-semibold text-sm text-white">Nenhuma avaliação ainda</p>
             <p className="mx-auto max-w-sm text-neutral-400 text-xs">
-              Seja o primeiro a compartilhar sua experiência sobre {game.title} com a comunidade!
+              Seja o primeiro a compartilhar sua experiência sobre {game.name} com a comunidade!
             </p>
           </div>
           <button

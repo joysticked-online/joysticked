@@ -2,7 +2,7 @@ import z from 'zod';
 import { zDate } from '../../../shared/schemas/zod-date';
 
 export const meResponseSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   username: z.string(),
   displayName: z.string().nullable().optional(),
   email: z.string().nullable(),
