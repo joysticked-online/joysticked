@@ -137,7 +137,7 @@ function TopNavContent({
       .then((game) => {
         if (game) setFeaturedAwaited(game);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleGamesMouseEnter = () => {
@@ -173,7 +173,7 @@ function TopNavContent({
         <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full bg-neutral-900/90 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
           <div className="flex items-center gap-1 sm:gap-2">
-              <Link
+            <Link
               href="/home"
               className="flex size-8 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
             >
@@ -205,16 +205,15 @@ function TopNavContent({
                           <motion.div
                             layoutId="active-top-nav-pill"
                             transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                            className="absolute inset-0 rounded-full border border-white/15 bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
+                            className="absolute inset-0 rounded-full bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
                           />
                         )}
                         <span className="relative z-10 flex items-center gap-1.5">
                           <Icon className="size-3.5" />
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`size-3 opacity-70 transition-transform duration-200 ${
-                              gamesMenuOpen ? 'rotate-180 text-white opacity-100' : ''
-                            }`}
+                            className={`size-3 opacity-70 transition-transform duration-200 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : ''
+                              }`}
                           />
                         </span>
                       </Link>
@@ -232,7 +231,7 @@ function TopNavContent({
                       <motion.div
                         layoutId="active-top-nav-pill"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                        className="absolute inset-0 rounded-full border border-white/15 bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
+                        className="absolute inset-0 rounded-full bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-1.5">
@@ -302,7 +301,7 @@ function TopNavContent({
               transition={{ type: 'spring', stiffness: 420, damping: 28 }}
               onMouseEnter={handleGamesMouseEnter}
               onMouseLeave={handleGamesMouseLeave}
-              className="pointer-events-auto mt-2.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl border border-[#303030] bg-[#121212]/[0.98] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
+              className="pointer-events-auto mt-2.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl bg-[#121212]/[0.98] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.9)] backdrop-blur-2xl"
             >
               {/* Compact featured game */}
               <motion.div
@@ -313,7 +312,7 @@ function TopNavContent({
                 <Link
                   href={`/games/${featuredAwaited?.slug || 'halloween-the-game'}`}
                   onClick={() => setGamesMenuOpen(false)}
-                  className="group flex items-center gap-4 rounded-2xl border border-[#303030] bg-[#0A0A0A] p-2.5 transition-colors hover:border-white/30"
+                  className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-colors hover:border-white/30"
                 >
                   <div className="size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
                     <img
@@ -353,23 +352,20 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`group flex h-full flex-col gap-1.5 rounded-2xl border p-3.5 text-left transition-all ${
-                          isTabActive
-                            ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
-                            : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
-                        }`}
+                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-all ${isTabActive
+                          ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
+                          : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
+                          }`}
                       >
                         <div
-                          className={`flex items-center gap-1.5 font-bold text-xs transition-colors ${
-                            isTabActive ? item.activeColor : `text-white ${item.hoverColor}`
-                          }`}
+                          className={`flex items-center gap-1.5 font-bold text-xs transition-colors ${isTabActive ? item.activeColor : `text-white ${item.hoverColor}`
+                            }`}
                         >
                           <Icon
-                            className={`size-3.5 ${
-                              isTabActive
-                                ? item.activeColor
-                                : 'text-neutral-400 group-hover:text-white'
-                            }`}
+                            className={`size-3.5 ${isTabActive
+                              ? item.activeColor
+                              : 'text-neutral-400 group-hover:text-white'
+                              }`}
                           />
                           <span>{item.title}</span>
                         </div>

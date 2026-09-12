@@ -1,12 +1,13 @@
 'use client';
 
 import confetti from 'canvas-confetti';
-import { AlertTriangle, Check, Clock, Gamepad2, Monitor, Send, Smartphone, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Check, Clock, Gamepad2, Monitor, Send, Smartphone, Trash2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { type Game, type GameReview, submitGameReview } from '@/lib/games';
+import { PixelHeart } from '@/components/landing/pixel-heart';
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -17,13 +18,18 @@ interface GameReviewModalProps {
   onReviewDeleted?: (reviewId: string) => void;
 }
 
-const RATING_DESCRIPTIONS: Record<number, { label: string; score: string }> = {
-  1: { label: 'Ruim', score: '1.0' },
-  2: { label: 'Regular', score: '2.0' },
-  3: { label: 'Bom', score: '3.0' },
-  4: { label: 'Muito Bom', score: '4.0' },
-  5: { label: 'Obra-prima', score: '5.0' }
-};
+function getRatingDescription(score: number): { label: string; score: string; tag: string } {
+  const formattedScore = score.toFixed(1);
+  if (score >= 5) return { label: 'Obra-prima Absoluta', score: formattedScore, tag: '10/10' };
+  if (score >= 4.5) return { label: 'Excelente & Marcante', score: formattedScore, tag: '9.0+' };
+  if (score >= 4) return { label: 'Muito Bom', score: formattedScore, tag: '8.0+' };
+  if (score >= 3.5) return { label: 'Bom com ressalvas', score: formattedScore, tag: '7.0+' };
+  if (score >= 3) return { label: 'Regular', score: formattedScore, tag: '6.0+' };
+  if (score >= 2.5) return { label: 'Abaixo da média', score: formattedScore, tag: '5.0+' };
+  if (score >= 2) return { label: 'Ruim', score: formattedScore, tag: '4.0+' };
+  if (score >= 1) return { label: 'Muito Ruim', score: formattedScore, tag: '2.0+' };
+  return { label: 'Decepcionante', score: formattedScore, tag: '< 2.0' };
+}
 
 function getPlatformIcon(name: string) {
   const lower = name.toLowerCase();
@@ -101,7 +107,7 @@ export function GameReviewModal({
   }, [isOpen]);
 
   const activeRating = hoverRating !== null ? hoverRating : rating;
-  const ratingInfo = RATING_DESCRIPTIONS[activeRating] || RATING_DESCRIPTIONS[5];
+  const ratingInfo = getRatingDescription(activeRating);
   const isEditing = Boolean(initialReview);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -281,51 +287,88 @@ export function GameReviewModal({
 
             {/* Form Body */}
             <form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-7">
-              {/* Rating Selector */}
-              <div className="space-y-4 rounded-2xl border border-amber-200/15 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.1),transparent_65%)] p-4 sm:p-5">
+              {/* Rating Selector with 8-Bit Red Pixel Hearts */}
+              <div className="space-y-4 rounded-2xl border border-red-500/20 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.12),transparent_70%)] p-4 sm:p-5">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="block font-semibold text-[11px] text-neutral-300 uppercase tracking-wider">
-                      Dê uma nota
+                      Dê uma nota em corações
                     </span>
                     <span className="mt-1 block text-[11px] text-neutral-500">
-                      Toque nas estrelas para escolher
+                      Toque para escolher meio ou cheio
                     </span>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1 font-semibold text-white text-xs">
-                    {ratingInfo.score} <span className="font-normal text-neutral-400">/ 5</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-black/40 px-3 py-1 font-semibold text-white text-xs">
+                    <PixelHeart size={13} variant="full" color="#EF4444" />
+                    <span>{ratingInfo.score}</span>
+                    <span className="font-normal text-neutral-500">/ 5.0</span>
                   </span>
                 </div>
 
-                {/* Stars */}
-                <div className="flex items-center justify-center gap-1 py-2 sm:gap-3">
-                  {[1, 2, 3, 4, 5].map((starValue) => (
-                    <motion.button
-                      key={starValue}
-                      type="button"
-                      whileHover={{ scale: 1.18 }}
-                      whileTap={{ scale: 0.92 }}
-                      onMouseEnter={() => setHoverRating(starValue)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      onClick={() => setRating(starValue)}
-                      aria-pressed={rating === starValue}
-                      aria-label={`${starValue} de 5 estrelas`}
-                      className="cursor-pointer rounded-xl p-1.5 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white/70"
-                    >
-                      <Star
-                        className={`size-8 transition-colors duration-100 sm:size-9 ${
-                          starValue <= activeRating
-                            ? 'fill-amber-300 text-amber-300 drop-shadow-[0_0_10px_rgba(252,211,77,0.45)]'
-                            : 'text-neutral-700 hover:text-neutral-500'
-                        }`}
-                      />
-                    </motion.button>
-                  ))}
+                {/* 5 Pixel Hearts with Half & Full granularity and Spring Animation */}
+                <div
+                  className="flex items-center justify-center gap-1.5 py-2 select-none sm:gap-2.5"
+                  onMouseLeave={() => setHoverRating(null)}
+                >
+                  {[1, 2, 3, 4, 5].map((heartIndex) => {
+                    const isFull = activeRating >= heartIndex;
+                    const isHalf = !isFull && activeRating >= heartIndex - 0.5;
+                    const currentVariant: 'full' | 'half' | 'empty' = isFull
+                      ? 'full'
+                      : isHalf
+                      ? 'half'
+                      : 'empty';
+
+                    return (
+                      <motion.div
+                        key={heartIndex}
+                        whileHover={{ scale: 1.18 }}
+                        whileTap={{ scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        className="relative group/heart cursor-pointer p-1"
+                      >
+                        <PixelHeart
+                          size={36}
+                          variant={currentVariant}
+                          color="#EF4444"
+                          className={`transition-all duration-150 ${
+                            currentVariant !== 'empty'
+                              ? 'drop-shadow-[0_0_12px_rgba(239,68,68,0.5)]'
+                              : 'opacity-50'
+                          }`}
+                        />
+
+                        {/* Split Click Targets for Half Heart vs Full Heart */}
+                        <div className="absolute inset-0 flex">
+                          <button
+                            type="button"
+                            aria-label={`${heartIndex - 0.5} de 5 corações`}
+                            className="w-1/2 h-full z-10 focus:outline-hidden cursor-pointer"
+                            onMouseEnter={() => setHoverRating(heartIndex - 0.5)}
+                            onClick={() => setRating(heartIndex - 0.5)}
+                          />
+                          <button
+                            type="button"
+                            aria-label={`${heartIndex} de 5 corações`}
+                            className="w-1/2 h-full z-10 focus:outline-hidden cursor-pointer"
+                            onMouseEnter={() => setHoverRating(heartIndex)}
+                            onClick={() => setRating(heartIndex)}
+                          />
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
+
                 <div className="flex items-center justify-center gap-2 text-center">
                   <span className="font-semibold text-sm text-white">{ratingInfo.label}</span>
                   <span className="text-neutral-600">•</span>
-                  <span className="text-[11px] text-neutral-500">{activeRating} de 5 estrelas</span>
+                  <span className="text-[11px] text-neutral-400">
+                    {activeRating.toFixed(1)} de 5 corações
+                  </span>
+                  <span className="rounded bg-red-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-red-400 border border-red-500/30">
+                    {ratingInfo.tag}
+                  </span>
                 </div>
               </div>
 

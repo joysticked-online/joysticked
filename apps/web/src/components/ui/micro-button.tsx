@@ -4,6 +4,7 @@ import { Check, Heart, Link as LinkIcon, Star } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { useState } from 'react';
+import { PixelHeart } from '@/components/landing/pixel-heart';
 
 /* =========================================================================
    1. FAVORITE BUTTON (Amicro btn-5: Pulse & Fill Micro-transition)
@@ -169,41 +170,33 @@ export function ReviewMicroButton({ onClick, className = '' }: ReviewMicroButton
       animate={{
         paddingLeft: isHovered ? 16 : 14,
         paddingRight: isHovered ? 16 : 14,
-        backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)'
+        backgroundColor: isHovered ? 'rgba(239, 68, 68, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+        borderColor: isHovered ? 'rgba(239, 68, 68, 0.35)' : 'rgba(255, 255, 255, 0.15)'
       }}
-      className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border border-white/15 font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden ${className}`}
+      className={`relative inline-flex h-9 cursor-pointer select-none items-center justify-center rounded-full border font-medium text-neutral-200 text-xs backdrop-blur-md transition-colors duration-200 focus:outline-hidden ${className}`}
     >
       <div className="relative flex size-3.5 shrink-0 items-center justify-center">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {!isHovered ? (
-            <motion.div
-              key="star-unhovered"
-              initial={{ scale: 0.6, opacity: 0, rotate: -20 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0.6, opacity: 0, rotate: 20 }}
-              transition={{ type: 'spring', stiffness: 600, damping: 25 }}
-              className="flex items-center justify-center"
-            >
-              <Star className="size-3.5 text-neutral-400" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="star-hovered"
-              initial={{ scale: 0.6, opacity: 0, rotate: -20 }}
-              animate={{ scale: 1.15, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0.6, opacity: 0, rotate: 20 }}
-              transition={{ type: 'spring', stiffness: 600, damping: 25 }}
-              className="flex items-center justify-center"
-            >
-              <Star className="size-3.5 fill-white text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <motion.div
+          animate={{
+            scale: isHovered ? [1, 1.35, 1] : 1
+          }}
+          transition={{ duration: 0.35, ease: 'easeInOut' }}
+          className="flex items-center justify-center"
+        >
+          <PixelHeart
+            size={14}
+            variant="full"
+            color="#EF4444"
+            className={isHovered ? 'drop-shadow-[0_0_8px_rgba(239,68,68,0.7)]' : 'opacity-85'}
+          />
+        </motion.div>
       </div>
 
       <motion.span
         layout
-        className="ml-2 whitespace-nowrap font-medium text-neutral-300 text-xs tracking-tight group-hover:text-white"
+        className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
+          isHovered ? 'text-white font-semibold' : 'text-neutral-300'
+        }`}
       >
         Avaliar
       </motion.span>

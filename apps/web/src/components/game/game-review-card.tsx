@@ -1,10 +1,11 @@
 'use client';
 
-import { AlertTriangle, Edit3, Gamepad2, Monitor, Reply, Smartphone, Star, ThumbsUp } from 'lucide-react';
+import { AlertTriangle, Edit3, Gamepad2, Monitor, Reply, Smartphone, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import type { GameReview } from '@/lib/games';
+import { PixelHeart } from '@/components/landing/pixel-heart';
 
 interface GameReviewCardProps {
   review: GameReview;
@@ -83,16 +84,23 @@ export function GameReviewCard({
                 </span>
               )}
 
-              {/* Star Rating */}
-              <div className="flex items-center gap-0.5 text-white">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    className={`size-3 ${
-                      s <= review.rating ? 'fill-white text-white' : 'text-neutral-700'
-                    }`}
-                  />
-                ))}
+              {/* Pixel Heart Rating */}
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => {
+                  const isFull = review.rating >= i;
+                  const isHalf = !isFull && review.rating >= i - 0.5;
+                  return (
+                    <PixelHeart
+                      key={i}
+                      size={12}
+                      variant={isFull ? 'full' : isHalf ? 'half' : 'empty'}
+                      color="#EF4444"
+                    />
+                  );
+                })}
+                <span className="ml-1 font-mono text-[10px] font-bold text-neutral-300">
+                  {Number(review.rating).toFixed(1)}
+                </span>
               </div>
             </div>
 

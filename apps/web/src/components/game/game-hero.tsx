@@ -21,6 +21,7 @@ import {
   FavoriteMicroButton,
   ReviewMicroButton
 } from '@/components/ui/micro-button';
+import { PixelHeart } from '@/components/landing/pixel-heart';
 import type { Game, GameReview } from '@/lib/games';
 
 interface GameHeroProps {
@@ -347,10 +348,10 @@ export function GameHero({
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onOpenReviewModal}
-                  className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 font-semibold text-white text-xs backdrop-blur-md transition-colors hover:bg-white/20"
+                  className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3.5 font-semibold text-white text-xs backdrop-blur-md transition-colors hover:bg-red-500/20"
                 >
-                  <Star className="size-3.5 fill-white text-white" />
-                  <span>Sua Nota: {userReview.rating}.0</span>
+                  <PixelHeart size={14} variant="full" color="#EF4444" />
+                  <span>Sua Nota: {Number(userReview.rating).toFixed(1)}</span>
                   <PenLine className="ml-0.5 size-3 text-neutral-400" />
                 </motion.button>
               ) : (
