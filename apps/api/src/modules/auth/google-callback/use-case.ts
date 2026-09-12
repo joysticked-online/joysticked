@@ -109,6 +109,7 @@ export async function googleOAuthCallbackUseCase(
 
     return {
       sessionToken,
+      user,
       hasUsername: Boolean(user?.username && !user.username.startsWith('user_'))
     };
   });

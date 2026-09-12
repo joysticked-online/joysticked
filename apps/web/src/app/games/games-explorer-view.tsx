@@ -1,6 +1,6 @@
 'use client';
 
-import { Gamepad2, Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Gamepad2, Loader2, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';

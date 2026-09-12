@@ -52,7 +52,7 @@ export const homeRouter = new Elysia()
       user: {
         id: string;
         username: string;
-        displayName: string;
+        displayName: string | null;
         avatarUrl: string | null;
       };
     }> = [];
@@ -116,7 +116,7 @@ export const homeRouter = new Elysia()
       user: {
         id: string;
         username: string;
-        displayName: string;
+        displayName: string | null;
         avatarUrl: string | null;
       };
     }> = [];

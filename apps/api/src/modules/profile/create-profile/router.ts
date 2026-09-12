@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+import z from 'zod';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../../shared/http/middlewares/database';
 import { createProfileBodySchema, createProfileResponseSchema } from './schemas';
@@ -21,7 +22,8 @@ export const createProfileRouter = new Elysia()
     {
       body: createProfileBodySchema,
       response: {
-        201: createProfileResponseSchema
+        201: createProfileResponseSchema,
+        401: z.object({ message: z.string() })
       }
     }
   );

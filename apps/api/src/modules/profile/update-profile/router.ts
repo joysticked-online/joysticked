@@ -24,7 +24,8 @@ export const updateProfileRouter = new Elysia()
       params: z.object({ id: z.uuid() }),
       body: updateProfileBodySchema,
       response: {
-        200: updateProfileResponseSchema
+        200: updateProfileResponseSchema,
+        403: z.object({ message: z.string() })
       }
     }
   );

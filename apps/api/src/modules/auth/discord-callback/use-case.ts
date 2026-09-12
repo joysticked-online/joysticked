@@ -114,6 +114,7 @@ export async function discordOAuthCallbackUseCase(
 
     return {
       sessionToken,
+      user,
       hasUsername: Boolean(user?.username && !user.username.startsWith('user_'))
     };
   });
