@@ -17,13 +17,6 @@ export const authMiddleware = new Elysia({ name: 'auth' }).derive(
         ? cookie.session.value
         : null;
 
-    if (!sessionToken && headers.authorization) {
-      const match = headers.authorization.match(/^Bearer\s+(.+)$/i);
-      if (match) {
-        sessionToken = match[1].trim();
-      }
-    }
-
     if (!sessionToken) {
       return { userId: null as string | null };
     }
