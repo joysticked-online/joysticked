@@ -5,7 +5,13 @@ import { requestMagicLinkBodySchema, requestMagicLinkSuccessResponseSchema } fro
 import { requestMagicLinkUseCase } from './use-case';
 
 export const requestMagicLinkRouter = new Elysia()
-  .use(rateLimitMiddleware({ strategy: fixedWindow(5, 600), key: 'magic-link' }))
+  .use(
+    rateLimitMiddleware({
+      strategy: fixedWindow(5, 600),
+      key: 'magic-link',
+      failureMode: 'closed'
+    })
+  )
   .post(
     '/magic-link',
     async ({ body, status }) => {
