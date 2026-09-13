@@ -29,6 +29,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.test
 
 # vercel
 .vercel
@@ -42,3 +43,5 @@ package-lock.json
 **/*.bun
 
 server
+server.exe
+*.exe

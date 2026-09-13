@@ -15,6 +15,62 @@
       "when": 1763604608958,
       "tag": "20251120021008_uuid",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787186460498,
+      "tag": "20260820004100_add-users-table",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788660301305,
+      "tag": "20260906020501_add-email-to-users",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788665235723,
+      "tag": "20260906032715_add-onboarding-fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788962400000,
+      "tag": "20260909140000_create-game-reviews-and-activities",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788963600000,
+      "tag": "20260909142000_unique-game-review-per-user",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788969600000,
+      "tag": "20260909160000_add-spoiler-flag-to-game-reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789034400000,
+      "tag": "20260910100000_add-resend-contact-id-to-waitlists",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789038000000,
+      "tag": "20260910110000_add-case-insensitive-user-email-index",
+      "breakpoints": true
     }
   ]
 }

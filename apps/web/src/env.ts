@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const env = createEnv({
   shared: {
-    NEXT_PUBLIC_API_URL: z.url()
+    NEXT_PUBLIC_API_URL: z.url().default('http://localhost:8080')
   },
   runtimeEnv: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL

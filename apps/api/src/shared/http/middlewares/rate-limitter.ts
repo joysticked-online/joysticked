@@ -7,19 +7,25 @@ import { redis } from '../../providers/redis';
 
 export const rateLimitMiddleware = ({ strategy, key }: { strategy: Algorithm; key?: string }) =>
   new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request }) => {
-    const ratelimit = new Ratelimit({
-      redis,
-      limiter: strategy
-    });
+    try {
+      const ratelimit = new Ratelimit({
+        redis,
+        limiter: strategy
+      });
 
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-      request.headers.get('x-real-ip') ||
-      'unknown';
+      const ip =
+        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+        request.headers.get('x-real-ip') ||
+        'unknown';
 
-    const { success } = await ratelimit.limit(key ? `${key}:${ip}` : ip);
+      const { success } = await ratelimit.limit(key ? `${key}:${ip}` : ip);
 
-    if (!success) throw new RateLimitError('Rate limit exceeded');
+      if (!success) throw new RateLimitError('Rate limit exceeded');
+    } catch (err) {
+      if (err instanceof RateLimitError) throw err;
+      // Fail open when Redis is offline or connection is closed
+      console.warn('[RateLimit] Redis unavailable, bypassing check:', (err as Error)?.message);
+    }
 
     return;
   });

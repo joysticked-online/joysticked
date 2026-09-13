@@ -11,12 +11,15 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.env.test
 
 # Testing
 coverage
 
-# Turbo
+# Turbo & Cache
 .turbo
+*.tsbuildinfo
+*.trace
 
 # Vercel
 .vercel
@@ -24,15 +27,32 @@ coverage
 # Build Outputs
 .next/
 out/
-build
-dist
+build/
+dist/
 
+# Binaries & Executables
+*.exe
+*.dll
+*.so
+*.dylib
+server
+server.exe
 
-# Debug
+# Debug & Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+**/*.log
 
-# Misc
+# Misc & System
 .DS_Store
+Thumbs.db
 *.pem
+*.swp
+*.swo
+*~
+
+# Agents & Skills
+.agents/
+skills-lock.json
