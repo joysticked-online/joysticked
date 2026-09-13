@@ -95,6 +95,22 @@ class UserRepository {
       .set({ email: normalizedEmail, emailVerified: verified })
       .where(eq(users.id, id));
   }
+
+  async updateAuthProfile(
+    id: string,
+    data: Pick<typeof users.$inferSelect, 'avatarUrl' | 'displayName'>,
+    tx?: Transaction
+  ) {
+    const current = await this.findById(id, tx);
+    if (!current) return null;
+
+    const updates = {
+      avatarUrl: current.avatarUrl ?? data.avatarUrl,
+      displayName: current.displayName ?? data.displayName
+    };
+    await (tx ?? this.db).update(users).set(updates).where(eq(users.id, id));
+    return updates;
+  }
 }
 
 export function createUserRepository(db: Database) {

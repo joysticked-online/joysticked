@@ -1,18 +1,5 @@
-import {
-  createOAuthState,
-  generateCodeVerifier,
-  getGoogleOAuthClient
-} from '../../../shared/providers/oauth';
+import { startOAuthLoginUseCase } from '../application/oauth-use-cases';
 
 export async function googleOAuthUseCase() {
-  const google = getGoogleOAuthClient();
-  const codeVerifier = generateCodeVerifier();
-  const state = await createOAuthState({ provider: 'google', codeVerifier });
-  const authorizationUrl = google.createAuthorizationURL(state, codeVerifier, [
-    'openid',
-    'profile',
-    'email'
-  ]);
-
-  return { state, url: authorizationUrl.toString() };
+  return startOAuthLoginUseCase('google');
 }
