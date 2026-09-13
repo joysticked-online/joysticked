@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 
@@ -43,7 +43,8 @@ export function Dialog({
   useEffect(() => {
     if (!open) return;
 
-    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const dialog = dialogRef.current;
     const focusable = dialog?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     (focusable?.[0] ?? dialog)?.focus();
