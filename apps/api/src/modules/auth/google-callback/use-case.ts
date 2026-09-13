@@ -47,14 +47,14 @@ export async function googleOAuthCallbackUseCase(
   const userRepository = createUserRepository(db);
 
   return executeTransaction(db, async (tx) => {
-    const existingAccount = await oauthAccountRepository.findByProvider('google', providerId);
+    const existingAccount = await oauthAccountRepository.findByProvider('google', providerId, tx);
 
     let userId: string;
     let user: Awaited<ReturnType<typeof userRepository.findById>>;
 
     if (existingAccount) {
       userId = existingAccount.userId;
-      user = await userRepository.findById(userId);
+      user = await userRepository.findById(userId, tx);
       if (!user) throw new Error('Linked user not found');
 
       if (!user.avatarUrl && avatarUrl) {
@@ -62,7 +62,7 @@ export async function googleOAuthCallbackUseCase(
       }
     } else {
       const existingUserByEmail =
-        email && emailVerified ? await userRepository.findByEmail(email) : null;
+        email && emailVerified ? await userRepository.findByEmail(email, tx) : null;
 
       if (existingUserByEmail) {
         user = existingUserByEmail;

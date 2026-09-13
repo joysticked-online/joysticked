@@ -18,8 +18,8 @@ class OAuthAccountRepository {
    * Looks up an existing OAuth account link.
    * Returns the linked userId, or null if no link exists for this provider + providerId pair.
    */
-  async findByProvider(provider: string, providerId: string) {
-    const result = await this.db
+  async findByProvider(provider: string, providerId: string, tx?: Transaction) {
+    const result = await (tx ?? this.db)
       .select()
       .from(oauthAccounts)
       .where(and(eq(oauthAccounts.provider, provider), eq(oauthAccounts.providerId, providerId)));
@@ -43,8 +43,8 @@ class OAuthAccountRepository {
   }
 
   /** Removes all OAuth account links for a given user — used when deleting a user account. */
-  async deleteByUserId(userId: string) {
-    await this.db.delete(oauthAccounts).where(eq(oauthAccounts.userId, userId));
+  async deleteByUserId(userId: string, tx?: Transaction) {
+    await (tx ?? this.db).delete(oauthAccounts).where(eq(oauthAccounts.userId, userId));
   }
 }
 

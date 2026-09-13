@@ -20,17 +20,20 @@ function generateTempUsername(): string {
 class UserRepository {
   constructor(private readonly db: Database) {}
 
-  async findById(id: string) {
-    const result = await this.db.select().from(users).where(eq(users.id, id));
+  async findById(id: string, tx?: Transaction) {
+    const result = await (tx ?? this.db).select().from(users).where(eq(users.id, id));
 
     if (!result[0]) return null;
 
     return result[0];
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string, tx?: Transaction) {
     const normalizedEmail = email.trim().toLowerCase();
-    const result = await this.db.select().from(users).where(eq(users.email, normalizedEmail));
+    const result = await (tx ?? this.db)
+      .select()
+      .from(users)
+      .where(eq(users.email, normalizedEmail));
 
     if (!result[0]) return null;
 
