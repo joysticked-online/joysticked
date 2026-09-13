@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { createCustomList } from '@/lib/lists';
+import { createListOnApi } from '@/lib/lists-api';
 
 interface CreateListModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Por favor, informe um título para sua lista.');
@@ -59,15 +60,24 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
     const ownerAvatarUrl =
       user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${ownerUsername}`;
 
-    const created = createCustomList({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      ownerUsername,
-      ownerDisplayName,
-      ownerAvatarUrl,
-      isPublic,
-      tags: selectedTags
-    });
+      const input = {
+        name: name.trim(),
+        description: description.trim() || undefined,
+        isPublic,
+        tags: selectedTags
+      };
+      const remote = await createListOnApi(input);
+      const created = remote
+        ? {
+            ...remote,
+            ownerUsername,
+            ownerDisplayName,
+            ownerAvatarUrl,
+            games: (remote.games || []) as typeof remote.games,
+            gameCount: remote.gameCount ?? 0,
+            likesCount: remote.likesCount ?? 0
+          }
+        : createCustomList({ ...input, ownerUsername, ownerDisplayName, ownerAvatarUrl });
 
     setIsSubmitting(false);
     onClose();
