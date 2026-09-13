@@ -2,6 +2,7 @@ import { Discord, Google, generateCodeVerifier, generateState } from 'arctic';
 import { envs } from '../config/envs';
 import { InternalServerError } from '../errors/internal-server-error';
 import { redis } from './redis';
+import { consumeRedisValue } from './redis-atomic';
 
 const OAUTH_STATE_PREFIX = 'oauth:state:';
 const OAUTH_STATE_TTL_SECONDS = 60 * 10; // 10 minutes
@@ -64,9 +65,8 @@ export async function consumeOAuthState(
 ): Promise<OAuthStateData | null> {
   const key = `${OAUTH_STATE_PREFIX}${state}`;
   try {
-    const raw = await redis.get(key);
+    const raw = await consumeRedisValue(key);
     if (raw) {
-      await redis.del(key);
       inMemoryStates.delete(state);
       try {
         const data = JSON.parse(raw) as OAuthStateData;
