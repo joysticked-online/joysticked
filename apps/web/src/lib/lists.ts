@@ -242,13 +242,10 @@ export function saveLocalStoredLists(lists: UserList[]): void {
 }
 
 export function getAllLists(): UserList[] {
-  const customLists = getLocalStoredLists();
-  // Merge custom lists first, followed by curated defaults
-  const customSlugs = new Set(customLists.map((l) => `${l.ownerUsername.toLowerCase()}/${l.slug.toLowerCase()}`));
-  const defaults = DEFAULT_COMMUNITY_LISTS.filter(
-    (l) => !customSlugs.has(`${l.ownerUsername.toLowerCase()}/${l.slug.toLowerCase()}`)
+  const customLists = getLocalStoredLists().filter(
+    (l) => l.ownerUsername.toLowerCase() !== 'joysticked'
   );
-  return [...customLists, ...defaults];
+  return [...DEFAULT_COMMUNITY_LISTS, ...customLists];
 }
 
 export function getUserLists(username: string): UserList[] {
@@ -265,7 +262,7 @@ export function getListByUserAndSlug(username: string, listSlug: string): UserLi
   // Try exact user + slug match
   const found = all.find(
     (l) =>
-      l.ownerUsername.toLowerCase() === normalizedUser &&
+      (!normalizedUser || l.ownerUsername.toLowerCase() === normalizedUser) &&
       (l.slug.toLowerCase() === normalizedSlug || l.id === normalizedSlug)
   );
   if (found) return found;
@@ -381,6 +378,51 @@ export function removeGameFromUserList(listId: string, gameSlugOrId: string | nu
     saveLocalStoredLists(stored);
     return updatedList;
   }
+  return null;
+}
+
+export function updateUserList(
+  listId: string,
+  params: {
+    name: string;
+    description?: string;
+    isPublic?: boolean;
+    tags?: string[];
+  }
+): UserList | null {
+  const stored = getLocalStoredLists();
+  const index = stored.findIndex((l) => l.id === listId || l.slug === listId);
+
+  if (index >= 0) {
+    const list = stored[index];
+    const updatedList: UserList = {
+      ...list,
+      name: params.name.trim(),
+      description: params.description?.trim() || null,
+      isPublic: params.isPublic ?? list.isPublic,
+      tags: params.tags || list.tags,
+      updatedAt: new Date().toISOString()
+    };
+    stored[index] = updatedList;
+    saveLocalStoredLists(stored);
+    return updatedList;
+  }
+
+  // If modifying a curated default list, clone it into custom stored lists for the user
+  const defaultList = DEFAULT_COMMUNITY_LISTS.find((l) => l.id === listId || l.slug === listId);
+  if (defaultList) {
+    const clonedList: UserList = {
+      ...defaultList,
+      name: params.name.trim(),
+      description: params.description?.trim() || null,
+      isPublic: params.isPublic ?? defaultList.isPublic,
+      tags: params.tags || defaultList.tags,
+      updatedAt: new Date().toISOString()
+    };
+    saveLocalStoredLists([clonedList, ...stored]);
+    return clonedList;
+  }
+
   return null;
 }
 

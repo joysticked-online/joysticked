@@ -4,15 +4,26 @@ import {
   ArrowLeft,
   Calendar,
   Check,
+  ChevronRight,
+  Compass,
+  Copy,
+  Edit3,
+  ExternalLink,
+  Eye,
   Gamepad2,
   Heart,
+  Layers,
+  LayoutGrid,
+  List,
   ListPlus,
   Plus,
   Share2,
+  ShieldCheck,
+  SlidersHorizontal,
   Sparkles,
   Star,
   Trash2,
-  User as UserIcon,
+  TrendingUp,
   X
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -22,6 +33,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { AddGameToListModal } from '@/components/lists/add-game-to-list-modal';
 import { CreateListModal } from '@/components/lists/create-list-modal';
+import { EditListModal } from '@/components/lists/edit-list-modal';
 import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { PosterImage } from '@/components/ui/poster-image';
@@ -38,6 +50,8 @@ import {
   removeGameFromUserList,
   toggleLikeList
 } from '@/lib/lists';
+
+type ViewMode = 'grid' | 'detailed' | 'compact';
 
 export function ListView() {
   const router = useRouter();
@@ -64,15 +78,18 @@ export function ListView() {
       ) || null
     );
   });
+
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [otherLists, setOtherLists] = useState<UserList[]>(() => DEFAULT_COMMUNITY_LISTS.slice(0, 4));
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [mounted, setMounted] = useState(false);
 
-  // Client-side synchronization on mount
+  // Client-side synchronization on mount & parameter change
   useEffect(() => {
     setMounted(true);
     const all = getAllLists();
@@ -107,6 +124,33 @@ export function ListView() {
     );
   }, [currentUser, list]);
 
+  const isOfficial = useMemo(() => {
+    return list?.ownerUsername.toLowerCase() === 'joysticked';
+  }, [list]);
+
+  // Derived statistics for the list
+  const listStats = useMemo(() => {
+    if (!list || list.games.length === 0) return { avgRating: 0, topGenres: [] };
+    const ratings = list.games.map((g) => g.rating || 0).filter((r) => r > 0);
+    const avgRating =
+      ratings.length > 0
+        ? (ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length).toFixed(1)
+        : '5.0';
+
+    const genreCounts: Record<string, number> = {};
+    for (const g of list.games) {
+      for (const gen of g.genres || []) {
+        genreCounts[gen] = (genreCounts[gen] || 0) + 1;
+      }
+    }
+    const topGenres = Object.entries(genreCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name]) => name);
+
+    return { avgRating, topGenres };
+  }, [list]);
+
   const handleLikeToggle = () => {
     if (!list) return;
     const res = toggleLikeList(list.id, likesCount);
@@ -119,7 +163,7 @@ export function ListView() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
     }
@@ -151,22 +195,22 @@ export function ListView() {
 
   if (mounted && !list && (targetUser || targetListSlug)) {
     return (
-      <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-100 selection:bg-white/20 selection:text-white">
+      <div className="flex min-h-screen flex-col bg-[#08080a] text-neutral-100 selection:bg-white/20 selection:text-white">
         <TopNav />
         <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 pt-32 pb-24 text-center">
-          <div className="flex size-16 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] text-neutral-500 shadow-2xl">
+          <div className="flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-neutral-500 shadow-2xl">
             <Gamepad2 className="size-8 text-neutral-400" />
           </div>
           <h1 className="mt-5 font-sans text-2xl font-bold text-white tracking-tight sm:text-3xl">
             Lista não encontrada
           </h1>
           <p className="mt-2 max-w-md text-xs text-neutral-400 sm:text-sm">
-            Não conseguimos encontrar a lista solicitada para o usuário informado. Ela pode ter sido removida ou o link está incorreto.
+            Não conseguimos encontrar a lista solicitada. Ela pode ter sido removida ou o endereço está incorreto.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/lists"
-              className="inline-flex h-9.5 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
+              className="inline-flex h-9.5 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-[0.96]"
             >
               <ArrowLeft className="size-3.5" />
               <span>Ver todas as listas</span>
@@ -174,7 +218,7 @@ export function ListView() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="inline-flex h-9.5 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-xs font-semibold text-white transition-all hover:bg-white/[0.08]"
+              className="inline-flex h-9.5 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-xs font-semibold text-white transition-all hover:bg-white/[0.08] active:scale-[0.96]"
             >
               <Plus className="size-3.5" />
               <span>Criar nova lista</span>
@@ -188,42 +232,42 @@ export function ListView() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-950 text-neutral-100 selection:bg-white/20 selection:text-white">
+    <div className="flex min-h-screen flex-col bg-[#08080a] text-neutral-100 selection:bg-white/20 selection:text-white">
       <TopNav />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-24 pb-24 sm:px-6 sm:pt-28 md:px-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-24 pb-24 sm:px-6 sm:pt-28 md:px-8">
         {/* Navigation Breadcrumb */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/lists"
-            className="group inline-flex items-center gap-1.5 text-xs text-neutral-400 transition-colors hover:text-white"
+            className="group inline-flex items-center gap-2 text-xs font-medium text-neutral-400 transition-colors hover:text-white"
           >
-            <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
-            <span>Voltar para Listas</span>
+            <ArrowLeft className="size-3.5 transition-transform duration-200 group-hover:-translate-x-1" />
+            <span>Voltar para Listas da Comunidade</span>
           </Link>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-neutral-300 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.96]"
             >
-              <ListPlus className="size-3.5" />
+              <ListPlus className="size-3.5 text-neutral-400" />
               <span className="hidden sm:inline">Criar Lista</span>
             </button>
           </div>
         </div>
 
-        {/* List Hero Banner */}
+        {/* List Hero Showcase */}
         {list && (
-          <div className="relative mb-8 overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0d0d10] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.85)] sm:p-8">
-            {/* Background Ambient Glow & Cover Collage */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-15">
-              <div className="flex size-full items-center justify-end -space-x-12 blur-sm scale-110">
-                {list.games.slice(0, 4).map((g, idx) => (
+          <div className="relative mb-8 overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0d0d12] shadow-[0_24px_70px_rgba(0,0,0,0.85)]">
+            {/* Ambient Multi-game Collage with Vignette */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-25">
+              <div className="flex size-full items-center justify-end -space-x-14 blur-[2px] scale-105">
+                {list.games.slice(0, 5).map((g, idx) => (
                   <div
                     key={`${g.id || g.slug}-${idx}`}
-                    className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl opacity-60"
+                    className="relative aspect-[2/3] w-56 shrink-0 overflow-hidden rounded-2xl opacity-70 shadow-2xl rotate-1"
                   >
                     {g.coverUrl && (
                       <Image
@@ -231,29 +275,38 @@ export function ListView() {
                         alt={g.name}
                         fill
                         unoptimized
-                        sizes="190px"
+                        sizes="230px"
                         className="object-cover"
                       />
                     )}
                   </div>
                 ))}
               </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d10] via-[#0d0d10]/90 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d12] via-[#0d0d12]/95 to-[#0d0d12]/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-transparent to-transparent" />
             </div>
 
             {/* List Details Content */}
-            <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-              <div className="space-y-3.5 max-w-2xl">
-                {/* Tags */}
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[11px] font-medium text-neutral-300">
-                    <Sparkles className="size-3 text-amber-400" />
-                    <span>Coleção</span>
-                  </span>
+            <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-3.5 max-w-3xl">
+                {/* Badges & Tags */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {isOfficial ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-300 backdrop-blur-md shadow-sm">
+                      <ShieldCheck className="size-3.5 text-amber-400" />
+                      <span>Curadoria Oficial @joysticked</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-medium text-neutral-300 backdrop-blur-md">
+                      <Sparkles className="size-3 text-amber-400" />
+                      <span>Coleção da Comunidade</span>
+                    </span>
+                  )}
+
                   {list.tags?.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-white/[0.06] bg-white/[0.02] px-2.5 py-0.5 text-[10.5px] text-neutral-400"
+                      className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-0.5 text-[11px] text-neutral-400 backdrop-blur-sm"
                     >
                       {tag}
                     </span>
@@ -262,34 +315,35 @@ export function ListView() {
 
                 {/* Title & Description */}
                 <div>
-                  <h1 className="font-sans text-2xl font-bold text-white tracking-tight sm:text-3xl md:text-4xl">
+                  <h1 className="font-sans text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl [text-wrap:balance]">
                     {list.name}
                   </h1>
                   {list.description && (
-                    <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed [text-wrap:pretty]">
+                    <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed [text-wrap:pretty] max-w-2xl">
                       {list.description}
                     </p>
                   )}
                 </div>
 
-                {/* Creator info */}
-                <div className="flex items-center gap-3 pt-1">
+                {/* Meta Bar: Creator & Metrics */}
+                <div className="flex flex-wrap items-center gap-3.5 pt-1 text-xs text-neutral-400">
+                  {/* Creator */}
                   <Link
                     href={`/${list.ownerUsername}`}
-                    className="group flex items-center gap-2 rounded-full border border-white/[0.06] bg-white/[0.03] py-1 pl-1 pr-3 text-xs text-neutral-300 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                    className="group flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] py-1 pl-1 pr-3 text-neutral-300 transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
                   >
-                    <div className="relative size-6 shrink-0 overflow-hidden rounded-full bg-neutral-800 border border-white/10">
+                    <div className="relative size-5 shrink-0 overflow-hidden rounded-full bg-neutral-800 ring-1 ring-white/10">
                       {list.ownerAvatarUrl ? (
                         <Image
                           src={list.ownerAvatarUrl}
                           alt={list.ownerUsername}
                           fill
                           unoptimized
-                          sizes="24px"
+                          sizes="20px"
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex size-full items-center justify-center text-[10px] font-bold text-white uppercase">
+                        <div className="flex size-full items-center justify-center text-[9px] font-bold text-white uppercase">
                           {list.ownerUsername[0]}
                         </div>
                       )}
@@ -297,13 +351,24 @@ export function ListView() {
                     <span className="font-semibold text-white group-hover:underline">
                       {list.ownerDisplayName || list.ownerUsername}
                     </span>
-                    <span className="text-neutral-500">@{list.ownerUsername}</span>
+                    <span className="text-neutral-500 font-mono text-[11px]">@{list.ownerUsername}</span>
                   </Link>
 
-                  <span className="text-xs text-neutral-500">•</span>
-                  <span className="text-xs text-neutral-400 tabular-nums">
-                    {list.games.length} {list.games.length === 1 ? 'jogo' : 'jogos'}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1 font-mono text-neutral-300">
+                      <Gamepad2 className="size-3.5 text-neutral-500" />
+                      <strong className="font-semibold text-white">{list.games.length}</strong>
+                      <span>{list.games.length === 1 ? 'título' : 'títulos'}</span>
+                    </span>
+
+                    {Number(listStats.avgRating) > 0 && (
+                      <span className="inline-flex items-center gap-1 font-mono text-amber-300">
+                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                        <strong>{listStats.avgRating}</strong>
+                        <span className="text-neutral-500">média</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -313,48 +378,58 @@ export function ListView() {
                 <button
                   type="button"
                   onClick={handleLikeToggle}
-                  className={`inline-flex h-9.5 select-none items-center gap-1.5 rounded-xl border px-3.5 text-xs font-semibold transition-all active:scale-95 ${
+                  className={`inline-flex h-9 select-none items-center gap-1.5 rounded-xl border px-3 text-xs font-semibold backdrop-blur-md transition-all active:scale-[0.96] ${
                     liked
-                      ? 'border-rose-500/30 bg-rose-500/10 text-rose-300 shadow-[0_0_16px_rgba(244,63,94,0.15)]'
-                      : 'border-white/[0.08] bg-white/[0.04] text-neutral-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white'
+                      ? 'border-rose-500/40 bg-rose-500/15 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)]'
+                      : 'border-white/[0.1] bg-white/[0.04] text-neutral-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white'
                   }`}
                 >
                   <Heart
-                    className={`size-4 transition-transform ${
+                    className={`size-3.5 transition-transform duration-200 ${
                       liked ? 'fill-rose-400 text-rose-400 scale-110' : ''
                     }`}
                   />
-                  <span>{likesCount}</span>
+                  <span className="font-mono">{likesCount}</span>
                 </button>
 
                 {/* Share Button */}
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="inline-flex h-9.5 items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-3.5 text-xs font-semibold text-neutral-300 transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-95"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 text-xs font-semibold text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
                 >
                   {copied ? (
                     <>
                       <Check className="size-3.5 text-emerald-400" />
-                      <span className="text-emerald-400">Link Copiado!</span>
+                      <span className="text-emerald-400 font-medium">Copiado!</span>
                     </>
                   ) : (
                     <>
-                      <Share2 className="size-3.5" />
+                      <Share2 className="size-3.5 text-neutral-400" />
                       <span>Compartilhar</span>
                     </>
                   )}
                 </button>
 
-                {/* Add Game Button (Owner only or local creation) */}
+                {/* Edit Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(true)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 text-xs font-semibold text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
+                >
+                  <Edit3 className="size-3.5 text-amber-400" />
+                  <span>Editar Lista</span>
+                </button>
+
+                {/* Add Game Button (Owner or Custom List) */}
                 {isOwner && (
                   <>
                     <button
                       type="button"
                       onClick={() => setIsAddGameOpen(true)}
-                      className="inline-flex h-9.5 items-center gap-1.5 rounded-xl bg-white px-3.5 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-white px-3.5 text-xs font-bold text-black shadow-md transition-all hover:bg-neutral-200 active:scale-[0.96]"
                     >
-                      <Plus className="size-3.5" />
+                      <Plus className="size-3.5 stroke-[2.5]" />
                       <span>Adicionar Jogo</span>
                     </button>
 
@@ -362,9 +437,9 @@ export function ListView() {
                       type="button"
                       onClick={handleDeleteList}
                       title="Excluir Lista"
-                      className="flex size-9.5 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-neutral-400 transition-colors hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-300"
+                      className="flex size-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-neutral-400 transition-colors hover:border-rose-500/30 hover:bg-rose-500/15 hover:text-rose-300 active:scale-[0.96]"
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-3.5" />
                     </button>
                   </>
                 )}
@@ -373,104 +448,264 @@ export function ListView() {
           </div>
         )}
 
-        {/* Games Grid in List */}
+        {/* Section Header & View Controls */}
         {list && (
           <section className="space-y-4">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-              <h2 className="font-sans text-sm font-bold text-white tracking-wide uppercase text-neutral-400">
-                Títulos na Lista ({list.games.length})
-              </h2>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-2.5">
+                <h2 className="font-sans text-sm font-bold text-white tracking-tight sm:text-base">
+                  Títulos na Lista
+                </h2>
+                <span className="rounded-full bg-white/[0.08] px-2 py-0.5 font-mono text-[11px] font-medium text-neutral-400">
+                  {list.games.length}
+                </span>
+              </div>
 
-              {isOwner && list.games.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsAddGameOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs text-neutral-300 hover:text-white transition-colors"
-                >
-                  <Plus className="size-3.5" />
-                  <span>Adicionar mais jogos</span>
-                </button>
-              )}
-            </div>
-
-            {list.games.length === 0 ? (
-              <div className="rounded-3xl border border-white/[0.06] bg-white/[0.02] p-16 text-center">
-                <Gamepad2 className="mx-auto size-12 text-neutral-600" />
-                <h3 className="mt-3 font-semibold text-white text-sm">Esta lista ainda está vazia</h3>
-                <p className="mt-1 text-xs text-neutral-400 max-w-sm mx-auto">
-                  {isOwner
-                    ? 'Adicione títulos do catálogo do Joysticked para montar sua coleção personalizada.'
-                    : 'O criador ainda não adicionou nenhum jogo a esta lista.'}
-                </p>
-                {isOwner && (
+              {/* View Switcher & Actions */}
+              <div className="flex items-center justify-between sm:justify-end gap-3">
+                {isOwner && list.games.length > 0 && (
                   <button
                     type="button"
                     onClick={() => setIsAddGameOpen(true)}
-                    className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-95"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-300 transition-colors hover:text-white"
                   >
-                    <Plus className="size-3.5" />
-                    <span>Adicionar primeiro jogo</span>
+                    <Plus className="size-3 text-amber-400" />
+                    <span>Adicionar jogo</span>
                   </button>
                 )}
+
+                {/* View Mode Switcher */}
+                <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-0.5 backdrop-blur-md">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('grid')}
+                    title="Grade de Pôsteres"
+                    className={`flex size-6.5 items-center justify-center rounded-lg transition-all ${
+                      viewMode === 'grid'
+                        ? 'bg-white text-black shadow-sm'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('detailed')}
+                    title="Lista Detalhada"
+                    className={`flex size-6.5 items-center justify-center rounded-lg transition-all ${
+                      viewMode === 'detailed'
+                        ? 'bg-white text-black shadow-sm'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <List className="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('compact')}
+                    title="Modo Compacto"
+                    className={`flex size-6.5 items-center justify-center rounded-lg transition-all ${
+                      viewMode === 'compact'
+                        ? 'bg-white text-black shadow-sm'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
+                  >
+                    <Layers className="size-3" />
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            </div>
+
+            {/* Empty State */}
+            {list.games.length === 0 ? (
+              <div className="rounded-3xl border border-white/[0.08] bg-[#0c0c10] p-12 text-center shadow-xl">
+                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-neutral-500">
+                  <Gamepad2 className="size-6 text-neutral-400" />
+                </div>
+                <h3 className="mt-3 font-bold text-white text-sm">Esta lista ainda está vazia</h3>
+                <p className="mt-1 text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                  Adicione títulos do catálogo do Joysticked para montar sua coleção personalizada.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAddGameOpen(true)}
+                  className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black transition-all hover:bg-neutral-200 active:scale-[0.96]"
+                >
+                  <Plus className="size-3.5 stroke-[2.5]" />
+                  <span>Adicionar primeiro jogo</span>
+                </button>
+              </div>
+            ) : viewMode === 'grid' ? (
+              /* ─── 1. COMPACT POSTER GRID VIEW (LETTERBOXD STYLE) ─── */
+              <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-y-4">
                 {list.games.map((game, index) => (
                   <motion.div
                     key={`${game.id || game.slug}-${index}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15, delay: index * 0.02 }}
-                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111114] shadow-md transition-all hover:border-white/20 hover:shadow-[0_12px_30px_rgba(0,0,0,0.8)]"
+                    className="group relative flex flex-col"
                   >
-                    {/* Poster */}
-                    <Link
-                      href={`/games/${game.slug}`}
-                      className="relative aspect-[2/3] w-full overflow-hidden bg-neutral-900"
-                    >
-                      <PosterImage src={game.coverUrl} alt={game.name} />
+                    {/* Game Poster with Depth Shadow */}
+                    <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/[0.08] bg-[#121216] shadow-[0_4px_16px_rgba(0,0,0,0.6)] transition-all duration-200 group-hover:-translate-y-1 group-hover:border-white/25 group-hover:shadow-[0_12px_28px_rgba(0,0,0,0.85)]">
+                      <Link href={`/games/${game.slug}`} className="block size-full relative">
+                        <PosterImage src={game.coverUrl} alt={game.name} />
 
-                      {/* Rank / Order Pill */}
-                      <div className="absolute top-2 left-2 flex size-5 items-center justify-center rounded-md bg-black/80 font-mono text-[10px] font-bold text-white backdrop-blur-md border border-white/10">
-                        {index + 1}
-                      </div>
-
-                      {/* Rating pill */}
-                      {game.rating && (
-                        <div className="absolute top-2 right-2 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-bold text-[9px] text-amber-300 backdrop-blur-md border border-white/10">
-                          <Star className="size-2 fill-amber-300 text-amber-300" />
-                          <span>{Number(game.rating).toFixed(1)}</span>
+                        {/* Rank Badge - Compact Floating Glass */}
+                        <div className="absolute top-1.5 left-1.5 flex size-5 items-center justify-center rounded-md bg-black/80 font-mono text-[9.5px] font-bold text-white/95 backdrop-blur-md border border-white/15 shadow-sm">
+                          {index + 1}
                         </div>
-                      )}
-                    </Link>
 
-                    {/* Game Info Bottom */}
-                    <div className="flex flex-1 flex-col justify-between p-2.5">
-                      <div>
-                        <Link
-                          href={`/games/${game.slug}`}
-                          className="line-clamp-1 font-semibold text-xs text-white hover:underline"
-                        >
-                          {game.name}
-                        </Link>
-                        <p className="truncate text-[10px] text-neutral-400 mt-0.5">
-                          {game.genres?.[0] || 'Game'} {game.releaseYear ? `• ${game.releaseYear}` : ''}
-                        </p>
-                      </div>
+                        {/* Rating Badge */}
+                        {game.rating && (
+                          <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-mono font-bold text-[9px] text-amber-300 backdrop-blur-md border border-amber-500/20 shadow-sm">
+                            <Star className="size-2 fill-amber-400 text-amber-400" />
+                            <span>{Number(game.rating).toFixed(1)}</span>
+                          </div>
+                        )}
+
+                        {/* Hover Overlay with Quick Link */}
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex flex-col justify-end p-2">
+                          <span className="text-[10px] font-medium text-white/90 inline-flex items-center gap-0.5">
+                            <span>Ver Jogo</span>
+                            <ChevronRight className="size-2.5 text-neutral-400" />
+                          </span>
+                        </div>
+                      </Link>
 
                       {/* Owner remove game action */}
                       {isOwner && (
                         <button
                           type="button"
                           onClick={() => handleRemoveGame(game.slug || game.id)}
-                          className="mt-2 inline-flex items-center gap-1 rounded-lg border border-white/[0.06] bg-white/[0.02] py-1 px-2 text-[10px] text-neutral-400 transition-colors hover:border-rose-500/25 hover:bg-rose-500/10 hover:text-rose-300"
+                          title="Remover da lista"
+                          className="absolute bottom-1.5 right-1.5 flex size-6 items-center justify-center rounded-md bg-black/80 text-neutral-400 opacity-0 backdrop-blur-md border border-white/10 transition-all hover:bg-rose-500/20 hover:text-rose-300 group-hover:opacity-100"
                         >
                           <X className="size-3" />
-                          <span>Remover</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Meta below card */}
+                    <div className="mt-1.5 px-0.5">
+                      <Link
+                        href={`/games/${game.slug}`}
+                        className="line-clamp-1 font-sans text-[11.5px] font-semibold text-white transition-colors group-hover:text-amber-300 leading-tight"
+                      >
+                        {game.name}
+                      </Link>
+                      <div className="flex items-center gap-1 text-[10px] text-neutral-400 mt-0.5">
+                        <span className="truncate">{game.genres?.[0] || 'Jogo'}</span>
+                        {game.releaseYear && (
+                          <>
+                            <span className="text-neutral-600">•</span>
+                            <span className="font-mono text-neutral-500">{game.releaseYear}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : viewMode === 'detailed' ? (
+              /* ─── 2. DETAILED RANKED LIST VIEW ─── */
+              <div className="space-y-2.5">
+                {list.games.map((game, index) => (
+                  <motion.div
+                    key={`${game.id || game.slug}-${index}`}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.15, delay: index * 0.02 }}
+                    className="group relative flex items-center justify-between gap-3.5 rounded-2xl border border-white/[0.06] bg-[#0d0d12] p-3 transition-all hover:border-white/20 hover:bg-white/[0.03]"
+                  >
+                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                      {/* Rank Index */}
+                      <span className="w-5 text-center font-mono text-xs font-bold text-neutral-500 group-hover:text-white shrink-0">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+
+                      {/* Poster Thumbnail */}
+                      <Link
+                        href={`/games/${game.slug}`}
+                        className="relative aspect-[2/3] w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-neutral-900 shadow-md"
+                      >
+                        <PosterImage src={game.coverUrl} alt={game.name} />
+                      </Link>
+
+                      {/* Game Details */}
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/games/${game.slug}`}
+                            className="truncate font-sans text-xs sm:text-sm font-bold text-white transition-colors group-hover:text-amber-300"
+                          >
+                            {game.name}
+                          </Link>
+                          {game.releaseYear && (
+                            <span className="font-mono text-[11px] text-neutral-500">
+                              ({game.releaseYear})
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Genre Badges */}
+                        <div className="flex flex-wrap items-center gap-1">
+                          {game.genres?.slice(0, 3).map((g) => (
+                            <span
+                              key={g}
+                              className="rounded-md border border-white/[0.06] bg-white/[0.03] px-1.5 py-0.5 text-[9.5px] text-neutral-400"
+                            >
+                              {g}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Meta & Actions */}
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      {game.rating && (
+                        <div className="flex items-center gap-1 rounded-lg bg-black/60 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-300 border border-amber-500/20">
+                          <Star className="size-2.5 fill-amber-400 text-amber-400" />
+                          <span>{Number(game.rating).toFixed(1)}</span>
+                        </div>
+                      )}
+
+                      <Link
+                        href={`/games/${game.slug}`}
+                        className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-neutral-300 transition-colors hover:border-white/20 hover:text-white"
+                      >
+                        <span>Ver Jogo</span>
+                        <ChevronRight className="size-3" />
+                      </Link>
+
+                      {isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveGame(game.slug || game.id)}
+                          className="flex size-7 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-neutral-500 transition-colors hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-300"
+                        >
+                          <X className="size-3" />
                         </button>
                       )}
                     </div>
                   </motion.div>
+                ))}
+              </div>
+            ) : (
+              /* ─── 3. ULTRA COMPACT POSTER WALL VIEW ─── */
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+                {list.games.map((game, index) => (
+                  <Link
+                    key={`${game.id || game.slug}-${index}`}
+                    href={`/games/${game.slug}`}
+                    className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/[0.08] bg-[#111115] shadow-md transition-all duration-200 hover:scale-105 hover:border-white/30 hover:shadow-xl hover:z-10"
+                  >
+                    <PosterImage src={game.coverUrl} alt={game.name} />
+                    <div className="absolute top-1 left-1 flex size-4 items-center justify-center rounded bg-black/80 font-mono text-[8px] font-bold text-white backdrop-blur-md">
+                      {index + 1}
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -479,36 +714,38 @@ export function ListView() {
 
         {/* More Lists from Community Exploration */}
         {otherLists.length > 0 && (
-          <section className="mt-16 space-y-4 border-t border-white/[0.06] pt-10">
+          <section className="mt-16 space-y-4 border-t border-white/[0.08] pt-10">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-sans text-base font-bold text-white tracking-tight">
-                  Outras Listas da Comunidade
+                  Outras Coleções da Comunidade
                 </h2>
-                <p className="text-xs text-neutral-400">Explore mais coleções criadas pelos jogadores.</p>
+                <p className="text-xs text-neutral-400 mt-0.5">Explore mais listas criadas pelos jogadores do Joysticked.</p>
               </div>
               <Link
                 href="/lists"
-                className="text-xs font-semibold text-white hover:underline underline-offset-4"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-white hover:underline underline-offset-4"
               >
-                Ver todas →
+                <span>Ver todas as listas</span>
+                <ChevronRight className="size-3.5" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
               {otherLists.map((other) => (
                 <Link
                   key={other.id}
                   href={`/list?user=${other.ownerUsername}&listname=${other.slug}`}
-                  className="group flex flex-col justify-between rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all hover:border-white/20 hover:bg-white/[0.04]"
+                  className="group flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#0c0c10] p-4 transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-[#111117] hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]"
                 >
                   <div>
-                    {/* Collaged Mini Posters */}
-                    <div className="-space-x-2.5 flex pb-3">
+                    {/* Collaged Mini Posters with Overlap */}
+                    <div className="-space-x-3 flex pb-3 pt-0.5">
                       {other.games.slice(0, 4).map((g, i) => (
                         <div
                           key={`${g.id || g.slug}-${i}`}
-                          className="relative size-10 overflow-hidden rounded-xl bg-neutral-800 ring-2 ring-[#08080a] shadow"
+                          className="relative aspect-[2/3] w-10 overflow-hidden rounded-md bg-neutral-900 ring-2 ring-[#0c0c10] shadow-sm transition-transform group-hover:scale-105"
+                          style={{ zIndex: 10 - i }}
                         >
                           {g.coverUrl && (
                             <Image
@@ -524,19 +761,19 @@ export function ListView() {
                       ))}
                     </div>
 
-                    <h3 className="line-clamp-1 font-bold text-sm text-white group-hover:underline">
+                    <h3 className="line-clamp-1 font-bold text-xs sm:text-sm text-white group-hover:text-amber-300 transition-colors">
                       {other.name}
                     </h3>
                     {other.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-neutral-400">
+                      <p className="mt-1 line-clamp-2 text-[11px] text-neutral-400 leading-relaxed">
                         {other.description}
                       </p>
                     )}
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/[0.04] pt-2 text-[11px] text-neutral-500">
-                    <span>@{other.ownerUsername}</span>
-                    <span>{other.games.length} jogos</span>
+                  <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-2.5 text-[10.5px] text-neutral-400">
+                    <span className="font-medium text-neutral-300">@{other.ownerUsername}</span>
+                    <span className="font-mono text-neutral-500">{other.games.length} títulos</span>
                   </div>
                 </Link>
               ))}
@@ -549,12 +786,20 @@ export function ListView() {
       <CreateListModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
 
       {list && (
-        <AddGameToListModal
-          isOpen={isAddGameOpen}
-          onClose={() => setIsAddGameOpen(false)}
-          existingGames={list.games}
-          onAddGame={handleAddGame}
-        />
+        <>
+          <EditListModal
+            isOpen={isEditOpen}
+            list={list}
+            onClose={() => setIsEditOpen(false)}
+            onUpdate={(updated) => setList(updated)}
+          />
+          <AddGameToListModal
+            isOpen={isAddGameOpen}
+            onClose={() => setIsAddGameOpen(false)}
+            existingGames={list.games}
+            onAddGame={handleAddGame}
+          />
+        </>
       )}
 
       <Footer />
