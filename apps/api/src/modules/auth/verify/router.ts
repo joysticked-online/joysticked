@@ -7,7 +7,13 @@ import { verifyMagicLinkQuerySchema } from './schemas';
 import { verifyMagicLinkUseCase } from './use-case';
 
 export const verifyMagicLinkRouter = new Elysia()
-  .use(rateLimitMiddleware({ strategy: fixedWindow(10, 60), key: 'verify-magic-link' }))
+  .use(
+    rateLimitMiddleware({
+      strategy: fixedWindow(10, 60),
+      key: 'verify-magic-link',
+      failureMode: 'closed'
+    })
+  )
   .use(databaseMiddleware)
   .get(
     '/verify',
