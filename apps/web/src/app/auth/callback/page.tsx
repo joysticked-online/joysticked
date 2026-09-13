@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import { Logos } from '@/components/logos';
 import { api } from '@/lib/api';
+import { safeReturnPath } from '@/lib/navigation';
 
 function CallbackContent() {
   const router = useRouter();
@@ -15,7 +16,7 @@ function CallbackContent() {
   useEffect(() => {
     const token = searchParams.get('token');
     const userParam = searchParams.get('user');
-    const redirectTarget = searchParams.get('redirect') || '/home';
+    const redirectTarget = safeReturnPath(searchParams.get('redirect'));
 
     if (!token) {
       router.replace('/auth?error=oauth_failed');
