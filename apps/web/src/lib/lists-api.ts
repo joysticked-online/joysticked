@@ -24,6 +24,10 @@ export function createListOnApi(input: {
   return request<UserList>('/', { method: 'POST', body: JSON.stringify(input) });
 }
 
+export function getListsFromApi(username: string) {
+  return request<UserList[]>(`/u/${encodeURIComponent(username)}`);
+}
+
 export function updateListOnApi(id: string, input: {
   name: string;
   description?: string;

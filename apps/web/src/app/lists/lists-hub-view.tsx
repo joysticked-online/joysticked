@@ -19,6 +19,7 @@ import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
 import { DEFAULT_COMMUNITY_LISTS, getAllLists, getUserLists, type UserList } from '@/lib/lists';
+import { getListsFromApi } from '@/lib/lists-api';
 
 const CATEGORY_TAGS = [
   'Todas',
@@ -41,6 +42,9 @@ export function ListsHubView() {
   useEffect(() => {
     setMounted(true);
     setAllLists(getAllLists());
+    void getListsFromApi('joysticked').then((remote) => {
+      if (remote) setAllLists([...DEFAULT_COMMUNITY_LISTS, ...remote]);
+    });
   }, []);
 
   const myLists = useMemo(() => {
