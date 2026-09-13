@@ -11,8 +11,8 @@ import { getSession } from '../../providers/session';
  */
 export const authMiddleware = new Elysia({ name: 'auth' }).derive(
   { as: 'scoped' },
-  async ({ cookie, headers }) => {
-    let sessionToken =
+  async ({ cookie }) => {
+    const sessionToken =
       typeof cookie.session?.value === 'string' && cookie.session.value.length > 0
         ? cookie.session.value
         : null;

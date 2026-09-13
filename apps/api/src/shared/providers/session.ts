@@ -1,5 +1,5 @@
-import { redis } from './redis';
 import { envs } from '../config/envs';
+import { redis } from './redis';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const SESSION_PREFIX = 'session:';
