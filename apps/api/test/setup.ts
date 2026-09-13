@@ -1,0 +1,10 @@
+process.env.NODE_ENV ??= 'test';
+process.env.PORT ??= '8080';
+process.env.CLIENT_URL ??= 'http://localhost:3000';
+process.env.DATABASE_URL ??= 'postgresql://test:test@localhost:5432/test';
+process.env.REDIS_URL ??= 'redis://localhost:6379';
+process.env.RESEND_API_KEY ??= 're_test_123';
+process.env.RESEND_WAITLIST_AUDIENCE_ID ??= 'aud_123';
+process.env.EMAIL_DOMAIN ??= 'localhost';
+process.env.SESSION_SECRET ??= '12345678901234567890123456789012';
+process.env.AUTH_CALLBACK_URL ??= 'http://localhost:8080';

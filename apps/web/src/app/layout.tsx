@@ -51,9 +51,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script defer src="https://assets.onedollarstats.com/stonks.js" />
-      </head>
       <body className={`${geistSans.variable} ${redaction.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
