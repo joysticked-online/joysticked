@@ -1,9 +1,10 @@
 'use client';
 
 import { Check, Loader2, Plus, Search, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 import { type Game, searchGames } from '@/lib/games';
 
 interface AddGameToListModalProps {
@@ -50,27 +51,19 @@ export function AddGameToListModal({
   }, [query]);
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md"
-            aria-hidden="true"
-          />
-
-          {/* Modal */}
-          <motion.div
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      title="Adicionar jogos à lista"
+      description="Busque títulos no catálogo para incluir nesta coleção."
+    >
+      <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f12] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.95)]"
-          >
+      >
             {/* Header */}
             <div className="flex items-center justify-between pb-3">
               <div>
@@ -84,6 +77,7 @@ export function AddGameToListModal({
               <button
                 type="button"
                 onClick={onClose}
+                aria-label="Fechar diálogo"
                 className="flex size-8 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white"
               >
                 <X className="size-4" />
@@ -97,6 +91,7 @@ export function AddGameToListModal({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                aria-label="Buscar jogo no catálogo"
                 placeholder="Digite o nome do jogo (ex: Elden Ring, Hollow Knight)..."
                 className="h-10 w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] pr-9 pl-10 text-white text-xs outline-none transition-all placeholder:text-neutral-500 hover:border-white/15 focus:border-white/25 focus:bg-white/[0.06]"
               />
@@ -104,6 +99,7 @@ export function AddGameToListModal({
                 <button
                   type="button"
                   onClick={() => setQuery('')}
+                  aria-label="Limpar busca"
                   className="-translate-y-1/2 absolute top-1/2 right-3 text-neutral-500 hover:text-white"
                 >
                   <X className="size-3.5" />
@@ -186,9 +182,7 @@ export function AddGameToListModal({
                 </div>
               )}
             </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </Dialog>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { ListPlus, Sparkles, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { createCustomList } from '@/lib/lists';
 
@@ -80,27 +81,19 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md"
-            aria-hidden="true"
-          />
-
-          {/* Dialog Container */}
-          <motion.div
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      title="Criar nova lista"
+      description="Colecione, organize e compartilhe seus jogos favoritos."
+    >
+      <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f12] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.95)]"
-          >
+      >
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -119,6 +112,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
               <button
                 type="button"
                 onClick={onClose}
+                aria-label="Fechar diálogo"
                 className="flex size-8 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white"
               >
                 <X className="size-4" />
@@ -180,6 +174,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                         key={tag}
                         type="button"
                         onClick={() => toggleTag(tag)}
+                        aria-pressed={isSelected}
                         className={`rounded-full px-2.5 py-1 font-medium text-[11px] transition-all ${
                           isSelected
                             ? 'bg-white font-semibold text-black shadow-sm'
@@ -204,6 +199,9 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                 <button
                   type="button"
                   onClick={() => setIsPublic(!isPublic)}
+                  role="switch"
+                  aria-checked={isPublic}
+                  aria-label="Lista pública"
                   className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                     isPublic ? 'bg-white' : 'bg-neutral-800'
                   }`}
@@ -235,9 +233,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                 </button>
               </div>
             </form>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </Dialog>
   );
 }

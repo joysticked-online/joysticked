@@ -15,11 +15,12 @@ import {
   Trash2,
   X
 } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PixelHeart } from '@/components/landing/pixel-heart';
+import { Dialog } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
 
@@ -398,27 +399,19 @@ export function GameReviewModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4">
-          {/* Backdrop Blur Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/85 backdrop-blur-md"
-          />
-
-          {/* Modal Card - 3DS Handheld Dual-Screen Console */}
-          <motion.div
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      title={isEditing ? `Editar avaliação de ${game.name}` : `Avaliar ${game.name}`}
+      description="Defina uma nota, adicione detalhes e publique sua resenha."
+    >
+      <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
             className="scrollbar-none relative z-10 max-h-[92vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-[32px] border-2 border-white/15 bg-[#0C0C0C] p-3 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(239,68,68,0.12)] sm:p-4.5"
-          >
+      >
             {/* Top Console Shoulder Bar: [L] Bumper, Power LED & [R] Close Bumper */}
             <div className="relative mb-2.5 flex select-none items-center justify-between px-1">
               {/* [ L ] Bumper */}
@@ -446,6 +439,7 @@ export function GameReviewModal({
                     type="button"
                     onClick={handleDelete}
                     title="Excluir Avaliação"
+                    aria-label="Excluir avaliação"
                     className="cursor-pointer rounded-lg border border-red-500/20 bg-red-500/10 px-2 py-1 text-red-400 text-xs transition-colors hover:bg-red-500/20"
                   >
                     <Trash2 className="size-3.5" />
@@ -566,6 +560,7 @@ export function GameReviewModal({
                             <button
                               type="button"
                               onClick={() => handleRemoveTag(tag)}
+                              aria-label={`Remover tag ${tag}`}
                               className="cursor-pointer text-red-400 transition-colors hover:text-white"
                             >
                               <X className="size-3" />
@@ -689,9 +684,7 @@ export function GameReviewModal({
                 </div>
               </div>
             </form>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </Dialog>
   );
 }
