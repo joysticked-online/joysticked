@@ -1,8 +1,16 @@
+import { envs } from '../config/envs';
 import { redis } from './redis';
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const SESSION_PREFIX = 'session:';
 const MAX_IN_MEMORY_SESSIONS = 10_000;
+
+function sessionKey(token: string): string {
+  const digest = new Bun.CryptoHasher('sha256')
+    .update(`${envs.auth.SESSION_SECRET}:${token}`)
+    .digest('hex');
+  return `${SESSION_PREFIX}${digest}`;
+}
 
 // In-memory fallback if Redis is down
 const inMemorySessions = new Map<string, { userId: string; expiresAt: number }>();
@@ -35,7 +43,7 @@ function generateSessionToken(): string {
 export async function createSession(userId: string): Promise<string> {
   const token = generateSessionToken();
   try {
-    await redis.set(`${SESSION_PREFIX}${token}`, userId, 'EX', SESSION_TTL_SECONDS);
+    await redis.set(sessionKey(token), userId, 'EX', SESSION_TTL_SECONDS);
     return token;
   } catch {
     console.warn('[Session] Redis unavailable, using in-memory session fallback');
@@ -50,7 +58,7 @@ export async function createSession(userId: string): Promise<string> {
  */
 export async function getSession(token: string): Promise<string | null> {
   try {
-    const userId = await redis.get(`${SESSION_PREFIX}${token}`);
+    const userId = await redis.get(sessionKey(token));
     return userId;
   } catch {
     // Redis offline; use the bounded process-local fallback.
@@ -73,7 +81,7 @@ export async function getSession(token: string): Promise<string | null> {
  */
 export async function deleteSession(token: string): Promise<void> {
   try {
-    await redis.del(`${SESSION_PREFIX}${token}`);
+    await redis.del(sessionKey(token));
   } catch {
     // Redis offline
   }
