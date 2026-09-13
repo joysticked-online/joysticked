@@ -6,8 +6,8 @@ import { AlertTriangle, Edit3, Gamepad2, Monitor, Reply, Smartphone, ThumbsUp } 
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { GameReview } from '@/lib/games';
 import { PixelHeart } from '@/components/landing/pixel-heart';
+import type { GameReview } from '@/lib/games';
 
 interface GameReviewCardProps {
   review: GameReview;
@@ -83,7 +83,7 @@ export function GameReviewCard({
               </Link>
 
               {isMine && (
-                <span className="rounded-md border border-white/15 bg-white/10 px-1.5 py-0.2 font-mono font-medium text-[10px] text-neutral-200">
+                <span className="rounded-md border border-white/15 bg-white/10 px-1.5 py-0.2 font-medium font-mono text-[10px] text-neutral-200">
                   Você
                 </span>
               )}
@@ -102,7 +102,7 @@ export function GameReviewCard({
                     />
                   );
                 })}
-                <span className="ml-1 font-mono text-[11px] font-bold text-neutral-300">
+                <span className="ml-1 font-bold font-mono text-[11px] text-neutral-300">
                   {Number(review.rating).toFixed(1)}
                 </span>
               </div>
@@ -153,16 +153,14 @@ export function GameReviewCard({
       {review.reviewText && (
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-black/30">
           <div className={hasHiddenSpoiler ? 'select-none blur-md' : 'whitespace-pre-line'}>
-            <div className="p-3.5 text-neutral-200 text-xs leading-relaxed sm:p-4 sm:text-sm [text-wrap:pretty]">
+            <div className="p-3.5 text-neutral-200 text-xs leading-relaxed [text-wrap:pretty] sm:p-4 sm:text-sm">
               {review.reviewText}
             </div>
           </div>
           {hasHiddenSpoiler && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#08080a]/80 p-4 text-center backdrop-blur-sm">
               <AlertTriangle className="size-4 text-amber-300" />
-              <span className="font-medium text-white text-xs">
-                Esta avaliação contém spoiler
-              </span>
+              <span className="font-medium text-white text-xs">Esta avaliação contém spoiler</span>
               <button
                 type="button"
                 onClick={() => setShowSpoiler(true)}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ListPlus, Sparkles, X } from 'lucide-react';
+import { ListPlus, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -13,7 +13,16 @@ interface CreateListModalProps {
   onSuccess?: (createdSlug: string, ownerUsername: string) => void;
 }
 
-const PRESET_TAGS = ['Favoritos', 'Platinas', 'Backlog', 'Indies', 'Souls-like', 'História', 'Co-op', 'Retrô'];
+const PRESET_TAGS = [
+  'Favoritos',
+  'Platinas',
+  'Backlog',
+  'Indies',
+  'Souls-like',
+  'História',
+  'Co-op',
+  'Retrô'
+];
 
 export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalProps) {
   const router = useRouter();
@@ -47,7 +56,8 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
 
     const ownerUsername = user?.username || 'jogador';
     const ownerDisplayName = user?.displayName || user?.username || 'Jogador';
-    const ownerAvatarUrl = user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${ownerUsername}`;
+    const ownerAvatarUrl =
+      user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${ownerUsername}`;
 
     const created = createCustomList({
       name: name.trim(),
@@ -98,8 +108,12 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                   <ListPlus className="size-5" />
                 </div>
                 <div>
-                  <h2 className="font-sans text-lg font-bold text-white tracking-tight">Criar Nova Lista</h2>
-                  <p className="text-xs text-neutral-400">Colecione, organize e compartilhe seus jogos favoritos.</p>
+                  <h2 className="font-bold font-sans text-lg text-white tracking-tight">
+                    Criar Nova Lista
+                  </h2>
+                  <p className="text-neutral-400 text-xs">
+                    Colecione, organize e compartilhe seus jogos favoritos.
+                  </p>
                 </div>
               </div>
               <button
@@ -114,13 +128,16 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
             {/* Form */}
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               {error && (
-                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3.5 py-2 text-xs text-rose-300">
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3.5 py-2 text-rose-300 text-xs">
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="list-name" className="block text-xs font-semibold text-neutral-300 mb-1.5">
+                <label
+                  htmlFor="list-name"
+                  className="mb-1.5 block font-semibold text-neutral-300 text-xs"
+                >
                   Título da Lista <span className="text-rose-400">*</span>
                 </label>
                 <input
@@ -130,12 +147,15 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Melhores RPGs que já joguei, Platinas de 2024..."
-                  className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 text-xs text-white placeholder:text-neutral-500 outline-none transition-all hover:border-white/15 focus:border-white/25 focus:bg-white/[0.06]"
+                  className="h-10 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 text-white text-xs outline-none transition-all placeholder:text-neutral-500 hover:border-white/15 focus:border-white/25 focus:bg-white/[0.06]"
                 />
               </div>
 
               <div>
-                <label htmlFor="list-desc" className="block text-xs font-semibold text-neutral-300 mb-1.5">
+                <label
+                  htmlFor="list-desc"
+                  className="mb-1.5 block font-semibold text-neutral-300 text-xs"
+                >
                   Descrição (Opcional)
                 </label>
                 <textarea
@@ -144,12 +164,12 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Conte um pouco sobre o tema desta lista ou o critério de escolha..."
-                  className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-xs text-white placeholder:text-neutral-500 outline-none transition-all hover:border-white/15 focus:border-white/25 focus:bg-white/[0.06]"
+                  className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 text-white text-xs outline-none transition-all placeholder:text-neutral-500 hover:border-white/15 focus:border-white/25 focus:bg-white/[0.06]"
                 />
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-neutral-300 mb-1.5">
+                <span className="mb-1.5 block font-semibold text-neutral-300 text-xs">
                   Tags temáticas (até 4)
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -160,9 +180,9 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                         key={tag}
                         type="button"
                         onClick={() => toggleTag(tag)}
-                        className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
+                        className={`rounded-full px-2.5 py-1 font-medium text-[11px] transition-all ${
                           isSelected
-                            ? 'bg-white text-black font-semibold shadow-sm'
+                            ? 'bg-white font-semibold text-black shadow-sm'
                             : 'border border-white/[0.06] bg-white/[0.03] text-neutral-400 hover:border-white/15 hover:text-white'
                         }`}
                       >
@@ -176,8 +196,10 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
               {/* Privacy Setting */}
               <div className="flex items-center justify-between rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
                 <div className="space-y-0.5">
-                  <p className="text-xs font-medium text-white">Lista Pública</p>
-                  <p className="text-[11px] text-neutral-400">Qualquer pessoa com o link poderá visualizar esta lista.</p>
+                  <p className="font-medium text-white text-xs">Lista Pública</p>
+                  <p className="text-[11px] text-neutral-400">
+                    Qualquer pessoa com o link poderá visualizar esta lista.
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -199,14 +221,14 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-9.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 text-xs font-medium text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="h-9.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 font-medium text-neutral-300 text-xs transition-colors hover:bg-white/[0.06] hover:text-white"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !name.trim()}
-                  className="inline-flex h-9.5 items-center gap-1.5 rounded-xl bg-white px-5 text-xs font-semibold text-black transition-all hover:bg-neutral-200 disabled:opacity-40 active:scale-[0.98]"
+                  className="inline-flex h-9.5 items-center gap-1.5 rounded-xl bg-white px-5 font-semibold text-black text-xs transition-all hover:bg-neutral-200 active:scale-[0.98] disabled:opacity-40"
                 >
                   <Sparkles className="size-3.5" />
                   <span>{isSubmitting ? 'Criando...' : 'Criar Lista'}</span>

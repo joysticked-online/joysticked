@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Heart, Link as LinkIcon, Star } from 'lucide-react';
+import { Check, Heart, Link as LinkIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type React from 'react';
 import { useState } from 'react';
@@ -195,7 +195,7 @@ export function ReviewMicroButton({ onClick, className = '' }: ReviewMicroButton
       <motion.span
         layout
         className={`ml-2 whitespace-nowrap font-medium text-xs tracking-tight transition-colors duration-200 ${
-          isHovered ? 'text-white font-semibold' : 'text-neutral-300'
+          isHovered ? 'font-semibold text-white' : 'text-neutral-300'
         }`}
       >
         Avaliar

@@ -4,7 +4,8 @@ import { ListView } from './list-view';
 
 export const metadata: Metadata = {
   title: 'Lista de Jogos | Joysticked',
-  description: 'Explore listas personalizadas e coleções de jogos criadas pela comunidade do Joysticked.'
+  description:
+    'Explore listas personalizadas e coleções de jogos criadas pela comunidade do Joysticked.'
 };
 
 export default function ListPage() {

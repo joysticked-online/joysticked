@@ -2,7 +2,7 @@
 
 'use client';
 
-import { BarChart2, Gamepad2, Star, Trophy } from 'lucide-react';
+import { BarChart2, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 
@@ -18,8 +18,8 @@ type StatsTabProps = {
 export function StatsTab({
   genres,
   displayGames = [],
-  profile,
-  isOwnProfile = true
+  profile: _profile,
+  isOwnProfile: _isOwnProfile = true
 }: StatsTabProps) {
   const hasData = displayGames.length > 0;
 
@@ -38,12 +38,13 @@ export function StatsTab({
         <div className="space-y-1">
           <p className="font-medium text-sm text-white">Nenhuma estatística disponível</p>
           <p className="max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
-            As métricas e gráficos serão calculados automaticamente conforme você joga e avalia títulos.
+            As métricas e gráficos serão calculados automaticamente conforme você joga e avalia
+            títulos.
           </p>
         </div>
         <Link
           href="/games"
-          className="mt-1 rounded-xl bg-white px-4 py-2 text-xs font-medium text-black transition-all hover:bg-zinc-200 active:scale-[0.96]"
+          className="mt-1 rounded-xl bg-white px-4 py-2 font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96]"
         >
           Explorar jogos
         </Link>
@@ -54,9 +55,10 @@ export function StatsTab({
   // Genre distribution derived from actual user preferences
   const genreList = genres.length > 0 ? genres : [];
   const ratedGames = displayGames.filter((g) => g.rating);
-  const avgRating = ratedGames.length > 0
-    ? (ratedGames.reduce((acc, g) => acc + (g.rating || 0), 0) / ratedGames.length).toFixed(1)
-    : '—';
+  const avgRating =
+    ratedGames.length > 0
+      ? (ratedGames.reduce((acc, g) => acc + (g.rating || 0), 0) / ratedGames.length).toFixed(1)
+      : '—';
 
   // Rating breakdown 1 to 5 stars
   const ratingCounts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -76,41 +78,47 @@ export function StatsTab({
     >
       {/* 3 Summary metric cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl bg-white/[0.02] p-4 text-left ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 block">Total de Jogos</span>
-          <span className="font-redaction text-2xl font-medium tracking-tight text-white mt-0.5 block tabular-nums">
+        <div className="rounded-2xl bg-white/[0.02] p-4 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05]">
+          <span className="block font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
+            Total de Jogos
+          </span>
+          <span className="mt-0.5 block font-medium font-redaction text-2xl text-white tabular-nums tracking-tight">
             {displayGames.length}
           </span>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">no catálogo pessoal</span>
+          <span className="mt-0.5 block text-[11px] text-zinc-400">no catálogo pessoal</span>
         </div>
 
-        <div className="rounded-2xl bg-white/[0.02] p-4 text-left ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 block">Média de Notas</span>
-          <div className="flex items-baseline gap-1.5 mt-0.5">
-            <span className="font-redaction text-2xl font-medium tracking-tight text-white tabular-nums">
+        <div className="rounded-2xl bg-white/[0.02] p-4 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05]">
+          <span className="block font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
+            Média de Notas
+          </span>
+          <div className="mt-0.5 flex items-baseline gap-1.5">
+            <span className="font-medium font-redaction text-2xl text-white tabular-nums tracking-tight">
               {avgRating}
             </span>
             <span className="font-mono text-xs text-zinc-500">/ 5.0</span>
           </div>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">
+          <span className="mt-0.5 block text-[11px] text-zinc-400">
             {ratedGames.length} avaliações feitas
           </span>
         </div>
 
-        <div className="rounded-2xl bg-white/[0.02] p-4 text-left ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)]">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500 block">Gêneros Favoritos</span>
-          <span className="font-redaction text-2xl font-medium tracking-tight text-white mt-0.5 block tabular-nums">
+        <div className="rounded-2xl bg-white/[0.02] p-4 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05]">
+          <span className="block font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
+            Gêneros Favoritos
+          </span>
+          <span className="mt-0.5 block font-medium font-redaction text-2xl text-white tabular-nums tracking-tight">
             {genreList.length}
           </span>
-          <span className="text-[11px] text-zinc-400 mt-0.5 block">estilos selecionados</span>
+          <span className="mt-0.5 block text-[11px] text-zinc-400">estilos selecionados</span>
         </div>
       </div>
 
       {/* Rating distribution histogram */}
       {ratedGames.length > 0 && (
-        <div className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] space-y-3 text-left">
+        <div className="space-y-3 rounded-2xl bg-white/[0.02] p-5 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05]">
           <div className="flex items-center justify-between">
-            <h3 className="font-sans text-lg font-bold text-white tracking-tight">
+            <h3 className="font-bold font-sans text-lg text-white tracking-tight">
               Distribuição de Notas
             </h3>
             <Star className="size-4 text-zinc-500" />
@@ -123,7 +131,7 @@ export function StatsTab({
 
               return (
                 <div key={star} className="flex items-center gap-3 text-xs">
-                  <span className="w-12 font-mono text-[11px] text-zinc-400 flex items-center gap-1">
+                  <span className="flex w-12 items-center gap-1 font-mono text-[11px] text-zinc-400">
                     <span>{star}</span>
                     <Star className="size-3 fill-current text-white/60" />
                   </span>
@@ -135,7 +143,7 @@ export function StatsTab({
                     />
                   </div>
 
-                  <span className="w-8 font-mono text-[11px] text-zinc-500 tabular-nums text-right">
+                  <span className="w-8 text-right font-mono text-[11px] text-zinc-500 tabular-nums">
                     {count}
                   </span>
                 </div>
@@ -147,9 +155,9 @@ export function StatsTab({
 
       {/* Genre tags */}
       {genreList.length > 0 && (
-        <div className="rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] space-y-3 text-left">
+        <div className="space-y-3 rounded-2xl bg-white/[0.02] p-5 text-left shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05]">
           <div className="flex items-center justify-between">
-            <h3 className="font-sans text-lg font-bold text-white tracking-tight">
+            <h3 className="font-bold font-sans text-lg text-white tracking-tight">
               Gêneros em Destaque
             </h3>
             <BarChart2 className="size-4 text-zinc-500" />

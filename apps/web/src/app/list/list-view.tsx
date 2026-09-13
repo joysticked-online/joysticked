@@ -2,14 +2,9 @@
 
 import {
   ArrowLeft,
-  Calendar,
   Check,
   ChevronRight,
-  Compass,
-  Copy,
   Edit3,
-  ExternalLink,
-  Eye,
   Gamepad2,
   Heart,
   Layers,
@@ -19,14 +14,12 @@ import {
   Plus,
   Share2,
   ShieldCheck,
-  SlidersHorizontal,
   Sparkles,
   Star,
   Trash2,
-  TrendingUp,
   X
 } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -40,15 +33,15 @@ import { PosterImage } from '@/components/ui/poster-image';
 import { useAuth } from '@/hooks/use-auth';
 import type { Game } from '@/lib/games';
 import {
-  DEFAULT_COMMUNITY_LISTS,
-  type UserList,
   addGameToUserList,
+  DEFAULT_COMMUNITY_LISTS,
   deleteUserList,
   getAllLists,
   getListByUserAndSlug,
   isListLiked,
   removeGameFromUserList,
-  toggleLikeList
+  toggleLikeList,
+  type UserList
 } from '@/lib/lists';
 
 type ViewMode = 'grid' | 'detailed' | 'compact';
@@ -81,7 +74,9 @@ export function ListView() {
 
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
-  const [otherLists, setOtherLists] = useState<UserList[]>(() => DEFAULT_COMMUNITY_LISTS.slice(0, 4));
+  const [otherLists, setOtherLists] = useState<UserList[]>(() =>
+    DEFAULT_COMMUNITY_LISTS.slice(0, 4)
+  );
   const [isAddGameOpen, setIsAddGameOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -201,16 +196,17 @@ export function ListView() {
           <div className="flex size-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-neutral-500 shadow-2xl">
             <Gamepad2 className="size-8 text-neutral-400" />
           </div>
-          <h1 className="mt-5 font-sans text-2xl font-bold text-white tracking-tight sm:text-3xl">
+          <h1 className="mt-5 font-bold font-sans text-2xl text-white tracking-tight sm:text-3xl">
             Lista não encontrada
           </h1>
-          <p className="mt-2 max-w-md text-xs text-neutral-400 sm:text-sm">
-            Não conseguimos encontrar a lista solicitada. Ela pode ter sido removida ou o endereço está incorreto.
+          <p className="mt-2 max-w-md text-neutral-400 text-xs sm:text-sm">
+            Não conseguimos encontrar a lista solicitada. Ela pode ter sido removida ou o endereço
+            está incorreto.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/lists"
-              className="inline-flex h-9.5 items-center gap-2 rounded-xl bg-white px-4 text-xs font-semibold text-black transition-all hover:bg-neutral-200 active:scale-[0.96]"
+              className="inline-flex h-9.5 items-center gap-2 rounded-xl bg-white px-4 font-semibold text-black text-xs transition-all hover:bg-neutral-200 active:scale-[0.96]"
             >
               <ArrowLeft className="size-3.5" />
               <span>Ver todas as listas</span>
@@ -218,7 +214,7 @@ export function ListView() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="inline-flex h-9.5 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-xs font-semibold text-white transition-all hover:bg-white/[0.08] active:scale-[0.96]"
+              className="inline-flex h-9.5 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 font-semibold text-white text-xs transition-all hover:bg-white/[0.08] active:scale-[0.96]"
             >
               <Plus className="size-3.5" />
               <span>Criar nova lista</span>
@@ -240,9 +236,9 @@ export function ListView() {
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/lists"
-            className="group inline-flex items-center gap-2 text-xs font-medium text-neutral-400 transition-colors hover:text-white"
+            className="group inline-flex items-center gap-2 font-medium text-neutral-400 text-xs transition-colors hover:text-white"
           >
-            <ArrowLeft className="size-3.5 transition-transform duration-200 group-hover:-translate-x-1" />
+            <ArrowLeft className="group-hover:-translate-x-1 size-3.5 transition-transform duration-200" />
             <span>Voltar para Listas da Comunidade</span>
           </Link>
 
@@ -250,7 +246,7 @@ export function ListView() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.96]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5 font-medium text-neutral-300 text-xs backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.07] hover:text-white active:scale-[0.96]"
             >
               <ListPlus className="size-3.5 text-neutral-400" />
               <span className="hidden sm:inline">Criar Lista</span>
@@ -263,11 +259,11 @@ export function ListView() {
           <div className="relative mb-8 overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0d0d12] shadow-[0_24px_70px_rgba(0,0,0,0.85)]">
             {/* Ambient Multi-game Collage with Vignette */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-25">
-              <div className="flex size-full items-center justify-end -space-x-14 blur-[2px] scale-105">
+              <div className="-space-x-14 flex size-full scale-105 items-center justify-end blur-[2px]">
                 {list.games.slice(0, 5).map((g, idx) => (
                   <div
                     key={`${g.id || g.slug}-${idx}`}
-                    className="relative aspect-[2/3] w-56 shrink-0 overflow-hidden rounded-2xl opacity-70 shadow-2xl rotate-1"
+                    className="relative aspect-[2/3] w-56 shrink-0 rotate-1 overflow-hidden rounded-2xl opacity-70 shadow-2xl"
                   >
                     {g.coverUrl && (
                       <Image
@@ -288,16 +284,16 @@ export function ListView() {
 
             {/* List Details Content */}
             <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-end md:justify-between">
-              <div className="space-y-3.5 max-w-3xl">
+              <div className="max-w-3xl space-y-3.5">
                 {/* Badges & Tags */}
                 <div className="flex flex-wrap items-center gap-2">
                   {isOfficial ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-300 backdrop-blur-md shadow-sm">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-semibold text-[11px] text-amber-300 shadow-sm backdrop-blur-md">
                       <ShieldCheck className="size-3.5 text-amber-400" />
                       <span>Curadoria Oficial @joysticked</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-medium text-neutral-300 backdrop-blur-md">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 font-medium text-[11px] text-neutral-300 backdrop-blur-md">
                       <Sparkles className="size-3 text-amber-400" />
                       <span>Coleção da Comunidade</span>
                     </span>
@@ -315,22 +311,22 @@ export function ListView() {
 
                 {/* Title & Description */}
                 <div>
-                  <h1 className="font-sans text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl [text-wrap:balance]">
+                  <h1 className="font-bold font-sans text-2xl text-white tracking-tight [text-wrap:balance] sm:text-3xl lg:text-4xl">
                     {list.name}
                   </h1>
                   {list.description && (
-                    <p className="mt-2 text-xs sm:text-sm text-neutral-300 leading-relaxed [text-wrap:pretty] max-w-2xl">
+                    <p className="mt-2 max-w-2xl text-neutral-300 text-xs leading-relaxed [text-wrap:pretty] sm:text-sm">
                       {list.description}
                     </p>
                   )}
                 </div>
 
                 {/* Meta Bar: Creator & Metrics */}
-                <div className="flex flex-wrap items-center gap-3.5 pt-1 text-xs text-neutral-400">
+                <div className="flex flex-wrap items-center gap-3.5 pt-1 text-neutral-400 text-xs">
                   {/* Creator */}
                   <Link
                     href={`/${list.ownerUsername}`}
-                    className="group flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] py-1 pl-1 pr-3 text-neutral-300 transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                    className="group flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] py-1 pr-3 pl-1 text-neutral-300 transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
                   >
                     <div className="relative size-5 shrink-0 overflow-hidden rounded-full bg-neutral-800 ring-1 ring-white/10">
                       {list.ownerAvatarUrl ? (
@@ -343,7 +339,7 @@ export function ListView() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex size-full items-center justify-center text-[9px] font-bold text-white uppercase">
+                        <div className="flex size-full items-center justify-center font-bold text-[9px] text-white uppercase">
                           {list.ownerUsername[0]}
                         </div>
                       )}
@@ -351,7 +347,9 @@ export function ListView() {
                     <span className="font-semibold text-white group-hover:underline">
                       {list.ownerDisplayName || list.ownerUsername}
                     </span>
-                    <span className="text-neutral-500 font-mono text-[11px]">@{list.ownerUsername}</span>
+                    <span className="font-mono text-[11px] text-neutral-500">
+                      @{list.ownerUsername}
+                    </span>
                   </Link>
 
                   <div className="flex items-center gap-3">
@@ -373,12 +371,12 @@ export function ListView() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {/* Like Button */}
                 <button
                   type="button"
                   onClick={handleLikeToggle}
-                  className={`inline-flex h-9 select-none items-center gap-1.5 rounded-xl border px-3 text-xs font-semibold backdrop-blur-md transition-all active:scale-[0.96] ${
+                  className={`inline-flex h-9 select-none items-center gap-1.5 rounded-xl border px-3 font-semibold text-xs backdrop-blur-md transition-all active:scale-[0.96] ${
                     liked
                       ? 'border-rose-500/40 bg-rose-500/15 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.2)]'
                       : 'border-white/[0.1] bg-white/[0.04] text-neutral-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white'
@@ -386,7 +384,7 @@ export function ListView() {
                 >
                   <Heart
                     className={`size-3.5 transition-transform duration-200 ${
-                      liked ? 'fill-rose-400 text-rose-400 scale-110' : ''
+                      liked ? 'scale-110 fill-rose-400 text-rose-400' : ''
                     }`}
                   />
                   <span className="font-mono">{likesCount}</span>
@@ -396,12 +394,12 @@ export function ListView() {
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 text-xs font-semibold text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 font-semibold text-neutral-300 text-xs backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
                 >
                   {copied ? (
                     <>
                       <Check className="size-3.5 text-emerald-400" />
-                      <span className="text-emerald-400 font-medium">Copiado!</span>
+                      <span className="font-medium text-emerald-400">Copiado!</span>
                     </>
                   ) : (
                     <>
@@ -415,7 +413,7 @@ export function ListView() {
                 <button
                   type="button"
                   onClick={() => setIsEditOpen(true)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 text-xs font-semibold text-neutral-300 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.1] bg-white/[0.04] px-3 font-semibold text-neutral-300 text-xs backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
                 >
                   <Edit3 className="size-3.5 text-amber-400" />
                   <span>Editar Lista</span>
@@ -427,7 +425,7 @@ export function ListView() {
                     <button
                       type="button"
                       onClick={() => setIsAddGameOpen(true)}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-white px-3.5 text-xs font-bold text-black shadow-md transition-all hover:bg-neutral-200 active:scale-[0.96]"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-white px-3.5 font-bold text-black text-xs shadow-md transition-all hover:bg-neutral-200 active:scale-[0.96]"
                     >
                       <Plus className="size-3.5 stroke-[2.5]" />
                       <span>Adicionar Jogo</span>
@@ -451,23 +449,23 @@ export function ListView() {
         {/* Section Header & View Controls */}
         {list && (
           <section className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/[0.08] pb-3">
+            <div className="flex flex-col gap-3 border-white/[0.08] border-b pb-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2.5">
-                <h2 className="font-sans text-sm font-bold text-white tracking-tight sm:text-base">
+                <h2 className="font-bold font-sans text-sm text-white tracking-tight sm:text-base">
                   Títulos na Lista
                 </h2>
-                <span className="rounded-full bg-white/[0.08] px-2 py-0.5 font-mono text-[11px] font-medium text-neutral-400">
+                <span className="rounded-full bg-white/[0.08] px-2 py-0.5 font-medium font-mono text-[11px] text-neutral-400">
                   {list.games.length}
                 </span>
               </div>
 
               {/* View Switcher & Actions */}
-              <div className="flex items-center justify-between sm:justify-end gap-3">
+              <div className="flex items-center justify-between gap-3 sm:justify-end">
                 {isOwner && list.games.length > 0 && (
                   <button
                     type="button"
                     onClick={() => setIsAddGameOpen(true)}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-300 transition-colors hover:text-white"
+                    className="inline-flex items-center gap-1.5 font-medium text-neutral-300 text-xs transition-colors hover:text-white"
                   >
                     <Plus className="size-3 text-amber-400" />
                     <span>Adicionar jogo</span>
@@ -522,14 +520,14 @@ export function ListView() {
                 <div className="mx-auto flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] text-neutral-500">
                   <Gamepad2 className="size-6 text-neutral-400" />
                 </div>
-                <h3 className="mt-3 font-bold text-white text-sm">Esta lista ainda está vazia</h3>
-                <p className="mt-1 text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                <h3 className="mt-3 font-bold text-sm text-white">Esta lista ainda está vazia</h3>
+                <p className="mx-auto mt-1 max-w-sm text-neutral-400 text-xs leading-relaxed">
                   Adicione títulos do catálogo do Joysticked para montar sua coleção personalizada.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsAddGameOpen(true)}
-                  className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-black transition-all hover:bg-neutral-200 active:scale-[0.96]"
+                  className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 font-bold text-black text-xs transition-all hover:bg-neutral-200 active:scale-[0.96]"
                 >
                   <Plus className="size-3.5 stroke-[2.5]" />
                   <span>Adicionar primeiro jogo</span>
@@ -537,7 +535,7 @@ export function ListView() {
               </div>
             ) : viewMode === 'grid' ? (
               /* ─── 1. COMPACT POSTER GRID VIEW (LETTERBOXD STYLE) ─── */
-              <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-y-4">
+              <div className="grid grid-cols-3 gap-2.5 gap-y-4 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
                 {list.games.map((game, index) => (
                   <motion.div
                     key={`${game.id || game.slug}-${index}`}
@@ -547,26 +545,26 @@ export function ListView() {
                     className="group relative flex flex-col"
                   >
                     {/* Game Poster with Depth Shadow */}
-                    <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/[0.08] bg-[#121216] shadow-[0_4px_16px_rgba(0,0,0,0.6)] transition-all duration-200 group-hover:-translate-y-1 group-hover:border-white/25 group-hover:shadow-[0_12px_28px_rgba(0,0,0,0.85)]">
-                      <Link href={`/games/${game.slug}`} className="block size-full relative">
+                    <div className="group-hover:-translate-y-1 relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/[0.08] bg-[#121216] shadow-[0_4px_16px_rgba(0,0,0,0.6)] transition-all duration-200 group-hover:border-white/25 group-hover:shadow-[0_12px_28px_rgba(0,0,0,0.85)]">
+                      <Link href={`/games/${game.slug}`} className="relative block size-full">
                         <PosterImage src={game.coverUrl} alt={game.name} />
 
                         {/* Rank Badge - Compact Floating Glass */}
-                        <div className="absolute top-1.5 left-1.5 flex size-5 items-center justify-center rounded-md bg-black/80 font-mono text-[9.5px] font-bold text-white/95 backdrop-blur-md border border-white/15 shadow-sm">
+                        <div className="absolute top-1.5 left-1.5 flex size-5 items-center justify-center rounded-md border border-white/15 bg-black/80 font-bold font-mono text-[9.5px] text-white/95 shadow-sm backdrop-blur-md">
                           {index + 1}
                         </div>
 
                         {/* Rating Badge */}
                         {game.rating && (
-                          <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-mono font-bold text-[9px] text-amber-300 backdrop-blur-md border border-amber-500/20 shadow-sm">
+                          <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md border border-amber-500/20 bg-black/80 px-1.5 py-0.5 font-bold font-mono text-[9px] text-amber-300 shadow-sm backdrop-blur-md">
                             <Star className="size-2 fill-amber-400 text-amber-400" />
                             <span>{Number(game.rating).toFixed(1)}</span>
                           </div>
                         )}
 
                         {/* Hover Overlay with Quick Link */}
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex flex-col justify-end p-2">
-                          <span className="text-[10px] font-medium text-white/90 inline-flex items-center gap-0.5">
+                        <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent p-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <span className="inline-flex items-center gap-0.5 font-medium text-[10px] text-white/90">
                             <span>Ver Jogo</span>
                             <ChevronRight className="size-2.5 text-neutral-400" />
                           </span>
@@ -579,7 +577,7 @@ export function ListView() {
                           type="button"
                           onClick={() => handleRemoveGame(game.slug || game.id)}
                           title="Remover da lista"
-                          className="absolute bottom-1.5 right-1.5 flex size-6 items-center justify-center rounded-md bg-black/80 text-neutral-400 opacity-0 backdrop-blur-md border border-white/10 transition-all hover:bg-rose-500/20 hover:text-rose-300 group-hover:opacity-100"
+                          className="absolute right-1.5 bottom-1.5 flex size-6 items-center justify-center rounded-md border border-white/10 bg-black/80 text-neutral-400 opacity-0 backdrop-blur-md transition-all hover:bg-rose-500/20 hover:text-rose-300 group-hover:opacity-100"
                         >
                           <X className="size-3" />
                         </button>
@@ -590,11 +588,11 @@ export function ListView() {
                     <div className="mt-1.5 px-0.5">
                       <Link
                         href={`/games/${game.slug}`}
-                        className="line-clamp-1 font-sans text-[11.5px] font-semibold text-white transition-colors group-hover:text-amber-300 leading-tight"
+                        className="line-clamp-1 font-sans font-semibold text-[11.5px] text-white leading-tight transition-colors group-hover:text-amber-300"
                       >
                         {game.name}
                       </Link>
-                      <div className="flex items-center gap-1 text-[10px] text-neutral-400 mt-0.5">
+                      <div className="mt-0.5 flex items-center gap-1 text-[10px] text-neutral-400">
                         <span className="truncate">{game.genres?.[0] || 'Jogo'}</span>
                         {game.releaseYear && (
                           <>
@@ -618,9 +616,9 @@ export function ListView() {
                     transition={{ duration: 0.15, delay: index * 0.02 }}
                     className="group relative flex items-center justify-between gap-3.5 rounded-2xl border border-white/[0.06] bg-[#0d0d12] p-3 transition-all hover:border-white/20 hover:bg-white/[0.03]"
                   >
-                    <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                    <div className="flex min-w-0 flex-1 items-center gap-3.5">
                       {/* Rank Index */}
-                      <span className="w-5 text-center font-mono text-xs font-bold text-neutral-500 group-hover:text-white shrink-0">
+                      <span className="w-5 shrink-0 text-center font-bold font-mono text-neutral-500 text-xs group-hover:text-white">
                         {String(index + 1).padStart(2, '0')}
                       </span>
 
@@ -637,7 +635,7 @@ export function ListView() {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/games/${game.slug}`}
-                            className="truncate font-sans text-xs sm:text-sm font-bold text-white transition-colors group-hover:text-amber-300"
+                            className="truncate font-bold font-sans text-white text-xs transition-colors group-hover:text-amber-300 sm:text-sm"
                           >
                             {game.name}
                           </Link>
@@ -663,9 +661,9 @@ export function ListView() {
                     </div>
 
                     {/* Right Meta & Actions */}
-                    <div className="flex items-center gap-2.5 shrink-0">
+                    <div className="flex shrink-0 items-center gap-2.5">
                       {game.rating && (
-                        <div className="flex items-center gap-1 rounded-lg bg-black/60 px-2 py-0.5 font-mono text-[11px] font-bold text-amber-300 border border-amber-500/20">
+                        <div className="flex items-center gap-1 rounded-lg border border-amber-500/20 bg-black/60 px-2 py-0.5 font-bold font-mono text-[11px] text-amber-300">
                           <Star className="size-2.5 fill-amber-400 text-amber-400" />
                           <span>{Number(game.rating).toFixed(1)}</span>
                         </div>
@@ -673,7 +671,7 @@ export function ListView() {
 
                       <Link
                         href={`/games/${game.slug}`}
-                        className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-neutral-300 transition-colors hover:border-white/20 hover:text-white"
+                        className="hidden items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 font-medium text-neutral-300 text-xs transition-colors hover:border-white/20 hover:text-white sm:inline-flex"
                       >
                         <span>Ver Jogo</span>
                         <ChevronRight className="size-3" />
@@ -699,10 +697,10 @@ export function ListView() {
                   <Link
                     key={`${game.id || game.slug}-${index}`}
                     href={`/games/${game.slug}`}
-                    className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/[0.08] bg-[#111115] shadow-md transition-all duration-200 hover:scale-105 hover:border-white/30 hover:shadow-xl hover:z-10"
+                    className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/[0.08] bg-[#111115] shadow-md transition-all duration-200 hover:z-10 hover:scale-105 hover:border-white/30 hover:shadow-xl"
                   >
                     <PosterImage src={game.coverUrl} alt={game.name} />
-                    <div className="absolute top-1 left-1 flex size-4 items-center justify-center rounded bg-black/80 font-mono text-[8px] font-bold text-white backdrop-blur-md">
+                    <div className="absolute top-1 left-1 flex size-4 items-center justify-center rounded bg-black/80 font-bold font-mono text-[8px] text-white backdrop-blur-md">
                       {index + 1}
                     </div>
                   </Link>
@@ -714,17 +712,19 @@ export function ListView() {
 
         {/* More Lists from Community Exploration */}
         {otherLists.length > 0 && (
-          <section className="mt-16 space-y-4 border-t border-white/[0.08] pt-10">
+          <section className="mt-16 space-y-4 border-white/[0.08] border-t pt-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-sans text-base font-bold text-white tracking-tight">
+                <h2 className="font-bold font-sans text-base text-white tracking-tight">
                   Outras Coleções da Comunidade
                 </h2>
-                <p className="text-xs text-neutral-400 mt-0.5">Explore mais listas criadas pelos jogadores do Joysticked.</p>
+                <p className="mt-0.5 text-neutral-400 text-xs">
+                  Explore mais listas criadas pelos jogadores do Joysticked.
+                </p>
               </div>
               <Link
                 href="/lists"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-white hover:underline underline-offset-4"
+                className="inline-flex items-center gap-1 font-semibold text-white text-xs underline-offset-4 hover:underline"
               >
                 <span>Ver todas as listas</span>
                 <ChevronRight className="size-3.5" />
@@ -736,15 +736,15 @@ export function ListView() {
                 <Link
                   key={other.id}
                   href={`/list?user=${other.ownerUsername}&listname=${other.slug}`}
-                  className="group flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#0c0c10] p-4 transition-all duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-[#111117] hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]"
+                  className="group hover:-translate-y-1 flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#0c0c10] p-4 transition-all duration-200 hover:border-white/20 hover:bg-[#111117] hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]"
                 >
                   <div>
                     {/* Collaged Mini Posters with Overlap */}
-                    <div className="-space-x-3 flex pb-3 pt-0.5">
+                    <div className="-space-x-3 flex pt-0.5 pb-3">
                       {other.games.slice(0, 4).map((g, i) => (
                         <div
                           key={`${g.id || g.slug}-${i}`}
-                          className="relative aspect-[2/3] w-10 overflow-hidden rounded-md bg-neutral-900 ring-2 ring-[#0c0c10] shadow-sm transition-transform group-hover:scale-105"
+                          className="relative aspect-[2/3] w-10 overflow-hidden rounded-md bg-neutral-900 shadow-sm ring-2 ring-[#0c0c10] transition-transform group-hover:scale-105"
                           style={{ zIndex: 10 - i }}
                         >
                           {g.coverUrl && (
@@ -761,7 +761,7 @@ export function ListView() {
                       ))}
                     </div>
 
-                    <h3 className="line-clamp-1 font-bold text-xs sm:text-sm text-white group-hover:text-amber-300 transition-colors">
+                    <h3 className="line-clamp-1 font-bold text-white text-xs transition-colors group-hover:text-amber-300 sm:text-sm">
                       {other.name}
                     </h3>
                     {other.description && (
@@ -771,7 +771,7 @@ export function ListView() {
                     )}
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-2.5 text-[10.5px] text-neutral-400">
+                  <div className="mt-4 flex items-center justify-between border-white/[0.06] border-t pt-2.5 text-[10.5px] text-neutral-400">
                     <span className="font-medium text-neutral-300">@{other.ownerUsername}</span>
                     <span className="font-mono text-neutral-500">{other.games.length} títulos</span>
                   </div>

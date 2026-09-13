@@ -3,7 +3,6 @@
 import {
   ChevronRight,
   Clock,
-  Compass,
   Edit3,
   Gamepad2,
   MessageSquare,
@@ -14,7 +13,7 @@ import {
   ThumbsUp,
   TrendingUp
 } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -164,7 +163,9 @@ function RatingHearts({ rating, size = 14 }: { rating: number; size?: number }) 
         const isFull = normalized >= heartNum;
         const isHalf = !isFull && normalized >= heartNum - 0.5;
         const variant = isFull ? 'full' : isHalf ? 'half' : 'empty';
-        return <PixelHeart key={i} size={size} variant={variant} color="#FFFFFF" emptyColor="#333333" />;
+        return (
+          <PixelHeart key={i} size={size} variant={variant} color="#FFFFFF" emptyColor="#333333" />
+        );
       })}
     </div>
   );
@@ -278,11 +279,12 @@ export function HomeView({ initialData }: HomeViewProps) {
                     : 'Joysticked'}
                 </span>
               </div>
-              <h1 className="mt-2.5 font-bold text-3xl text-white tracking-tight sm:text-4xl md:text-5xl [text-wrap:balance]">
+              <h1 className="mt-2.5 font-bold text-3xl text-white tracking-tight [text-wrap:balance] sm:text-4xl md:text-5xl">
                 O que você vai jogar hoje?
               </h1>
               <p className="mt-2 max-w-xl text-neutral-400 text-sm leading-relaxed sm:text-base">
-                Acompanhe o catálogo, registre suas avaliações e explore recomendações da comunidade.
+                Acompanhe o catálogo, registre suas avaliações e explore recomendações da
+                comunidade.
               </p>
             </div>
 
@@ -320,7 +322,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-neutral-900/40 p-6 sm:p-7 backdrop-blur-md"
+                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-neutral-900/40 p-6 backdrop-blur-md sm:p-7"
               >
                 <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
                   {/* Spotlight Poster */}
@@ -342,7 +344,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                       <span>Destaque da Comunidade</span>
                     </div>
 
-                    <h2 className="font-bold text-xl text-white leading-snug tracking-tight sm:text-2xl [text-wrap:balance]">
+                    <h2 className="font-bold text-white text-xl leading-snug tracking-tight [text-wrap:balance] sm:text-2xl">
                       <Link
                         href={`/games/${spotlightGame.slug}`}
                         className="transition-colors hover:text-neutral-300"
@@ -553,7 +555,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                           {review.reviewText && (
                             <div className="relative">
                               {hasHiddenSpoiler ? (
-                                <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs text-neutral-300">
+                                <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-3 text-neutral-300 text-xs">
                                   <span>Esta avaliação contém spoilers do enredo.</span>
                                   <button
                                     type="button"
@@ -573,7 +575,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                         </div>
 
                         {/* Footer: platform & hours & like */}
-                        <div className="flex items-center justify-between border-t border-white/[0.04] pt-3 text-[11px] text-neutral-400">
+                        <div className="flex items-center justify-between border-white/[0.04] border-t pt-3 text-[11px] text-neutral-400">
                           <div className="flex items-center gap-3">
                             {review.platform && (
                               <div className="flex items-center gap-1">
@@ -598,7 +600,9 @@ export function HomeView({ initialData }: HomeViewProps) {
                                 : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-200'
                             }`}
                           >
-                            <ThumbsUp className={`size-3 ${isLiked ? 'fill-white text-white' : ''}`} />
+                            <ThumbsUp
+                              className={`size-3 ${isLiked ? 'fill-white text-white' : ''}`}
+                            />
                             <span className="tabular-nums">
                               {(review.likesCount || 0) + (isLiked ? 1 : 0)}
                             </span>
@@ -789,9 +793,7 @@ export function HomeView({ initialData }: HomeViewProps) {
                       <div className="absolute top-1.5 right-1.5 z-10 flex items-center gap-1 rounded-md border border-white/10 bg-black/85 px-1.5 py-0.5 backdrop-blur-sm">
                         <PixelHeart size={10} variant="full" color="#FFFFFF" />
                         <span className="font-bold text-[10px] text-white tabular-nums">
-                          {game.rating > 5
-                            ? (game.rating / 2).toFixed(1)
-                            : game.rating.toFixed(1)}
+                          {game.rating > 5 ? (game.rating / 2).toFixed(1) : game.rating.toFixed(1)}
                         </span>
                       </div>
                     )}
@@ -858,10 +860,13 @@ export function HomeView({ initialData }: HomeViewProps) {
                 <div className="flex size-7 items-center justify-center rounded-lg bg-white/10">
                   <Gamepad2 className="size-4 text-white" />
                 </div>
-                <h3 className="font-bold text-sm text-white tracking-tight">Sincronize sua Biblioteca</h3>
+                <h3 className="font-bold text-sm text-white tracking-tight">
+                  Sincronize sua Biblioteca
+                </h3>
               </div>
               <p className="text-neutral-400 text-xs leading-relaxed">
-                Conecte seu perfil da Steam para importar horas de jogo, conquistas e organizar seu backlog automaticamente.
+                Conecte seu perfil da Steam para importar horas de jogo, conquistas e organizar seu
+                backlog automaticamente.
               </p>
               <Link
                 href="/settings"
@@ -881,9 +886,7 @@ export function HomeView({ initialData }: HomeViewProps) {
           href="/pro"
           className="group flex select-none items-center gap-2 rounded-full border border-white/[0.08] bg-[#08080a]/95 px-3.5 py-1.5 text-neutral-300 text-xs shadow-2xl backdrop-blur-md transition-all hover:border-white/20 hover:text-white active:scale-95"
         >
-          <span className="font-medium text-[11.5px] sm:text-xs">
-            Experimente o plano PRO
-          </span>
+          <span className="font-medium text-[11.5px] sm:text-xs">Experimente o plano PRO</span>
           <span className="rounded-full bg-white px-1.5 py-0.2 font-extrabold text-[9px] text-black uppercase tracking-wider">
             PRO
           </span>

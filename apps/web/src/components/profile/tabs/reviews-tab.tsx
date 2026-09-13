@@ -7,8 +7,8 @@ import { motion } from 'motion/react';
 import Link from 'next/link';
 
 import { PixelHeart } from '@/components/landing/pixel-heart';
-import type { ProfileGame } from '../types';
 import type { GameReview } from '@/lib/games';
+import type { ProfileGame } from '../types';
 
 type ReviewsTabProps = {
   displayGames: ProfileGame[];
@@ -38,7 +38,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
         </div>
         <Link
           href="/games"
-          className="mt-1 rounded-xl bg-white px-4 py-2 text-xs font-medium text-black transition-all hover:bg-zinc-200 active:scale-[0.96]"
+          className="mt-1 rounded-xl bg-white px-4 py-2 font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96]"
         >
           Explorar jogos
         </Link>
@@ -79,7 +79,7 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/games/${game.id}`}
-                    className="font-sans text-base font-bold tracking-tight text-white transition-colors hover:text-zinc-200"
+                    className="font-bold font-sans text-base text-white tracking-tight transition-colors hover:text-zinc-200"
                   >
                     {game.title}
                   </Link>
@@ -101,20 +101,20 @@ export function ReviewsTab({ displayGames }: ReviewsTabProps) {
                       />
                     );
                   })}
-                  <span className="ml-1.5 font-mono font-bold text-xs text-white tabular-nums">
+                  <span className="ml-1.5 font-bold font-mono text-white text-xs tabular-nums">
                     {game.rating?.toFixed(1)}
                   </span>
                 </div>
               </div>
 
-              <span className="font-mono text-[11px] text-zinc-500 tabular-nums shrink-0">
+              <span className="shrink-0 font-mono text-[11px] text-zinc-500 tabular-nums">
                 {game.completedDate || 'recente'}
               </span>
             </div>
 
             {/* Review Snippet / Text */}
             {game.reviewSnippet && (
-              <p className="text-xs leading-relaxed text-zinc-300 [text-wrap:pretty]">
+              <p className="text-xs text-zinc-300 leading-relaxed [text-wrap:pretty]">
                 "{game.reviewSnippet}"
               </p>
             )}

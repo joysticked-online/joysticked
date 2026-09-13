@@ -116,9 +116,7 @@ export function GameGalleryTab({ game, onSelectBanner, activeBannerUrl }: GameGa
 
               {/* Lightbox Footer Toolbar */}
               <div className="flex items-center justify-between gap-3 border-white/10 border-t pt-2.5">
-                <span className="font-mono text-neutral-400 text-xs">
-                  {game.name} • 1080p HD
-                </span>
+                <span className="font-mono text-neutral-400 text-xs">{game.name} • 1080p HD</span>
 
                 <div className="flex items-center gap-2">
                   <motion.button
@@ -161,7 +159,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
             <p className="font-medium text-[11px] text-neutral-400 uppercase tracking-wider">
               Ficha do jogo
             </p>
-            <h2 className="mt-1 font-sans font-bold text-white text-xl tracking-tight sm:text-2xl [text-wrap:balance]">
+            <h2 className="mt-1 font-bold font-sans text-white text-xl tracking-tight [text-wrap:balance] sm:text-2xl">
               Tudo sobre {game.name}
             </h2>
           </div>
@@ -171,25 +169,33 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
-            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Gêneros</span>
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">
+              Gêneros
+            </span>
             <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.genres?.slice(0, 2).join(' • ') || 'Não informado'}
             </span>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
-            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Publicadora</span>
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">
+              Publicadora
+            </span>
             <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.publisher || 'Não informado'}
             </span>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
-            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Nota crítica</span>
-            <span className="mt-1 block font-mono font-bold text-white text-xs">
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">
+              Nota crítica
+            </span>
+            <span className="mt-1 block font-bold font-mono text-white text-xs">
               {game.aggregatedRating ? `${game.aggregatedRating.toFixed(1)} / 100` : '—'}
             </span>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-black/30 p-3.5">
-            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">Plataformas</span>
+            <span className="block font-medium text-[10px] text-neutral-500 uppercase tracking-wider">
+              Plataformas
+            </span>
             <span className="mt-1 block truncate font-semibold text-white text-xs">
               {game.platforms?.length || 0} disponíveis
             </span>
@@ -206,7 +212,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           <h3 className="font-medium text-neutral-400 text-xs uppercase tracking-wider">
             Enredo & História
           </h3>
-          <p className="whitespace-pre-line text-neutral-300 text-xs leading-relaxed sm:text-sm [text-wrap:pretty]">
+          <p className="whitespace-pre-line text-neutral-300 text-xs leading-relaxed [text-wrap:pretty] sm:text-sm">
             {game.storyline}
           </p>
         </div>
@@ -222,7 +228,7 @@ export function GameDetailsTab({ game }: GameDetailsTabProps) {
           {game.firstReleaseDate && (
             <div className="flex flex-col gap-1 border-white/[0.04] border-b pb-2.5 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-neutral-500">Data de Lançamento</span>
-              <span className="font-mono font-medium text-neutral-200">
+              <span className="font-medium font-mono text-neutral-200">
                 {new Date(game.firstReleaseDate).toLocaleDateString('pt-BR')}
               </span>
             </div>

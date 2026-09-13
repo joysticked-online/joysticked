@@ -1,9 +1,9 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { Logos } from '@/components/logos';
 import { api } from '@/lib/api';
 
@@ -72,9 +72,7 @@ function CallbackContent() {
       <Logos.Joysticked className="h-8 opacity-80" />
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 shadow-xl">
         <Loader2 className="size-5 animate-spin text-primary" />
-        <span className="font-geist-sans text-foreground text-sm">
-          Entrando na sua conta...
-        </span>
+        <span className="font-geist-sans text-foreground text-sm">Entrando na sua conta...</span>
       </div>
     </div>
   );

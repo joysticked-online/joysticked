@@ -62,7 +62,7 @@ function SimilarGameCard({ game, idx }: { game: Game; idx: number }) {
 
           {/* Rating Badge */}
           {ratingFormatted && (
-            <div className="absolute top-1.5 right-1.5 z-10 flex items-center gap-0.5 rounded border border-white/10 bg-black/85 px-1.5 py-0.5 font-mono font-bold text-[9px] text-amber-300 shadow-sm backdrop-blur-md">
+            <div className="absolute top-1.5 right-1.5 z-10 flex items-center gap-0.5 rounded border border-white/10 bg-black/85 px-1.5 py-0.5 font-bold font-mono text-[9px] text-amber-300 shadow-sm backdrop-blur-md">
               <Star className="size-2 fill-amber-300 text-amber-300" />
               <span>{ratingFormatted}</span>
             </div>
@@ -70,7 +70,7 @@ function SimilarGameCard({ game, idx }: { game: Game; idx: number }) {
 
           {/* Release Year */}
           {game.releaseYear && (
-            <div className="absolute top-1.5 left-1.5 z-10 rounded border border-white/10 bg-black/75 px-1.5 py-0.5 font-mono font-medium text-[8.5px] text-neutral-300 backdrop-blur-md">
+            <div className="absolute top-1.5 left-1.5 z-10 rounded border border-white/10 bg-black/75 px-1.5 py-0.5 font-medium font-mono text-[8.5px] text-neutral-300 backdrop-blur-md">
               {game.releaseYear}
             </div>
           )}

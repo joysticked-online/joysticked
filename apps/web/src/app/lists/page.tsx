@@ -4,7 +4,8 @@ import { ListsHubView } from './lists-hub-view';
 
 export const metadata: Metadata = {
   title: 'Listas e Coleções de Jogos | Joysticked',
-  description: 'Explore, crie e compartilhe listas personalizadas de videogames com a comunidade do Joysticked.'
+  description:
+    'Explore, crie e compartilhe listas personalizadas de videogames com a comunidade do Joysticked.'
 };
 
 export default function ListsPage() {

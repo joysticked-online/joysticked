@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { OnboardingFlow } from './onboarding-flow';
 

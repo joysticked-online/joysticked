@@ -43,13 +43,18 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
 
   const counts = {
     all: displayGames.length,
-    playing: displayGames.filter((g) => matchesStatus(g.status, 'playing', Boolean(g.rating))).length,
-    completed: displayGames.filter((g) => matchesStatus(g.status, 'completed', Boolean(g.rating))).length,
-    backlog: displayGames.filter((g) => matchesStatus(g.status, 'backlog', Boolean(g.rating))).length
+    playing: displayGames.filter((g) => matchesStatus(g.status, 'playing', Boolean(g.rating)))
+      .length,
+    completed: displayGames.filter((g) => matchesStatus(g.status, 'completed', Boolean(g.rating)))
+      .length,
+    backlog: displayGames.filter((g) => matchesStatus(g.status, 'backlog', Boolean(g.rating)))
+      .length
   };
 
   const filteredCollection = displayGames.filter((game) =>
-    collectionFilter === 'all' ? true : matchesStatus(game.status, collectionFilter, Boolean(game.rating))
+    collectionFilter === 'all'
+      ? true
+      : matchesStatus(game.status, collectionFilter, Boolean(game.rating))
   );
 
   const FILTERS: { id: CollectionFilter; label: string; count: number }[] = [
@@ -92,7 +97,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                 <span>{f.label}</span>
                 <span
                   className={cn(
-                    'rounded-md px-1.5 py-0.2 font-mono text-[9px] font-bold tabular-nums transition-colors',
+                    'rounded-md px-1.5 py-0.2 font-bold font-mono text-[9px] tabular-nums transition-colors',
                     isActive ? 'bg-black/15 text-black' : 'bg-white/[0.06] text-zinc-400'
                   )}
                 >
@@ -121,7 +126,8 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                     alt={item.title}
                     onError={(e) => {
                       (e.currentTarget as HTMLElement).style.display = 'none';
-                      const fallback = e.currentTarget.parentElement?.querySelector('.poster-fallback');
+                      const fallback =
+                        e.currentTarget.parentElement?.querySelector('.poster-fallback');
                       if (fallback) fallback.classList.remove('hidden');
                     }}
                     className="h-full w-full object-cover transition-transform duration-250 ease-out group-hover:scale-[1.04]"
@@ -136,14 +142,14 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
                   )}
                 >
                   <BookOpen className="mb-1 size-5 text-zinc-600" strokeWidth={1.5} />
-                  <span className="line-clamp-2 text-[10px] font-medium leading-tight text-zinc-400">
+                  <span className="line-clamp-2 font-medium text-[10px] text-zinc-400 leading-tight">
                     {item.title}
                   </span>
                 </div>
 
                 {/* Star Rating Badge in Monochrome Glass */}
                 {item.rating && (
-                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-mono text-[9px] font-bold text-white shadow-sm ring-1 ring-white/15 backdrop-blur-md">
+                  <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 rounded-md bg-black/80 px-1.5 py-0.5 font-bold font-mono text-[9px] text-white shadow-sm ring-1 ring-white/15 backdrop-blur-md">
                     <Star className="size-2.5 fill-current text-white" />
                     <span>{item.rating.toFixed(1)}</span>
                   </div>
@@ -152,7 +158,7 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
 
               {/* Title & Metadata */}
               <div className="space-y-0.5 px-0.5 text-left">
-                <h4 className="truncate text-xs font-medium text-white transition-colors group-hover:text-zinc-200">
+                <h4 className="truncate font-medium text-white text-xs transition-colors group-hover:text-zinc-200">
                   {item.title}
                 </h4>
                 <p className="truncate font-mono text-[10px] text-zinc-500">
@@ -164,10 +170,12 @@ export function CollectionTab({ displayGames }: CollectionTabProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl bg-white/[0.02] p-12 text-center ring-1 ring-white/[0.05]">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] mb-3">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08]">
             <Gamepad2 className="size-5" strokeWidth={1.5} />
           </div>
-          <h3 className="font-sans text-base font-bold text-white tracking-tight">Nenhum título nesta categoria</h3>
+          <h3 className="font-bold font-sans text-base text-white tracking-tight">
+            Nenhum título nesta categoria
+          </h3>
           <p className="mt-1 max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
             Adicione ou avalie jogos para preencher esta seção da sua coleção.
           </p>

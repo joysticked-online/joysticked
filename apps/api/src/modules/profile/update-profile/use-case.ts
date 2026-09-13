@@ -1,5 +1,5 @@
-import type { Database } from '../../../shared/database';
 import { envs } from '../../../shared/config/envs';
+import type { Database } from '../../../shared/database';
 import { createProfileRepository } from '../../../shared/database/repositories/profile-repository';
 import { ConflictError } from '../../../shared/errors/conflict-error';
 import { inMemoryDevUsers } from '../../auth/me/use-case';

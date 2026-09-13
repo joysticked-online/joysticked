@@ -12,7 +12,12 @@ import { CollectionTab } from '@/components/profile/tabs/collection-tab';
 import { ListsTab } from '@/components/profile/tabs/lists-tab';
 import { ReviewsTab } from '@/components/profile/tabs/reviews-tab';
 import { StatsTab } from '@/components/profile/tabs/stats-tab';
-import { GAME_CATALOG_LOOKUP, type Profile, type ProfileGame, type Tab } from '@/components/profile/types';
+import {
+  GAME_CATALOG_LOOKUP,
+  type Profile,
+  type ProfileGame,
+  type Tab
+} from '@/components/profile/types';
 import { useAuth } from '@/hooks/use-auth';
 import type { GameReview } from '@/lib/games';
 
@@ -66,13 +71,15 @@ function reviewToProfileGame(
 ): ProfileGame {
   const catalogEntry = GAME_CATALOG_LOOKUP[review.gameSlug];
   const metaEntry = metaMap[review.gameSlug];
-  const rawStatus = metaEntry?.status || localStorage.getItem(`game_status_${review.gameSlug}`) || 'Jogado';
+  const rawStatus =
+    metaEntry?.status || localStorage.getItem(`game_status_${review.gameSlug}`) || 'Jogado';
   return {
     id: review.gameSlug,
     title: metaEntry?.title || review.gameTitle,
     coverUrl: metaEntry?.coverUrl || catalogEntry?.coverUrl || '',
     backdropUrl: metaEntry?.backdropUrl || catalogEntry?.backdropUrl,
-    year: metaEntry?.year || catalogEntry?.year || new Date(review.createdAt).getFullYear().toString(),
+    year:
+      metaEntry?.year || catalogEntry?.year || new Date(review.createdAt).getFullYear().toString(),
     developer: metaEntry?.developer || catalogEntry?.developer || '',
     status: rawStatus,
     rating: review.rating,
@@ -80,7 +87,10 @@ function reviewToProfileGame(
     reviewSnippet: review.reviewText ?? undefined,
     genres: metaEntry?.genres || catalogEntry?.genres || [],
     platformTag: review.platform ?? metaEntry?.platformTag ?? catalogEntry?.platformTag,
-    completedDate: new Date(review.createdAt).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
+    completedDate: new Date(review.createdAt).toLocaleDateString('pt-BR', {
+      day: 'numeric',
+      month: 'short'
+    })
   };
 }
 
@@ -91,21 +101,28 @@ export function PublicProfileView({ profile: initialProfile }: { profile: Profil
   const [gameMetas, setGameMetas] = useState<Record<string, Partial<ProfileGame>>>({});
 
   const isOwnProfile = Boolean(
-    currentUser && (currentUser.id === initialProfile.id || currentUser.username.toLowerCase() === initialProfile.username.toLowerCase())
+    currentUser &&
+      (currentUser.id === initialProfile.id ||
+        currentUser.username.toLowerCase() === initialProfile.username.toLowerCase())
   );
 
   // If viewing own profile, prioritize freshest client auth state & localStorage
-  const profile: Profile = isOwnProfile && currentUser ? {
-    id: currentUser.id || initialProfile.id,
-    username: currentUser.username || initialProfile.username,
-    displayName: currentUser.displayName ?? initialProfile.displayName,
-    avatarUrl: currentUser.avatarUrl ?? initialProfile.avatarUrl,
-    bannerUrl: currentUser.bannerUrl ?? initialProfile.bannerUrl,
-    bio: currentUser.bio ?? initialProfile.bio,
-    socials: currentUser.socials ?? initialProfile.socials,
-    preferences: currentUser.preferences ?? initialProfile.preferences,
-    createdAt: (currentUser.createdAt ? String(currentUser.createdAt) : null) || initialProfile.createdAt
-  } : initialProfile;
+  const profile: Profile =
+    isOwnProfile && currentUser
+      ? {
+          id: currentUser.id || initialProfile.id,
+          username: currentUser.username || initialProfile.username,
+          displayName: currentUser.displayName ?? initialProfile.displayName,
+          avatarUrl: currentUser.avatarUrl ?? initialProfile.avatarUrl,
+          bannerUrl: currentUser.bannerUrl ?? initialProfile.bannerUrl,
+          bio: currentUser.bio ?? initialProfile.bio,
+          socials: currentUser.socials ?? initialProfile.socials,
+          preferences: currentUser.preferences ?? initialProfile.preferences,
+          createdAt:
+            (currentUser.createdAt ? String(currentUser.createdAt) : null) ||
+            initialProfile.createdAt
+        }
+      : initialProfile;
 
   useEffect(() => {
     const fetchLocalData = () => {
@@ -138,7 +155,7 @@ export function PublicProfileView({ profile: initialProfile }: { profile: Profil
   const reviewedSlugs = new Set(reviewedGames.map((g) => g.id));
 
   const statusGames: ProfileGame[] = Object.values(gameMetas)
-    .filter((m): m is ProfileGame => Boolean(m && m.id && m.title && !reviewedSlugs.has(m.id)))
+    .filter((m): m is ProfileGame => Boolean(m?.id && m.title && !reviewedSlugs.has(m.id)))
     .map((m) => ({
       id: m.id,
       title: m.title,
@@ -165,7 +182,7 @@ export function PublicProfileView({ profile: initialProfile }: { profile: Profil
     <div className="relative min-h-screen bg-[#08080a] font-geist-sans text-white selection:bg-white selection:text-black">
       {/* Subtle Background Matrix Texture */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_30%,#000_60%,transparent_100%)] opacity-70"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] opacity-70 [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_30%,#000_60%,transparent_100%)]"
         aria-hidden="true"
       />
 
@@ -215,11 +232,7 @@ export function PublicProfileView({ profile: initialProfile }: { profile: Profil
               )}
 
               {activeTab === 'reviews' && (
-                <ReviewsTab
-                  key="reviews"
-                  displayGames={displayGames}
-                  localReviews={localReviews}
-                />
+                <ReviewsTab key="reviews" displayGames={displayGames} localReviews={localReviews} />
               )}
 
               {activeTab === 'stats' && (

@@ -3,9 +3,8 @@
 import { BookmarkPlus, Gamepad2, Heart, ListPlus, Star, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-
-import type { ProfileGame } from '../types';
 import type { GameReview } from '@/lib/games';
+import type { ProfileGame } from '../types';
 
 type ActivityTabProps = {
   displayGames: ProfileGame[];
@@ -93,7 +92,7 @@ export function ActivityTab({ displayGames, displayName, localReviews = [] }: Ac
         </div>
         <Link
           href="/games"
-          className="mt-1 rounded-xl bg-white px-4 py-2 text-xs font-medium text-black transition-all hover:bg-zinc-200 active:scale-[0.96]"
+          className="mt-1 rounded-xl bg-white px-4 py-2 font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96]"
         >
           Explorar catálogo
         </Link>
@@ -124,14 +123,14 @@ export function ActivityTab({ displayGames, displayName, localReviews = [] }: Ac
                 <Icon className="size-4" strokeWidth={1.5} />
               </div>
 
-              <div className="space-y-0.5 text-xs text-left">
+              <div className="space-y-0.5 text-left text-xs">
                 <p className="text-zinc-300">
                   <span className="font-semibold text-white">{displayName}</span>{' '}
                   <span className="text-zinc-400">{config.actionText}</span>{' '}
                   {act.gameSlug ? (
                     <Link
                       href={`/games/${act.gameSlug}`}
-                      className="font-medium text-white hover:underline transition-colors"
+                      className="font-medium text-white transition-colors hover:underline"
                     >
                       {act.gameTitle}
                     </Link>
@@ -143,13 +142,15 @@ export function ActivityTab({ displayGames, displayName, localReviews = [] }: Ac
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex shrink-0 items-center gap-2.5">
               {act.platform && (
                 <span className="hidden rounded-md bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-zinc-400 ring-1 ring-white/[0.06] sm:inline-block">
                   {act.platform}
                 </span>
               )}
-              <span className="font-mono text-[11px] text-zinc-500 tabular-nums">{act.timeAgo}</span>
+              <span className="font-mono text-[11px] text-zinc-500 tabular-nums">
+                {act.timeAgo}
+              </span>
             </div>
           </div>
         );

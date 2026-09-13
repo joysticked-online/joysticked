@@ -123,7 +123,7 @@ function SwipeableCard({
       {/* Swipe Feedback Stamp: LIKE (Right) */}
       <motion.div
         style={{ opacity: likeOpacity }}
-        className="pointer-events-none absolute top-3.5 left-3.5 rotate-[-6deg] rounded-lg bg-white px-2.5 py-1 text-black font-semibold shadow-lg backdrop-blur-md"
+        className="pointer-events-none absolute top-3.5 left-3.5 rotate-[-6deg] rounded-lg bg-white px-2.5 py-1 font-semibold text-black shadow-lg backdrop-blur-md"
       >
         <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider">
           <ThumbsUp className="size-3" strokeWidth={2.5} />
@@ -134,7 +134,7 @@ function SwipeableCard({
       {/* Swipe Feedback Stamp: PASS (Left) */}
       <motion.div
         style={{ opacity: passOpacity }}
-        className="pointer-events-none absolute top-3.5 right-3.5 rotate-[6deg] rounded-lg bg-zinc-800/90 px-2.5 py-1 text-zinc-200 font-semibold ring-1 ring-white/15 backdrop-blur-md"
+        className="pointer-events-none absolute top-3.5 right-3.5 rotate-[6deg] rounded-lg bg-zinc-800/90 px-2.5 py-1 font-semibold text-zinc-200 ring-1 ring-white/15 backdrop-blur-md"
       >
         <div className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider">
           <ThumbsDown className="size-3" strokeWidth={2.5} />
@@ -150,7 +150,7 @@ function SwipeableCard({
           <span className="truncate">{game.developer}</span>
         </div>
 
-        <h3 className="mt-0.5 font-redaction font-medium text-lg text-white leading-snug tracking-tight">
+        <h3 className="mt-0.5 font-medium font-redaction text-lg text-white leading-snug tracking-tight">
           {game.title}
         </h3>
 
@@ -281,16 +281,15 @@ export function TinderCardDeck({
           transition={{ type: 'spring', duration: 0.28, bounce: 0 }}
           className="flex flex-col items-center gap-4 py-4 text-center"
         >
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white ring-1 ring-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]">
+          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] ring-1 ring-white/10">
             <Sparkles className="size-6 text-white" />
           </div>
 
           <div className="space-y-1">
-            <h3 className="font-redaction font-medium text-xl text-white">
-              Tudo pronto!
-            </h3>
+            <h3 className="font-medium font-redaction text-white text-xl">Tudo pronto!</h3>
             <p className="max-w-xs text-xs text-zinc-400 [text-wrap:pretty]">
-              {likedIds.length} título{likedIds.length !== 1 ? 's' : ''} salvo{likedIds.length !== 1 ? 's' : ''} nas suas preferências.
+              {likedIds.length} título{likedIds.length !== 1 ? 's' : ''} salvo
+              {likedIds.length !== 1 ? 's' : ''} nas suas preferências.
             </p>
           </div>
 
@@ -307,7 +306,7 @@ export function TinderCardDeck({
             <Button
               size="sm"
               onClick={() => onFinish(likedIds)}
-              className="h-9 rounded-xl bg-white px-4 text-xs font-medium text-black hover:bg-zinc-200 active:scale-[0.96]"
+              className="h-9 rounded-xl bg-white px-4 font-medium text-black text-xs hover:bg-zinc-200 active:scale-[0.96]"
             >
               <Check className="mr-1.5 size-3.5" strokeWidth={2.5} />
               Concluir

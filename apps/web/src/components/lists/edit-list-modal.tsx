@@ -1,10 +1,8 @@
 'use client';
 
-import { Check, Edit3, GripVertical, Sparkles, Trash2, X } from 'lucide-react';
+import { Edit3, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import type { Game } from '@/lib/games';
 import { type UserList, updateUserList } from '@/lib/lists';
 
 interface EditListModalProps {
@@ -14,7 +12,16 @@ interface EditListModalProps {
   onUpdate: (updatedList: UserList) => void;
 }
 
-const PRESET_TAGS = ['Favoritos', 'Platinas', 'Backlog', 'Indies', 'Souls-like', 'História', 'Co-op', 'Retrô'];
+const PRESET_TAGS = [
+  'Favoritos',
+  'Platinas',
+  'Backlog',
+  'Indies',
+  'Souls-like',
+  'História',
+  'Co-op',
+  'Retrô'
+];
 
 export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModalProps) {
   const [name, setName] = useState(list.name);
@@ -101,8 +108,12 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                   <Edit3 className="size-5 text-amber-400" />
                 </div>
                 <div>
-                  <h2 className="font-sans text-lg font-bold text-white tracking-tight">Editar Lista</h2>
-                  <p className="text-xs text-neutral-400">Atualize o título, descrição e categorias da coleção.</p>
+                  <h2 className="font-bold font-sans text-lg text-white tracking-tight">
+                    Editar Lista
+                  </h2>
+                  <p className="text-neutral-400 text-xs">
+                    Atualize o título, descrição e categorias da coleção.
+                  </p>
                 </div>
               </div>
 
@@ -118,14 +129,14 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
             {/* Form */}
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               {error && (
-                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3.5 py-2.5 text-xs text-rose-300">
+                <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-3.5 py-2.5 text-rose-300 text-xs">
                   {error}
                 </div>
               )}
 
               {/* List Name */}
               <div className="space-y-1.5">
-                <label htmlFor="edit-list-name" className="text-xs font-semibold text-neutral-300">
+                <label htmlFor="edit-list-name" className="font-semibold text-neutral-300 text-xs">
                   Nome da Lista <span className="text-rose-400">*</span>
                 </label>
                 <input
@@ -135,15 +146,14 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ex: Melhores RPGs da Geração"
                   maxLength={70}
-                  className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-xs text-white placeholder:text-neutral-500 outline-none transition-all hover:border-white/20 focus:border-white/30 focus:bg-white/[0.06]"
-                  autoFocus
+                  className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 text-white text-xs outline-none transition-all placeholder:text-neutral-500 hover:border-white/20 focus:border-white/30 focus:bg-white/[0.06]"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-1.5">
-                <label htmlFor="edit-list-desc" className="text-xs font-semibold text-neutral-300">
-                  Descrição <span className="text-neutral-500 font-normal">(opcional)</span>
+                <label htmlFor="edit-list-desc" className="font-semibold text-neutral-300 text-xs">
+                  Descrição <span className="font-normal text-neutral-500">(opcional)</span>
                 </label>
                 <textarea
                   id="edit-list-desc"
@@ -152,16 +162,16 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                   placeholder="Escreva uma breve introdução sobre os jogos escolhidos e o motivo do ranking..."
                   rows={3}
                   maxLength={300}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs text-white placeholder:text-neutral-500 outline-none transition-all hover:border-white/20 focus:border-white/30 focus:bg-white/[0.06]"
+                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-3 text-white text-xs outline-none transition-all placeholder:text-neutral-500 hover:border-white/20 focus:border-white/30 focus:bg-white/[0.06]"
                 />
               </div>
 
               {/* Preset Tags */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-semibold text-neutral-300 flex items-center justify-between">
+                <div className="flex items-center justify-between font-semibold text-neutral-300 text-xs">
                   <span>Tags da Coleção</span>
                   <span className="text-[10px] text-neutral-500">Máximo 4</span>
-                </label>
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   {PRESET_TAGS.map((tag) => {
                     const isSelected = selectedTags.includes(tag);
@@ -170,7 +180,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                         key={tag}
                         type="button"
                         onClick={() => toggleTag(tag)}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all active:scale-95 ${
+                        className={`rounded-lg px-2.5 py-1 font-medium text-xs transition-all active:scale-95 ${
                           isSelected
                             ? 'border border-amber-500/40 bg-amber-500/15 text-amber-300 shadow-sm'
                             : 'border border-white/[0.07] bg-white/[0.02] text-neutral-400 hover:border-white/20 hover:text-neutral-200'
@@ -186,8 +196,10 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
               {/* Visibility Toggle */}
               <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 pt-2 pb-2">
                 <div>
-                  <span className="font-semibold text-xs text-white">Lista Pública</span>
-                  <p className="text-[11px] text-neutral-400">Permitir que outros jogadores descubram e curtam sua lista</p>
+                  <span className="font-semibold text-white text-xs">Lista Pública</span>
+                  <p className="text-[11px] text-neutral-400">
+                    Permitir que outros jogadores descubram e curtam sua lista
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -209,14 +221,14 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 font-semibold text-neutral-300 text-xs transition-colors hover:bg-white/[0.06] hover:text-white"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !name.trim()}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-xs font-bold text-black shadow-lg transition-all hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.96]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2 font-bold text-black text-xs shadow-lg transition-all hover:bg-neutral-200 active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
                 </button>

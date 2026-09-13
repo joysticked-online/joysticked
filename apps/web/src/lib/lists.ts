@@ -268,7 +268,9 @@ export function getListByUserAndSlug(username: string, listSlug: string): UserLi
   if (found) return found;
 
   // Fallback: match by slug only (e.g. curated list or direct link)
-  const bySlugOnly = all.find((l) => l.slug.toLowerCase() === normalizedSlug || l.id === normalizedSlug);
+  const bySlugOnly = all.find(
+    (l) => l.slug.toLowerCase() === normalizedSlug || l.id === normalizedSlug
+  );
   return bySlugOnly || null;
 }
 
@@ -282,12 +284,13 @@ export function createCustomList(params: {
   tags?: string[];
   initialGames?: Game[];
 }): UserList {
-  const slug = params.name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '') || `lista-${Date.now()}`;
+  const slug =
+    params.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '') || `lista-${Date.now()}`;
 
   const games = params.initialGames || [];
 
@@ -299,7 +302,8 @@ export function createCustomList(params: {
     ownerUsername: params.ownerUsername,
     ownerDisplayName: params.ownerDisplayName || params.ownerUsername,
     ownerAvatarUrl:
-      params.ownerAvatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${params.ownerUsername}`,
+      params.ownerAvatarUrl ||
+      `https://api.dicebear.com/7.x/bottts/svg?seed=${params.ownerUsername}`,
     isPublic: params.isPublic ?? true,
     coverUrl: games[0]?.coverUrl || null,
     games,
@@ -358,15 +362,16 @@ export function addGameToUserList(listId: string, game: Game): UserList | null {
   return null;
 }
 
-export function removeGameFromUserList(listId: string, gameSlugOrId: string | number): UserList | null {
+export function removeGameFromUserList(
+  listId: string,
+  gameSlugOrId: string | number
+): UserList | null {
   const stored = getLocalStoredLists();
   const index = stored.findIndex((l) => l.id === listId || l.slug === listId);
 
   if (index >= 0) {
     const list = stored[index];
-    const updatedGames = list.games.filter(
-      (g) => g.slug !== gameSlugOrId && g.id !== gameSlugOrId
-    );
+    const updatedGames = list.games.filter((g) => g.slug !== gameSlugOrId && g.id !== gameSlugOrId);
     const updatedList: UserList = {
       ...list,
       games: updatedGames,
@@ -445,7 +450,10 @@ export function isListLiked(listId: string): boolean {
   }
 }
 
-export function toggleLikeList(listId: string, currentCount: number): { isLiked: boolean; likesCount: number } {
+export function toggleLikeList(
+  listId: string,
+  currentCount: number
+): { isLiked: boolean; likesCount: number } {
   if (typeof window === 'undefined') return { isLiked: false, likesCount: currentCount };
   try {
     const raw = localStorage.getItem(LIKES_STORAGE_KEY);

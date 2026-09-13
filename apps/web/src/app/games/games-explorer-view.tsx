@@ -461,7 +461,7 @@ function ExplorerContent({
               >
                 <SlidersHorizontal className="size-4.5" />
                 {activeFilterCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
+                  <span className="-top-1 -right-1 absolute flex size-4 items-center justify-center rounded-full bg-white font-bold text-[10px] text-black ring-2 ring-[#0a0a0a]">
                     {activeFilterCount}
                   </span>
                 )}

@@ -1,9 +1,8 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Check, ChevronRight, Gamepad2, Layers, Loader2, Sparkles, User } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -109,7 +108,7 @@ export function OnboardingFlow({
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, refetch } = useAuth();
+  const { user } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [username, setUsername] = useState('');
@@ -132,7 +131,11 @@ export function OnboardingFlow({
       if (user.username && !user.username.startsWith('user_')) {
         setUsername(user.username);
       }
-      if (user.displayName && user.displayName !== 'Dev Gamer' && user.displayName !== 'Novo Jogador') {
+      if (
+        user.displayName &&
+        user.displayName !== 'Dev Gamer' &&
+        user.displayName !== 'Novo Jogador'
+      ) {
         setDisplayName(user.displayName);
       }
     } else if (typeof window !== 'undefined') {
@@ -167,7 +170,8 @@ export function OnboardingFlow({
     setIsSubmitting(true);
 
     try {
-      const currentStored = typeof window !== 'undefined' ? localStorage.getItem('joysticked_session_user') : null;
+      const currentStored =
+        typeof window !== 'undefined' ? localStorage.getItem('joysticked_session_user') : null;
       let effectiveUser = user;
       if (!effectiveUser && currentStored) {
         try {
@@ -175,7 +179,10 @@ export function OnboardingFlow({
         } catch {}
       }
 
-      const finalUsername = username.trim().toLowerCase() || effectiveUser?.username || `player_${Date.now().toString().slice(-4)}`;
+      const finalUsername =
+        username.trim().toLowerCase() ||
+        effectiveUser?.username ||
+        `player_${Date.now().toString().slice(-4)}`;
       const finalDisplayName = displayName.trim() || finalUsername;
       const gamesToSave = finalLikedIds || likedGameIds;
 
@@ -293,7 +300,7 @@ export function OnboardingFlow({
           })}
         </div>
 
-        <div className="w-8 text-right font-mono text-[11px] tabular-nums text-zinc-500">
+        <div className="w-8 text-right font-mono text-[11px] text-zinc-500 tabular-nums">
           {currentStep}/{totalSteps}
         </div>
       </header>
@@ -314,20 +321,20 @@ export function OnboardingFlow({
             >
               {/* Dynamic Avatar Preview */}
               <motion.div custom={dir} variants={itemVariants} className="relative mt-1">
-                <div className="relative size-16 overflow-hidden rounded-2xl bg-white/[0.05] p-1.5 ring-1 ring-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]">
+                <div className="relative size-16 overflow-hidden rounded-2xl bg-white/[0.05] p-1.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] ring-1 ring-white/10">
                   <img
                     src={previewAvatarUrl}
                     alt="Avatar"
                     className="size-full rounded-xl object-cover"
                   />
                 </div>
-                <div className="absolute -bottom-1 -right-1 rounded-md bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold text-black uppercase tracking-wider">
+                <div className="-bottom-1 -right-1 absolute rounded-md bg-white px-1.5 py-0.5 font-bold font-mono text-[9px] text-black uppercase tracking-wider">
                   BETA
                 </div>
               </motion.div>
 
               <motion.div custom={dir} variants={itemVariants} className="space-y-1">
-                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance]">
                   Criar sua identidade
                 </h1>
                 <p className="text-xs text-zinc-400 [text-wrap:pretty]">
@@ -335,11 +342,15 @@ export function OnboardingFlow({
                 </p>
               </motion.div>
 
-              <motion.div custom={dir} variants={itemVariants} className="w-full space-y-3.5 text-left">
+              <motion.div
+                custom={dir}
+                variants={itemVariants}
+                className="w-full space-y-3.5 text-left"
+              >
                 <div className="space-y-1.5">
                   <label
                     htmlFor="displayName"
-                    className="block text-[11px] font-medium text-zinc-400"
+                    className="block font-medium text-[11px] text-zinc-400"
                   >
                     Nome de exibição
                   </label>
@@ -348,13 +359,16 @@ export function OnboardingFlow({
                     placeholder="Ex: Pedro Henrique"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
+                    className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30 sm:text-xs"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="username" className="block text-[11px] font-medium text-zinc-400">
+                    <label
+                      htmlFor="username"
+                      className="block font-medium text-[11px] text-zinc-400"
+                    >
                       Nome de usuário (@handle)
                     </label>
                     <span className="font-mono text-[10px] text-zinc-500">
@@ -372,7 +386,7 @@ export function OnboardingFlow({
                       onChange={(e) =>
                         setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))
                       }
-                      className="h-11 rounded-xl border-0 bg-white/[0.03] pl-8 pr-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
+                      className="h-11 rounded-xl border-0 bg-white/[0.03] pr-3.5 pl-8 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30 sm:text-xs"
                     />
                   </div>
                 </div>
@@ -405,7 +419,7 @@ export function OnboardingFlow({
               className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
             >
               <motion.div custom={dir} variants={itemVariants} className="space-y-1">
-                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance]">
                   Onde você joga?
                 </h1>
                 <p className="text-xs text-zinc-400 [text-wrap:pretty]">
@@ -429,26 +443,22 @@ export function OnboardingFlow({
                       className={cn(
                         'flex items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-all duration-150 active:scale-[0.97]',
                         isSelected
-                          ? 'bg-white text-black ring-0 shadow-[0_1px_3px_rgba(0,0,0,0.3)]'
+                          ? 'bg-white text-black shadow-[0_1px_3px_rgba(0,0,0,0.3)] ring-0'
                           : 'bg-white/[0.03] text-zinc-300 ring-1 ring-white/[0.08] hover:bg-white/[0.06]'
                       )}
                     >
                       <div className="flex items-center gap-3">
                         <span
                           className={cn(
-                            'flex size-7 items-center justify-center rounded-lg font-mono text-[10px] font-bold',
-                            isSelected
-                              ? 'bg-black text-white'
-                              : 'bg-white/[0.06] text-zinc-400'
+                            'flex size-7 items-center justify-center rounded-lg font-bold font-mono text-[10px]',
+                            isSelected ? 'bg-black text-white' : 'bg-white/[0.06] text-zinc-400'
                           )}
                         >
                           {platform.iconTag}
                         </span>
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-xs">
-                              {platform.name}
-                            </span>
+                            <span className="font-medium text-xs">{platform.name}</span>
                             <span
                               className={cn(
                                 'font-mono text-[9px] uppercase tracking-wider',
@@ -472,9 +482,7 @@ export function OnboardingFlow({
                       <div
                         className={cn(
                           'flex size-4.5 items-center justify-center rounded-full transition-colors',
-                          isSelected
-                            ? 'bg-black text-white'
-                            : 'bg-white/10 text-transparent'
+                          isSelected ? 'bg-black text-white' : 'bg-white/10 text-transparent'
                         )}
                       >
                         {isSelected && <Check className="size-3" strokeWidth={2.5} />}
@@ -490,7 +498,8 @@ export function OnboardingFlow({
                   onClick={() => goToStep(3)}
                   className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
-                  Continuar ({selectedPlatforms.length} selecionada{selectedPlatforms.length !== 1 ? 's' : ''})
+                  Continuar ({selectedPlatforms.length} selecionada
+                  {selectedPlatforms.length !== 1 ? 's' : ''})
                 </Button>
               </motion.div>
             </motion.div>
@@ -508,7 +517,7 @@ export function OnboardingFlow({
               className="flex w-full max-w-sm flex-col items-center gap-4 text-center"
             >
               <motion.div custom={dir} variants={itemVariants} className="space-y-1">
-                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance]">
                   Gêneros favoritos
                 </h1>
                 <p className="text-xs text-zinc-400 [text-wrap:pretty]">
@@ -530,9 +539,9 @@ export function OnboardingFlow({
                       type="button"
                       onClick={() => toggleGenre(genre)}
                       className={cn(
-                        'rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150 active:scale-[0.96]',
+                        'rounded-full px-3.5 py-1.5 font-medium text-xs transition-all duration-150 active:scale-[0.96]',
                         isSelected
-                          ? 'bg-white text-black ring-0 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                          ? 'bg-white text-black shadow-[0_1px_2px_rgba(0,0,0,0.3)] ring-0'
                           : 'bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.08] hover:text-white'
                       )}
                     >
@@ -548,7 +557,8 @@ export function OnboardingFlow({
                   onClick={() => goToStep(4)}
                   className="h-11 w-full rounded-xl bg-white font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96] disabled:opacity-50"
                 >
-                  Continuar ({selectedGenres.length} escolhido{selectedGenres.length !== 1 ? 's' : ''})
+                  Continuar ({selectedGenres.length} escolhido
+                  {selectedGenres.length !== 1 ? 's' : ''})
                 </Button>
               </motion.div>
             </motion.div>
@@ -566,7 +576,7 @@ export function OnboardingFlow({
               className="flex w-full max-w-xs flex-col items-center gap-3 text-center"
             >
               <motion.div custom={dir} variants={itemVariants} className="space-y-0.5">
-                <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance]">
                   Descobrir &amp; Calibrar
                 </h1>
                 <p className="text-xs text-zinc-400 [text-wrap:pretty]">
@@ -631,9 +641,9 @@ export function OnboardingFlow({
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#08080a] p-4 selection:bg-white selection:text-black">
       {/* Background Matrix */}
-      <div 
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,#000_70%,transparent_100%)] opacity-80" 
-        aria-hidden="true" 
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] opacity-80 [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,#000_70%,transparent_100%)]"
+        aria-hidden="true"
       />
 
       <div className="relative z-10 w-full max-w-md overflow-hidden rounded-[26px] bg-[#111114]/95 p-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] ring-1 ring-white/[0.08] backdrop-blur-2xl sm:p-4">

@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { CreateListModal } from '@/components/lists/create-list-modal';
-import { type UserList, getUserLists } from '@/lib/lists';
+import { getUserLists } from '@/lib/lists';
 import type { ProfileGame } from '../types';
 
 type ListsTabProps = {
@@ -17,7 +17,11 @@ type ListsTabProps = {
   isOwnProfile?: boolean;
 };
 
-export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile = false }: ListsTabProps) {
+export function ListsTab({
+  displayGames: _displayGames = [],
+  username = 'jogador',
+  isOwnProfile = false
+}: ListsTabProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const lists = useMemo(() => {
@@ -47,7 +51,7 @@ export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 font-medium text-xs text-black transition-all hover:bg-zinc-200 active:scale-[0.96]"
+              className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 font-medium text-black text-xs transition-all hover:bg-zinc-200 active:scale-[0.96]"
             >
               <Plus className="size-3.5" />
               <span>Criar primeira lista</span>
@@ -75,7 +79,7 @@ export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-white/[0.08]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 font-semibold text-white text-xs transition-all hover:bg-white/[0.08]"
             >
               <Plus className="size-3.5" />
               <span>Nova Lista</span>
@@ -88,7 +92,7 @@ export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile
             <Link
               key={list.id}
               href={`/list?user=${list.ownerUsername}&listname=${list.slug}`}
-              className="group block space-y-3 rounded-2xl bg-white/[0.02] p-5 ring-1 ring-white/[0.05] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] transition-all hover:bg-white/[0.04] hover:ring-white/[0.1]"
+              className="group block space-y-3 rounded-2xl bg-white/[0.02] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.05] transition-all hover:bg-white/[0.04] hover:ring-white/[0.1]"
             >
               <div className="flex items-center justify-between">
                 <span className="rounded-md bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-zinc-400 ring-1 ring-white/[0.06]">
@@ -99,11 +103,11 @@ export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile
                 </span>
               </div>
               <div>
-                <h3 className="font-sans text-lg font-bold text-white tracking-tight group-hover:underline">
+                <h3 className="font-bold font-sans text-lg text-white tracking-tight group-hover:underline">
                   {list.name}
                 </h3>
                 {list.description && (
-                  <p className="mt-0.5 text-xs text-zinc-400 leading-relaxed [text-wrap:pretty] line-clamp-2">
+                  <p className="mt-0.5 line-clamp-2 text-xs text-zinc-400 leading-relaxed [text-wrap:pretty]">
                     {list.description}
                   </p>
                 )}
@@ -112,7 +116,7 @@ export function ListsTab({ displayGames = [], username = 'jogador', isOwnProfile
                 {list.games.slice(0, 5).map((g, i) => (
                   <div
                     key={`${g.id || g.slug}-${i}`}
-                    className="relative size-11 overflow-hidden rounded-xl bg-neutral-800 ring-2 ring-[#08080a] shadow-md"
+                    className="relative size-11 overflow-hidden rounded-xl bg-neutral-800 shadow-md ring-2 ring-[#08080a]"
                   >
                     {g.coverUrl && (
                       <Image

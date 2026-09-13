@@ -16,12 +16,12 @@ import {
   X
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/use-auth';
-import { type Game, type GameReview, submitGameReview, deleteGameReview } from '@/lib/games';
 import { PixelHeart } from '@/components/landing/pixel-heart';
+import { useAuth } from '@/hooks/use-auth';
+import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -64,7 +64,7 @@ function TopScreenRating({
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#050505] p-3.5 shadow-inner sm:p-4">
       {/* Scanline CRT Ambient Background */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-30 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.2),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.2),transparent_70%)] opacity-30" />
       <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_50%,rgba(0,0,0,0.25)_50%)] bg-[size:100%_4px]" />
 
       {/* Game Header */}
@@ -83,9 +83,10 @@ function TopScreenRating({
         {/* Game Title & Details */}
         <div className="min-w-0 flex-1">
           <span className="font-mono text-[10px] text-neutral-400">
-            {game.developer || game.publisher || 'Jogo'} {game.releaseYear ? `• ${game.releaseYear}` : ''}
+            {game.developer || game.publisher || 'Jogo'}{' '}
+            {game.releaseYear ? `• ${game.releaseYear}` : ''}
           </span>
-          <h3 className="truncate font-sans text-base sm:text-lg font-bold tracking-tight text-white">
+          <h3 className="truncate font-bold font-sans text-base text-white tracking-tight sm:text-lg">
             {game.name}
           </h3>
         </div>
@@ -93,7 +94,7 @@ function TopScreenRating({
         {/* Score Pill in Top Right */}
         <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/[0.1] px-3 py-1">
           <PixelHeart size={14} variant="full" color="#EF4444" />
-          <span className="font-mono text-base font-bold text-white tracking-tight">
+          <span className="font-bold font-mono text-base text-white tracking-tight">
             {activeRating.toFixed(1)}
           </span>
           <span className="font-mono text-[11px] text-neutral-500">/ 5.0</span>
@@ -102,7 +103,7 @@ function TopScreenRating({
 
       {/* The 5 Red 8-Bit Pixel Hearts */}
       <div
-        className="relative z-10 mt-3 flex items-center justify-center gap-2 select-none py-1.5 sm:gap-3"
+        className="relative z-10 mt-3 flex select-none items-center justify-center gap-2 py-1.5 sm:gap-3"
         onMouseLeave={() => setHoverRating(null)}
       >
         {[1, 2, 3, 4, 5].map((heartIndex) => {
@@ -111,8 +112,8 @@ function TopScreenRating({
           const currentVariant: 'full' | 'half' | 'empty' = isFull
             ? 'full'
             : isHalf
-            ? 'half'
-            : 'empty';
+              ? 'half'
+              : 'empty';
 
           const isFocusedHeart =
             hoverRating !== null &&
@@ -124,8 +125,8 @@ function TopScreenRating({
             <div
               key={heartIndex}
               style={isFilled ? { filter: 'drop-shadow(0 0 8px rgba(239,68,68,0.8))' } : undefined}
-              className={`relative cursor-pointer p-1 select-none transition-transform duration-[50ms] ease-out will-change-transform ${
-                isFocusedHeart ? 'scale-110 -translate-y-px' : 'scale-100'
+              className={`relative cursor-pointer select-none p-1 transition-transform duration-[50ms] ease-out will-change-transform ${
+                isFocusedHeart ? '-translate-y-px scale-110' : 'scale-100'
               }`}
             >
               <PixelHeart
@@ -136,18 +137,18 @@ function TopScreenRating({
               />
 
               {/* Exact Split Hitboxes for Half (x.5) and Full (x.0) */}
-              <div className="absolute inset-0 flex z-20">
+              <div className="absolute inset-0 z-20 flex">
                 <button
                   type="button"
                   aria-label={`${heartIndex - 0.5} corações`}
-                  className="w-1/2 h-full cursor-pointer focus:outline-hidden"
+                  className="h-full w-1/2 cursor-pointer focus:outline-hidden"
                   onMouseEnter={() => setHoverRating(heartIndex - 0.5)}
                   onClick={() => onRatingChange(heartIndex - 0.5)}
                 />
                 <button
                   type="button"
                   aria-label={`${heartIndex} corações`}
-                  className="w-1/2 h-full cursor-pointer focus:outline-hidden"
+                  className="h-full w-1/2 cursor-pointer focus:outline-hidden"
                   onMouseEnter={() => setHoverRating(heartIndex)}
                   onClick={() => onRatingChange(heartIndex)}
                 />
@@ -328,7 +329,9 @@ export function GameReviewModal({
             title: game.name,
             coverUrl: game.coverUrl || game.bannerUrl || existingMeta.coverUrl || '',
             backdropUrl: game.bannerUrl || existingMeta.backdropUrl || '',
-            year: game.firstReleaseDate ? new Date(game.firstReleaseDate).getFullYear().toString() : existingMeta.year || '',
+            year: game.firstReleaseDate
+              ? new Date(game.firstReleaseDate).getFullYear().toString()
+              : existingMeta.year || '',
             developer: game.developer || existingMeta.developer || '',
             genres: game.genres || existingMeta.genres || [],
             status: existingMeta.status || 'Jogado',
@@ -338,7 +341,9 @@ export function GameReviewModal({
           localStorage.setItem(`game_meta_${game.slug}`, JSON.stringify(gameMeta));
 
           window.dispatchEvent(new Event('storage'));
-          window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: updatedReview }));
+          window.dispatchEvent(
+            new CustomEvent('joysticked:review-updated', { detail: updatedReview })
+          );
         } catch {}
       }
 
@@ -379,7 +384,11 @@ export function GameReviewModal({
         const filtered = list.filter((r) => r.id !== initialReview.id);
         localStorage.setItem(`local_reviews_${game.slug}`, JSON.stringify(filtered));
         window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: { id: initialReview.id, deleted: true } }));
+        window.dispatchEvent(
+          new CustomEvent('joysticked:review-updated', {
+            detail: { id: initialReview.id, deleted: true }
+          })
+        );
       } catch {}
     }
     onReviewDeleted?.(initialReview.id);
@@ -408,14 +417,14 @@ export function GameReviewModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className="scrollbar-none relative z-10 max-h-[92vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-[32px] border-2 border-white/15 bg-[#0C0C0C] p-3 sm:p-4.5 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(239,68,68,0.12)]"
+            className="scrollbar-none relative z-10 max-h-[92vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-[32px] border-2 border-white/15 bg-[#0C0C0C] p-3 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(239,68,68,0.12)] sm:p-4.5"
           >
             {/* Top Console Shoulder Bar: [L] Bumper, Power LED & [R] Close Bumper */}
             <div className="relative mb-2.5 flex select-none items-center justify-between px-1">
               {/* [ L ] Bumper */}
-              <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] font-bold text-neutral-400">
+              <div className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 font-bold font-mono text-[10px] text-neutral-400">
                 <span className="text-white">L</span>
-                <span className="text-neutral-500">//</span>
+                <span className="text-neutral-500">{'//'}</span>
                 <span>REVIEW</span>
               </div>
 
@@ -425,7 +434,7 @@ export function GameReviewModal({
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
                 </span>
-                <span className="font-mono text-[10px] font-bold text-neutral-400 tracking-wider">
+                <span className="font-bold font-mono text-[10px] text-neutral-400 tracking-wider">
                   JOYSTICKED-3DS
                 </span>
               </div>
@@ -446,10 +455,10 @@ export function GameReviewModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="group flex cursor-pointer select-none items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] font-bold text-neutral-300 transition-colors hover:border-white/30 hover:bg-white/[0.08] hover:text-white"
+                  className="group flex cursor-pointer select-none items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 font-bold font-mono text-[10px] text-neutral-300 transition-colors hover:border-white/30 hover:bg-white/[0.08] hover:text-white"
                 >
                   <span>FECHAR</span>
-                  <span className="text-neutral-500">//</span>
+                  <span className="text-neutral-500">{'//'}</span>
                   <span className="text-white">R</span>
                   <X className="size-3 transition-transform group-hover:rotate-90" />
                 </button>
@@ -466,7 +475,7 @@ export function GameReviewModal({
                ========================================================================= */}
             <div className="relative my-2.5 flex select-none items-center justify-between px-2">
               <div className="h-1.5 w-8 rounded-full border border-white/15 bg-neutral-800" />
-              <div className="h-0.5 w-full mx-3 bg-white/[0.08]" />
+              <div className="mx-3 h-0.5 w-full bg-white/[0.08]" />
               <div className="h-1.5 w-8 rounded-full border border-white/15 bg-neutral-800" />
             </div>
 
@@ -474,7 +483,7 @@ export function GameReviewModal({
                 BOTTOM SCREEN: Touch Screen / Action Deck
                ========================================================================= */}
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="relative rounded-2xl border border-white/15 bg-[#080808] p-3.5 sm:p-4 shadow-inner">
+              <div className="relative rounded-2xl border border-white/15 bg-[#080808] p-3.5 shadow-inner sm:p-4">
                 {/* Touch Screen Dot-Matrix Texture */}
                 <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] bg-[size:16px_16px]" />
 
@@ -482,7 +491,7 @@ export function GameReviewModal({
                   {/* Platforms (Strictly from game.platforms) */}
                   {game.platforms && game.platforms.length > 0 && (
                     <div>
-                      <span className="mb-1.5 block font-mono text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                      <span className="mb-1.5 block font-bold font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
                         Plataforma jogada
                       </span>
                       <div className="flex flex-wrap gap-1">
@@ -511,7 +520,7 @@ export function GameReviewModal({
                   {/* Custom User Tags (User can add tags freely) */}
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5 font-bold font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
                         <Tag className="size-3 text-red-400" />
                         <span>Tags da sua resenha</span>
                       </div>
@@ -538,7 +547,7 @@ export function GameReviewModal({
                       <button
                         type="button"
                         onClick={handleAddTag}
-                        className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-2.5 font-mono text-xs text-neutral-300 transition-colors hover:bg-white/10 hover:text-white"
+                        className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-2.5 font-mono text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white"
                       >
                         <Plus className="size-3.5" />
                         <span>Adicionar</span>
@@ -557,7 +566,7 @@ export function GameReviewModal({
                             <button
                               type="button"
                               onClick={() => handleRemoveTag(tag)}
-                              className="cursor-pointer text-red-400 hover:text-white transition-colors"
+                              className="cursor-pointer text-red-400 transition-colors hover:text-white"
                             >
                               <X className="size-3" />
                             </button>
@@ -570,7 +579,7 @@ export function GameReviewModal({
                   {/* Playtime Input */}
                   <div>
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-mono text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                      <span className="font-bold font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
                         Tempo de jogo (opcional)
                       </span>
                       {/* Presets */}
@@ -605,7 +614,7 @@ export function GameReviewModal({
                     <div className="mb-1 flex items-center justify-between">
                       <label
                         htmlFor="modal-review-text"
-                        className="font-mono text-[10px] font-bold text-neutral-400 uppercase tracking-wider"
+                        className="font-bold font-mono text-[10px] text-neutral-400 uppercase tracking-wider"
                       >
                         Sua opinião
                       </label>
@@ -630,9 +639,9 @@ export function GameReviewModal({
                         type="checkbox"
                         checked={containsSpoiler}
                         onChange={(e) => setContainsSpoiler(e.target.checked)}
-                        className="size-3.5 accent-amber-400 cursor-pointer"
+                        className="size-3.5 cursor-pointer accent-amber-400"
                       />
-                      <AlertTriangle className="size-3.5 text-amber-400 shrink-0" />
+                      <AlertTriangle className="size-3.5 shrink-0 text-amber-400" />
                       <span className="font-mono text-[11px] text-amber-200">
                         Esta resenha contém spoilers
                       </span>
@@ -646,8 +655,8 @@ export function GameReviewModal({
                 {/* Micro D-Pad Graphic Accent */}
                 <div className="flex items-center gap-2 font-mono text-[9px] text-neutral-600">
                   <div className="relative size-5 opacity-30">
-                    <div className="absolute inset-x-1.5 inset-y-0 bg-white rounded-xs" />
-                    <div className="absolute inset-y-1.5 inset-x-0 bg-white rounded-xs" />
+                    <div className="absolute inset-x-1.5 inset-y-0 rounded-xs bg-white" />
+                    <div className="absolute inset-x-0 inset-y-1.5 rounded-xs bg-white" />
                   </div>
                   <span className="hidden sm:inline">JOYSTICKED-SYS</span>
                 </div>
@@ -660,7 +669,7 @@ export function GameReviewModal({
                     className="inline-flex h-8.5 cursor-pointer items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3.5 font-mono text-neutral-400 text-xs transition-colors hover:bg-white/10 hover:text-white"
                   >
                     <span>CANCELAR</span>
-                    <span className="text-neutral-600 font-bold text-[10px]">[SELECT]</span>
+                    <span className="font-bold text-[10px] text-neutral-600">[SELECT]</span>
                   </button>
 
                   <motion.button
@@ -668,17 +677,11 @@ export function GameReviewModal({
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex h-8.5 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-5 font-mono text-xs font-bold text-black shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:bg-neutral-200 disabled:opacity-50"
+                    className="inline-flex h-8.5 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-5 font-bold font-mono text-black text-xs shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all hover:bg-neutral-200 disabled:opacity-50"
                   >
                     <PixelHeart size={12} variant="full" color="#EF4444" />
-                    <span>
-                      {isSubmitting
-                        ? 'SALVANDO...'
-                        : isEditing
-                        ? 'SALVAR'
-                        : 'PUBLICAR'}
-                    </span>
-                    <span className="rounded bg-black/10 px-1 py-0.2 font-mono text-[9px] font-bold text-black/70">
+                    <span>{isSubmitting ? 'SALVANDO...' : isEditing ? 'SALVAR' : 'PUBLICAR'}</span>
+                    <span className="rounded bg-black/10 px-1 py-0.2 font-bold font-mono text-[9px] text-black/70">
                       START
                     </span>
                     <Send className="size-3 text-black" />

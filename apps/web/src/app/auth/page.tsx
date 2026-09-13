@@ -1,7 +1,16 @@
 'use client';
 
 import { useForm } from '@tanstack/react-form';
-import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Mail, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  Loader2,
+  Mail,
+  RefreshCw,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -39,10 +48,12 @@ function AuthContent() {
       try {
         localStorage.clear();
         document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie =
+          'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie =
+          'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         toast.info('Sessão local redefinida.');
-      } catch { }
+      } catch {}
     }
   }, [searchParams]);
 
@@ -96,26 +107,26 @@ function AuthContent() {
   const discordAuthUrl = `${env.NEXT_PUBLIC_API_URL}/auth/discord`;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-[#08080a] px-4 py-6 font-geist-sans text-white sm:px-6 sm:py-8 selection:bg-white selection:text-black">
+    <div className="relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-[#08080a] px-4 py-6 font-geist-sans text-white selection:bg-white selection:text-black sm:px-6 sm:py-8">
       {/* Subtle Retro Dot Matrix Background */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,#000_70%,transparent_100%)] opacity-80"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] opacity-80 [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_45%,#000_70%,transparent_100%)]"
         aria-hidden="true"
       />
 
       {/* Top Header / Navigation */}
-      <header className="relative z-10 flex w-full items-center justify-between mx-auto max-w-5xl">
+      <header className="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between">
         <Link
           href="/"
           className="group inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-zinc-400 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white active:scale-[0.96]"
         >
-          <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+          <ArrowLeft className="group-hover:-translate-x-0.5 size-3.5 transition-transform" />
           <span>Voltar ao início</span>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono uppercase tracking-wider text-zinc-400 ring-1 ring-white/[0.06]">
-            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.03] px-2.5 py-1 font-mono text-[11px] text-zinc-400 uppercase tracking-wider ring-1 ring-white/[0.06]">
+            <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
             Beta v0.9
           </span>
         </div>
@@ -128,7 +139,7 @@ function AuthContent() {
           <Link href="/" className="transition-opacity hover:opacity-90 active:scale-[0.96]">
             <Logos.Joysticked className="h-7 w-auto" />
           </Link>
-          <p className="max-w-[280px] text-xs leading-relaxed text-zinc-400 [text-wrap:pretty]">
+          <p className="max-w-[280px] text-xs text-zinc-400 leading-relaxed [text-wrap:pretty]">
             O diário definitivo para catalogar, avaliar e compartilhar suas jornadas nos games.
           </p>
         </div>
@@ -147,19 +158,17 @@ function AuthContent() {
                 className="flex flex-col gap-5"
               >
                 <div className="flex flex-col gap-1 text-center">
-                  <h1 className="font-redaction text-2xl font-medium tracking-tight text-white [text-wrap:balance]">
+                  <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance]">
                     Entrar na sua conta
                   </h1>
-                  <p className="text-xs text-zinc-400">
-                    Escolha como deseja se autenticar:
-                  </p>
+                  <p className="text-xs text-zinc-400">Escolha como deseja se autenticar:</p>
                 </div>
 
                 {/* Social Login Options */}
                 <div className="flex flex-col gap-2.5 pt-1">
                   <a
                     href={googleAuthUrl}
-                    className="group relative inline-flex h-11 w-full items-center justify-between rounded-xl bg-white/[0.04] px-4 font-medium text-xs text-white ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:ring-white/[0.16] active:scale-[0.96]"
+                    className="group relative inline-flex h-11 w-full items-center justify-between rounded-xl bg-white/[0.04] px-4 font-medium text-white text-xs ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:ring-white/[0.16] active:scale-[0.96]"
                   >
                     <div className="flex items-center gap-3">
                       <Logos.Google className="size-4 shrink-0" />
@@ -170,7 +179,7 @@ function AuthContent() {
 
                   <a
                     href={discordAuthUrl}
-                    className="group relative inline-flex h-11 w-full items-center justify-between rounded-xl bg-white/[0.04] px-4 font-medium text-xs text-white ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:ring-white/[0.16] active:scale-[0.96]"
+                    className="group relative inline-flex h-11 w-full items-center justify-between rounded-xl bg-white/[0.04] px-4 font-medium text-white text-xs ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:ring-white/[0.16] active:scale-[0.96]"
                   >
                     <div className="flex items-center gap-3">
                       <Logos.Discord className="size-4 shrink-0 text-[#5865F2]" />
@@ -182,8 +191,8 @@ function AuthContent() {
 
                 {/* Clean Hairline Separator */}
                 <div className="relative flex items-center justify-center py-1">
-                  <div className="w-full border-t border-white/[0.06]" />
-                  <span className="absolute bg-[#111114] px-3 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+                  <div className="w-full border-white/[0.06] border-t" />
+                  <span className="absolute bg-[#111114] px-3 font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
                     ou com e-mail direto
                   </span>
                 </div>
@@ -209,7 +218,10 @@ function AuthContent() {
                   >
                     {(field) => (
                       <div className="space-y-1.5">
-                        <label htmlFor="auth-email" className="block text-[11px] font-medium text-zinc-400">
+                        <label
+                          htmlFor="auth-email"
+                          className="block font-medium text-[11px] text-zinc-400"
+                        >
                           Endereço de e-mail
                         </label>
                         <div className="relative">
@@ -221,7 +233,7 @@ function AuthContent() {
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
-                            className="h-11 rounded-xl border-0 bg-white/[0.03] pl-10 pr-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
+                            className="h-11 rounded-xl border-0 bg-white/[0.03] pr-3.5 pl-10 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30 sm:text-xs"
                             aria-invalid={
                               field.state.meta.isTouched && field.state.meta.errors.length > 0
                             }
@@ -261,18 +273,21 @@ function AuthContent() {
                 </form>
 
                 {/* Local Dev Utility Option */}
-                <div className="border-t border-white/[0.06] pt-3 text-center">
+                <div className="border-white/[0.06] border-t pt-3 text-center">
                   <button
                     type="button"
                     onClick={() => {
                       localStorage.clear();
-                      document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                      document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                      document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                      document.cookie =
+                        'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                      document.cookie =
+                        'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                      document.cookie =
+                        'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                       toast.success('Cache local limpo.');
                       window.location.reload();
                     }}
-                    className="font-mono text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors active:scale-[0.96]"
+                    className="font-mono text-[10px] text-zinc-500 transition-colors hover:text-zinc-300 active:scale-[0.96]"
                   >
                     [Redefinir sessão local]
                   </button>
@@ -288,25 +303,25 @@ function AuthContent() {
                 transition={{ duration: 0.18, ease: 'easeOut' }}
                 className="flex flex-col items-center gap-5 text-center"
               >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white ring-1 ring-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)]">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-white/[0.08] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] ring-1 ring-white/10">
                   <CheckCircle2 className="size-6 text-white" />
                 </div>
 
                 <div className="space-y-1.5">
-                  <h2 className="font-redaction text-2xl font-medium tracking-tight text-white">
+                  <h2 className="font-medium font-redaction text-2xl text-white tracking-tight">
                     Verifique seu e-mail
                   </h2>
-                  <p className="text-xs leading-relaxed text-zinc-400">
+                  <p className="text-xs text-zinc-400 leading-relaxed">
                     Enviamos um link de login instantâneo para:
                   </p>
-                  <div className="inline-block rounded-lg bg-white/[0.04] px-2.5 py-1 text-xs font-mono text-white ring-1 ring-white/[0.08]">
+                  <div className="inline-block rounded-lg bg-white/[0.04] px-2.5 py-1 font-mono text-white text-xs ring-1 ring-white/[0.08]">
                     {submittedEmail}
                   </div>
                 </div>
 
-                <div className="w-full rounded-xl bg-white/[0.03] p-3.5 text-left text-[11px] leading-relaxed text-zinc-400 ring-1 ring-white/[0.06]">
-                  <p className="font-medium text-zinc-300 mb-1">Próximos passos:</p>
-                  <ul className="list-disc list-inside space-y-0.5 text-zinc-400">
+                <div className="w-full rounded-xl bg-white/[0.03] p-3.5 text-left text-[11px] text-zinc-400 leading-relaxed ring-1 ring-white/[0.06]">
+                  <p className="mb-1 font-medium text-zinc-300">Próximos passos:</p>
+                  <ul className="list-inside list-disc space-y-0.5 text-zinc-400">
                     <li>Clique no botão no e-mail para autenticar</li>
                     <li>O link expira em 15 minutos</li>
                     <li>Verifique a pasta de spam se não encontrar</li>
@@ -326,9 +341,7 @@ function AuthContent() {
                         Reenviando…
                       </>
                     ) : resendCooldown > 0 ? (
-                      <span className="font-mono tabular-nums">
-                        Reenviar em {resendCooldown}s
-                      </span>
+                      <span className="font-mono tabular-nums">Reenviar em {resendCooldown}s</span>
                     ) : (
                       <>
                         <RefreshCw className="mr-2 size-3.5" />
@@ -340,7 +353,7 @@ function AuthContent() {
                   <button
                     type="button"
                     onClick={() => setSubmittedEmail(null)}
-                    className="inline-flex items-center justify-center gap-1.5 pt-1 text-xs text-zinc-400 hover:text-white transition-colors active:scale-[0.96]"
+                    className="inline-flex items-center justify-center gap-1.5 pt-1 text-xs text-zinc-400 transition-colors hover:text-white active:scale-[0.96]"
                   >
                     <ArrowLeft className="size-3" />
                     <span>Usar outro e-mail</span>
@@ -353,12 +366,16 @@ function AuthContent() {
       </main>
 
       {/* Clean Bottom Footer */}
-      <footer className="relative z-10 flex w-full flex-col sm:flex-row items-center justify-between gap-3 text-center text-[11px] text-zinc-600 max-w-5xl mx-auto">
+      <footer className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 text-center text-[11px] text-zinc-600 sm:flex-row">
         <p>© {new Date().getFullYear()} Joysticked. Todos os direitos reservados.</p>
         <div className="flex items-center gap-4">
-          <Link href="/terms" className="hover:text-zinc-400 transition-colors">Termos de Uso</Link>
+          <Link href="/terms" className="transition-colors hover:text-zinc-400">
+            Termos de Uso
+          </Link>
           <span>•</span>
-          <Link href="/privacy" className="hover:text-zinc-400 transition-colors">Privacidade</Link>
+          <Link href="/privacy" className="transition-colors hover:text-zinc-400">
+            Privacidade
+          </Link>
           <span>•</span>
           <span className="font-mono text-[10px] text-zinc-600">Joysticked</span>
         </div>

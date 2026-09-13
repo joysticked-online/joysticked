@@ -19,7 +19,7 @@ export function PixelHeart({
   variant = 'full',
   color = '#EF4444', // Red-500 / crimson accent
   emptyColor = '#262626', // Sleek dark border for empty state
-  className = '',
+  className = ''
 }: PixelHeartProps) {
   // Outline contour of the heart (common to all states)
   const outlineD =
@@ -71,11 +71,7 @@ export function PixelHeart({
       )}
 
       {variant === 'empty' && (
-        <path
-          d={`${leftFillD} ${rightFillD}`}
-          fill={emptyColor}
-          fillOpacity={0.15}
-        />
+        <path d={`${leftFillD} ${rightFillD}`} fill={emptyColor} fillOpacity={0.15} />
       )}
     </svg>
   );
@@ -98,7 +94,7 @@ export function PixelHeartRatingPicker({
   onChange,
   max = 5,
   size = 28,
-  interactive = true,
+  interactive = true
 }: PixelHeartRatingPickerProps) {
   const [hoverValue, setHoverValue] = useState<number | null>(null);
 
@@ -106,7 +102,7 @@ export function PixelHeartRatingPicker({
 
   return (
     <div
-      className="inline-flex items-center gap-1.5 select-none"
+      className="inline-flex select-none items-center gap-1.5"
       onMouseLeave={() => interactive && setHoverValue(null)}
     >
       {Array.from({ length: max }, (_, index) => {
@@ -116,11 +112,11 @@ export function PixelHeartRatingPicker({
         const currentVariant: 'full' | 'half' | 'empty' = isFull
           ? 'full'
           : isHalf
-          ? 'half'
-          : 'empty';
+            ? 'half'
+            : 'empty';
 
         return (
-          <div key={heartNumber} className="relative group/heart cursor-pointer">
+          <div key={heartNumber} className="group/heart relative cursor-pointer">
             <PixelHeart
               size={size}
               variant={currentVariant}
@@ -135,7 +131,7 @@ export function PixelHeartRatingPicker({
                 <button
                   type="button"
                   aria-label={`Avaliar ${heartNumber - 0.5} corações`}
-                  className="w-1/2 h-full z-10 focus:outline-none cursor-pointer"
+                  className="z-10 h-full w-1/2 cursor-pointer focus:outline-none"
                   onMouseEnter={() => setHoverValue(heartNumber - 0.5)}
                   onClick={() => onChange?.(heartNumber - 0.5)}
                 />
@@ -143,7 +139,7 @@ export function PixelHeartRatingPicker({
                 <button
                   type="button"
                   aria-label={`Avaliar ${heartNumber} corações`}
-                  className="w-1/2 h-full z-10 focus:outline-none cursor-pointer"
+                  className="z-10 h-full w-1/2 cursor-pointer focus:outline-none"
                   onMouseEnter={() => setHoverValue(heartNumber)}
                   onClick={() => onChange?.(heartNumber)}
                 />

@@ -2,8 +2,8 @@
 
 import { BarChart3, CalendarDays, Gamepad2, Star, Users } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
@@ -196,7 +196,7 @@ export function GameDetailView({
                   <span className="relative z-10 tracking-tight">{tab.label}</span>
                   {typeof tab.count === 'number' && (
                     <span
-                      className={`relative z-10 rounded-full px-1.5 py-0.2 font-mono font-bold text-[10px] transition-colors ${
+                      className={`relative z-10 rounded-full px-1.5 py-0.2 font-bold font-mono text-[10px] transition-colors ${
                         isActive ? 'bg-black text-white' : 'bg-white/[0.08] text-neutral-400'
                       }`}
                     >
@@ -324,15 +324,19 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
         {/* Community Rating Card */}
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="font-medium text-[11px] uppercase tracking-wider">Nota da comunidade</span>
+            <span className="font-medium text-[11px] uppercase tracking-wider">
+              Nota da comunidade
+            </span>
             <Star className="size-4 text-amber-400" />
           </div>
           <div className="mt-3 flex items-end gap-2">
-            <span className="font-mono font-bold text-3xl text-white tracking-tight sm:text-4xl">
+            <span className="font-bold font-mono text-3xl text-white tracking-tight sm:text-4xl">
               {reviews.length ? average.toFixed(1) : '—'}
             </span>
             <span className="pb-1 text-neutral-500 text-xs tracking-tight">
-              {reviews.length ? `${reviews.length} ${reviews.length === 1 ? 'avaliação' : 'avaliações'}` : 'seja o primeiro'}
+              {reviews.length
+                ? `${reviews.length} ${reviews.length === 1 ? 'avaliação' : 'avaliações'}`
+                : 'seja o primeiro'}
             </span>
           </div>
         </div>
@@ -345,7 +349,10 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
           </div>
           <div className="mt-3 space-y-1.5">
             {ratingBuckets.map(({ rating, count }) => (
-              <div key={rating} className="flex items-center gap-2 font-mono text-[10px] text-neutral-500">
+              <div
+                key={rating}
+                className="flex items-center gap-2 font-mono text-[10px] text-neutral-500"
+              >
                 <span className="w-3 text-neutral-400">{rating}★</span>
                 <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                   <div
@@ -365,7 +372,7 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
             <span className="font-medium text-[11px] uppercase tracking-wider">Lançamento</span>
             <CalendarDays className="size-4 text-neutral-400" />
           </div>
-          <p className="mt-3 font-mono font-bold text-xl text-white sm:text-2xl">
+          <p className="mt-3 font-bold font-mono text-white text-xl sm:text-2xl">
             {game.releaseYear ||
               (game.firstReleaseDate
                 ? new Date(game.firstReleaseDate).getFullYear()
@@ -379,7 +386,9 @@ function GameProfileSnapshot({ game, reviews }: { game: Game; reviews: GameRevie
         {/* Platforms & Community Activity */}
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4.5 backdrop-blur-md transition-all hover:border-white/15 sm:p-5">
           <div className="flex items-center justify-between text-neutral-400">
-            <span className="font-medium text-[11px] uppercase tracking-wider">Disponibilidade</span>
+            <span className="font-medium text-[11px] uppercase tracking-wider">
+              Disponibilidade
+            </span>
             <Gamepad2 className="size-4 text-neutral-400" />
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">

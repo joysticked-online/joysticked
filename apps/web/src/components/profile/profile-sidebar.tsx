@@ -108,7 +108,10 @@ export function ProfileSidebar({ profile, isOwnProfile, displayGames }: ProfileS
         </div>
 
         {/* Action Buttons with Safe Hydration */}
-        <div className="flex w-full items-center justify-center gap-2 pt-1" suppressHydrationWarning>
+        <div
+          className="flex w-full items-center justify-center gap-2 pt-1"
+          suppressHydrationWarning
+        >
           {mounted && isOwnProfile ? (
             <Button
               variant="outline"

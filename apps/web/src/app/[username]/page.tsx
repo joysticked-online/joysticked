@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { PublicProfileView } from './public-profile-view';
 
 export const dynamic = 'force-dynamic';

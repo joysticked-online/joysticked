@@ -24,7 +24,7 @@ export function GameTimeToBeat({ game }: GameTimeToBeatProps) {
       };
 
   return (
-    <div className="space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6 backdrop-blur-md">
+    <div className="space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 backdrop-blur-md sm:p-6">
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-medium text-neutral-400 text-xs uppercase tracking-wider">
           <Clock className="size-3.5 text-neutral-400" />
@@ -36,8 +36,10 @@ export function GameTimeToBeat({ game }: GameTimeToBeatProps) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {/* Main Story */}
         <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3.5 transition-colors hover:border-white/15">
-          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">História Principal</span>
-          <div className="flex items-baseline gap-1 font-mono font-bold text-xl text-white sm:text-2xl">
+          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">
+            História Principal
+          </span>
+          <div className="flex items-baseline gap-1 font-bold font-mono text-white text-xl sm:text-2xl">
             <span>{timeToBeat.main}</span>
           </div>
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -47,8 +49,10 @@ export function GameTimeToBeat({ game }: GameTimeToBeatProps) {
 
         {/* Main + Extra */}
         <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3.5 transition-colors hover:border-white/15">
-          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">História + Extras</span>
-          <div className="flex items-baseline gap-1 font-mono font-bold text-xl text-white sm:text-2xl">
+          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">
+            História + Extras
+          </span>
+          <div className="flex items-baseline gap-1 font-bold font-mono text-white text-xl sm:text-2xl">
             <span>{timeToBeat.mainExtra}</span>
           </div>
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -58,8 +62,10 @@ export function GameTimeToBeat({ game }: GameTimeToBeatProps) {
 
         {/* Completionist */}
         <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3.5 transition-colors hover:border-white/15">
-          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">100% Completista</span>
-          <div className="flex items-baseline gap-1 font-mono font-bold text-xl text-white sm:text-2xl">
+          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">
+            100% Completista
+          </span>
+          <div className="flex items-baseline gap-1 font-bold font-mono text-white text-xl sm:text-2xl">
             <span>{timeToBeat.completionist}</span>
           </div>
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -69,8 +75,10 @@ export function GameTimeToBeat({ game }: GameTimeToBeatProps) {
 
         {/* All Styles */}
         <div className="space-y-1.5 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3.5 transition-colors hover:border-white/15">
-          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">Média Geral</span>
-          <div className="flex items-baseline gap-1 font-mono font-bold text-xl text-white sm:text-2xl">
+          <span className="block font-medium text-[11px] text-neutral-400 tracking-tight">
+            Média Geral
+          </span>
+          <div className="flex items-baseline gap-1 font-bold font-mono text-white text-xl sm:text-2xl">
             <span>{timeToBeat.allStyles}</span>
           </div>
           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">

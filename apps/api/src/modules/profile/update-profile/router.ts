@@ -16,7 +16,8 @@ export const updateProfileRouter = new Elysia()
     async ({ params, body, db, status, userId }) => {
       const isDev = envs.app.NODE_ENV === 'dev';
       const isAuthorized = userId && userId === params.id;
-      const isDevAuthorized = isDev && (inMemoryDevUsers.has(params.id) || !userId || params.id.startsWith('usr_'));
+      const isDevAuthorized =
+        isDev && (inMemoryDevUsers.has(params.id) || !userId || params.id.startsWith('usr_'));
 
       if (!isAuthorized && !isDevAuthorized) {
         return status(403, { message: 'Forbidden' });

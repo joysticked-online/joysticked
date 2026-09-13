@@ -188,7 +188,7 @@ function TopNavContent({
       .then((game) => {
         if (game) setFeaturedAwaited(game);
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const handleGamesMouseEnter = () => {
@@ -223,10 +223,10 @@ function TopNavContent({
       <div className="pointer-events-none fixed inset-x-0 top-2.5 z-50 flex flex-col items-center px-2.5 sm:top-4 sm:px-4">
         <header className="pointer-events-auto relative flex h-11 w-full max-w-2xl items-center justify-between gap-1.5 rounded-full border border-white/[0.08] bg-[#121212]/95 px-2 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl transition-all sm:h-12 sm:gap-4 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
             <Link
               href="/home"
-              className="flex size-7.5 sm:size-8 shrink-0 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
+              className="flex size-7.5 shrink-0 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95 sm:size-8"
             >
               <Logos.Joysticked className="size-full text-white" />
             </Link>
@@ -240,7 +240,6 @@ function TopNavContent({
 
                 if (item.hasDropdown) {
                   return (
-                    // biome-ignore lint/a11y/noStaticElementInteractions: Dropdown hover container
                     <div
                       key={item.href}
                       ref={gamesButtonRef}
@@ -251,8 +250,9 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`relative flex select-none items-center gap-1 sm:gap-1.5 rounded-full px-2 py-1 text-[11px] transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${gamesMenuOpen ? 'text-white' : 'text-neutral-300 hover:text-white'
-                          }`}
+                        className={`relative flex select-none items-center gap-1 rounded-full px-2 py-1 text-[11px] transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs ${
+                          gamesMenuOpen ? 'text-white' : 'text-neutral-300 hover:text-white'
+                        }`}
                       >
                         {(isActive || gamesMenuOpen) && (
                           <motion.div
@@ -265,8 +265,9 @@ function TopNavContent({
                           <Icon className="size-3.5" />
                           <span>{item.label}</span>
                           <ChevronDown
-                            className={`size-3 transition-transform duration-100 ${gamesMenuOpen ? 'rotate-180 text-white opacity-100' : 'opacity-70'
-                              }`}
+                            className={`size-3 transition-transform duration-100 ${
+                              gamesMenuOpen ? 'rotate-180 text-white opacity-100' : 'opacity-70'
+                            }`}
                           />
                         </span>
                       </Link>
@@ -278,7 +279,7 @@ function TopNavContent({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="relative flex select-none items-center gap-1 sm:gap-1.5 rounded-full px-2 py-1 text-[11px] text-neutral-300 transition-colors hover:text-white sm:px-3 sm:py-1.5 sm:text-xs"
+                    className="relative flex select-none items-center gap-1 rounded-full px-2 py-1 text-[11px] text-neutral-300 transition-colors hover:text-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
                   >
                     {isActive && (
                       <motion.div
@@ -298,7 +299,7 @@ function TopNavContent({
           </div>
 
           {/* Right: Search Pill & User Profile */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {/* Search Pill with CTRL+K */}
             <button
               type="button"
@@ -345,23 +346,30 @@ function TopNavContent({
                       animate={{ clipPath: 'inset(0% 0% 0% 0% round 16px)', opacity: 1 }}
                       exit={{ clipPath: 'inset(0% 0% 100% 0% round 16px)', opacity: 0 }}
                       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 max-w-[calc(100vw-2rem)] select-none overflow-hidden rounded-2xl border border-white/10 bg-[#121212]/95 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
+                      className="absolute top-[calc(100%+8px)] right-0 z-50 w-48 max-w-[calc(100vw-2rem)] select-none overflow-hidden rounded-2xl border border-white/10 bg-[#121212]/95 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
                     >
                       {/* User info header */}
-                      <div className="border-b border-white/[0.06] px-3.5 py-2.5 bg-white/[0.02]">
-                        <p className="truncate font-semibold text-[11px] text-white">{currentUser.displayName || currentUser.username}</p>
-                        <p className="truncate text-[10px] text-neutral-500">@{currentUser.username}</p>
+                      <div className="border-white/[0.06] border-b bg-white/[0.02] px-3.5 py-2.5">
+                        <p className="truncate font-semibold text-[11px] text-white">
+                          {currentUser.displayName || currentUser.username}
+                        </p>
+                        <p className="truncate text-[10px] text-neutral-500">
+                          @{currentUser.username}
+                        </p>
                       </div>
 
                       {/* Menu items */}
-                      <div className="p-1.5 space-y-0.5">
+                      <div className="space-y-0.5 p-1.5">
                         {/* Profile */}
                         <Link
                           href={`/${currentUser.username}`}
                           onClick={() => setUserMenuOpen(false)}
                           className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          <PixelUser size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <PixelUser
+                            size={15}
+                            className="shrink-0 text-neutral-400 group-hover:text-white"
+                          />
                           <span>Perfil</span>
                         </Link>
 
@@ -371,7 +379,10 @@ function TopNavContent({
                           onClick={() => setUserMenuOpen(false)}
                           className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          <PixelBookmark size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <PixelBookmark
+                            size={15}
+                            className="shrink-0 text-neutral-400 group-hover:text-white"
+                          />
                           <span>Minhas Listas</span>
                         </Link>
 
@@ -381,7 +392,10 @@ function TopNavContent({
                           onClick={() => setUserMenuOpen(false)}
                           className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          <PixelSettings size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <PixelSettings
+                            size={15}
+                            className="shrink-0 text-neutral-400 group-hover:text-white"
+                          />
                           <span>Configurações</span>
                         </Link>
 
@@ -390,14 +404,19 @@ function TopNavContent({
                           type="button"
                           className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          <PixelGlobe size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <PixelGlobe
+                            size={15}
+                            className="shrink-0 text-neutral-400 group-hover:text-white"
+                          />
                           <span>Idioma</span>
-                          <span className="ml-auto text-[10px] font-medium text-neutral-500">PT-BR</span>
+                          <span className="ml-auto font-medium text-[10px] text-neutral-500">
+                            PT-BR
+                          </span>
                         </button>
                       </div>
 
                       {/* Logout */}
-                      <div className="border-t border-white/[0.06] p-1.5 bg-white/[0.01]">
+                      <div className="border-white/[0.06] border-t bg-white/[0.01] p-1.5">
                         <button
                           type="button"
                           onClick={() => {
@@ -406,7 +425,10 @@ function TopNavContent({
                           }}
                           className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
                         >
-                          <PixelLogout size={15} className="shrink-0 text-rose-400 group-hover:text-rose-300" />
+                          <PixelLogout
+                            size={15}
+                            className="shrink-0 text-rose-400 group-hover:text-rose-300"
+                          />
                           <span>Sair</span>
                         </button>
                       </div>
@@ -419,7 +441,7 @@ function TopNavContent({
                 variant="ghost"
                 size="sm"
                 asChild
-                className="h-7 rounded-full bg-white/[0.05] px-2.5 sm:px-3 text-white text-xs hover:bg-white/[0.1]"
+                className="h-7 rounded-full bg-white/[0.05] px-2.5 text-white text-xs hover:bg-white/[0.1] sm:px-3"
               >
                 <Link href="/auth">Entrar</Link>
               </Button>
@@ -441,14 +463,14 @@ function TopNavContent({
               className="pointer-events-auto relative mt-1.5 flex w-[640px] max-w-[94vw] select-none flex-col gap-3 rounded-3xl border border-white/10 bg-[#121212] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)] will-change-transform"
             >
               {/* Invisible Hover Zone bridge so cursor movement between navbar and dropdown is 100% uninterrupted */}
-              <div className="pointer-events-auto absolute -top-3 inset-x-0 h-4 z-10" />
+              <div className="-top-3 pointer-events-auto absolute inset-x-0 z-10 h-4" />
 
               {/* Compact featured game */}
               <div className="w-full">
                 <Link
                   href={`/games/${featuredAwaited?.slug || 'halloween-the-game'}`}
                   onClick={() => setGamesMenuOpen(false)}
-                  className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-all hover:bg-[#161616] hover:border-white/30"
+                  className="group flex items-center gap-4 rounded-2xl bg-[#0A0A0A] p-2.5 transition-all hover:border-white/30 hover:bg-[#161616]"
                 >
                   <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-[#303030]">
                     <Image
@@ -479,7 +501,7 @@ function TopNavContent({
               </div>
 
               {/* Short category links */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {DROPDOWN_OPTIONS.map((item) => {
                   const isTabActive = currentTab === item.tab;
                   const Icon = item.icon;
@@ -488,20 +510,23 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-[transform,background-color,border-color,box-shadow] duration-[80ms] ease-out hover:scale-[1.01] active:scale-[0.98] ${isTabActive
-                          ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
-                          : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
-                          }`}
+                        className={`group flex h-full flex-col gap-1.5 rounded-2xl p-3.5 text-left transition-[transform,background-color,border-color,box-shadow] duration-[80ms] ease-out hover:scale-[1.01] active:scale-[0.98] ${
+                          isTabActive
+                            ? 'border-white/25 bg-white/[0.1] text-white shadow-md ring-1 ring-white/10'
+                            : 'border-[#303030] bg-[#0A0A0A]/50 text-neutral-300 hover:border-white/20 hover:bg-white/[0.05]'
+                        }`}
                       >
                         <div
-                          className={`flex items-center gap-1.5 font-bold text-xs transition-colors ${isTabActive ? item.activeColor : `text-white ${item.hoverColor}`
-                            }`}
+                          className={`flex items-center gap-1.5 font-bold text-xs transition-colors ${
+                            isTabActive ? item.activeColor : `text-white ${item.hoverColor}`
+                          }`}
                         >
                           <Icon
-                            className={`size-3.5 ${isTabActive
-                              ? item.activeColor
-                              : 'text-neutral-400 group-hover:text-white'
-                              }`}
+                            className={`size-3.5 ${
+                              isTabActive
+                                ? item.activeColor
+                                : 'text-neutral-400 group-hover:text-white'
+                            }`}
                           />
                           <span>{item.title}</span>
                         </div>
@@ -537,8 +562,8 @@ function TopNavContent({
               className="relative z-10 flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/95 shadow-[0_30px_90px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
             >
               {/* Search Header Input */}
-              <div className="relative flex items-center border-b border-white/[0.08] px-4 py-3.5">
-                <Search className="size-4 text-neutral-400 shrink-0 mr-3" />
+              <div className="relative flex items-center border-white/[0.08] border-b px-4 py-3.5">
+                <Search className="mr-3 size-4 shrink-0 text-neutral-400" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -553,7 +578,7 @@ function TopNavContent({
                 />
 
                 {isSearching ? (
-                  <Loader2 className="size-4 animate-spin text-neutral-400 shrink-0" />
+                  <Loader2 className="size-4 shrink-0 animate-spin text-neutral-400" />
                 ) : searchQuery ? (
                   <button
                     type="button"
@@ -573,8 +598,8 @@ function TopNavContent({
               </div>
 
               {/* Quick Filter Categories */}
-              <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-white/[0.01] px-4 py-2 text-xs overflow-x-auto">
-                <span className="text-[11px] text-neutral-500 mr-1">Explorar:</span>
+              <div className="flex items-center gap-1.5 overflow-x-auto border-white/[0.06] border-b bg-white/[0.01] px-4 py-2 text-xs">
+                <span className="mr-1 text-[11px] text-neutral-500">Explorar:</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -646,7 +671,7 @@ function TopNavContent({
                               : 'hover:bg-white/[0.04]'
                           }`}
                         >
-                          <div className="relative aspect-[2/3] w-10 shrink-0 overflow-hidden rounded-lg bg-neutral-800 border border-white/[0.08]">
+                          <div className="relative aspect-[2/3] w-10 shrink-0 overflow-hidden rounded-lg border border-white/[0.08] bg-neutral-800">
                             {game.coverUrl ? (
                               <Image
                                 src={game.coverUrl}
@@ -699,7 +724,8 @@ function TopNavContent({
                   <div className="py-12 text-center text-neutral-400 text-xs">
                     <p className="font-medium text-neutral-300 text-sm">Nenhum título encontrado</p>
                     <p className="mt-1 text-neutral-500">
-                      Não encontramos jogos para &ldquo;{searchQuery}&rdquo;. Tente buscar por palavras-chave ou confira as abas do catálogo.
+                      Não encontramos jogos para &ldquo;{searchQuery}&rdquo;. Tente buscar por
+                      palavras-chave ou confira as abas do catálogo.
                     </p>
                   </div>
                 ) : (
@@ -710,19 +736,24 @@ function TopNavContent({
                         Jogos Populares
                       </span>
                       <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
-                        {['Elden Ring', "Baldur's Gate 3", 'Cyberpunk 2077', 'The Witcher 3', 'Red Dead Redemption 2', 'Grand Theft Auto VI'].map(
-                          (title) => (
-                            <button
-                              key={title}
-                              type="button"
-                              onClick={() => setSearchQuery(title)}
-                              className="flex items-center gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] p-2 text-left text-xs text-neutral-300 transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white"
-                            >
-                              <Gamepad2 className="size-3.5 text-neutral-400 shrink-0" />
-                              <span className="truncate">{title}</span>
-                            </button>
-                          )
-                        )}
+                        {[
+                          'Elden Ring',
+                          "Baldur's Gate 3",
+                          'Cyberpunk 2077',
+                          'The Witcher 3',
+                          'Red Dead Redemption 2',
+                          'Grand Theft Auto VI'
+                        ].map((title) => (
+                          <button
+                            key={title}
+                            type="button"
+                            onClick={() => setSearchQuery(title)}
+                            className="flex items-center gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] p-2 text-left text-neutral-300 text-xs transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white"
+                          >
+                            <Gamepad2 className="size-3.5 shrink-0 text-neutral-400" />
+                            <span className="truncate">{title}</span>
+                          </button>
+                        ))}
                       </div>
                     </div>
 
@@ -731,18 +762,24 @@ function TopNavContent({
                         Gêneros em Alta
                       </span>
                       <div className="flex flex-wrap gap-1.5">
-                        {['RPG', 'Souls-like', 'Ação', 'Aventura', 'Indie', 'Mundo Aberto', 'Estratégia'].map(
-                          (genre) => (
-                            <button
-                              key={genre}
-                              type="button"
-                              onClick={() => setSearchQuery(genre)}
-                              className="rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] text-neutral-300 transition-colors hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
-                            >
-                              {genre}
-                            </button>
-                          )
-                        )}
+                        {[
+                          'RPG',
+                          'Souls-like',
+                          'Ação',
+                          'Aventura',
+                          'Indie',
+                          'Mundo Aberto',
+                          'Estratégia'
+                        ].map((genre) => (
+                          <button
+                            key={genre}
+                            type="button"
+                            onClick={() => setSearchQuery(genre)}
+                            className="rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] text-neutral-300 transition-colors hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                          >
+                            {genre}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -750,7 +787,7 @@ function TopNavContent({
               </div>
 
               {/* Command Palette Keyboard Hints Footer */}
-              <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-[11px] text-neutral-400">
+              <div className="flex items-center justify-between border-white/[0.06] border-t bg-white/[0.02] px-4 py-2.5 text-[11px] text-neutral-400">
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
                     <kbd className="rounded border border-white/10 bg-white/[0.06] px-1 py-0.2 font-mono text-[9px]">

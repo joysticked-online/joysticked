@@ -60,7 +60,11 @@ export function useAuth() {
               if (parsed.username && !parsed.username.startsWith('user_')) {
                 userData.username = parsed.username;
               }
-              if (parsed.displayName && parsed.displayName !== 'Novo Jogador' && parsed.displayName !== 'Dev Gamer') {
+              if (
+                parsed.displayName &&
+                parsed.displayName !== 'Novo Jogador' &&
+                parsed.displayName !== 'Dev Gamer'
+              ) {
                 userData.displayName = parsed.displayName;
               }
               if (parsed.preferences) {
@@ -121,8 +125,10 @@ export function useAuth() {
       localStorage.removeItem('joysticked_session_user');
       localStorage.removeItem('joysticked_session_token');
       document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      document.cookie = 'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-      document.cookie = 'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie =
+        'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie =
+        'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
     queryClient.setQueryData(['auth', 'me'], null);
   };

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Loading() {
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#070709] font-mono text-white selection:bg-white selection:text-black">
@@ -13,12 +11,12 @@ export default function Loading() {
       />
 
       {/* Main Content Area - Ultra Minimalist & Borderless */}
-      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center px-6 py-12 select-none">
+      <div className="relative z-10 flex w-full max-w-2xl select-none flex-col items-center px-6 py-12">
         {/* Seamless Open Track */}
         <div className="relative mb-12 flex h-16 w-full items-center overflow-hidden">
           {/* Subtle Dashed Pixel Track Line */}
           <div
-            className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2"
+            className="-translate-y-1/2 absolute inset-x-0 top-1/2 h-[2px]"
             style={{
               backgroundImage:
                 'repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 4px, transparent 4px, transparent 16px)'
@@ -26,13 +24,9 @@ export default function Loading() {
           />
 
           {/* Floating Pixel Food Dots */}
-          <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-between">
+          <div className="-translate-y-1/2 absolute inset-x-4 top-1/2 flex items-center justify-between">
             {Array.from({ length: 16 }).map((_, i) => (
-              <div
-                key={i}
-                className="size-1 bg-white/25"
-                style={{ imageRendering: 'pixelated' }}
-              />
+              <div key={i} className="size-1 bg-white/25" style={{ imageRendering: 'pixelated' }} />
             ))}
           </div>
 
@@ -150,16 +144,19 @@ export default function Loading() {
 
         {/* Minimalist Pixel Loading Indicator */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="flex items-center gap-2 text-xs font-bold tracking-[0.3em] text-white">
-            <span className="inline-block size-1.5 bg-white animate-pulse" />
+          <div className="flex items-center gap-2 font-bold text-white text-xs tracking-[0.3em]">
+            <span className="inline-block size-1.5 animate-pulse bg-white" />
             <span>CARREGANDO</span>
             <span className="inline-flex gap-1">
-              <span className="size-1 bg-white animate-bounce" style={{ animationDelay: '0s' }} />
-              <span className="size-1 bg-white animate-bounce" style={{ animationDelay: '0.15s' }} />
-              <span className="size-1 bg-white animate-bounce" style={{ animationDelay: '0.3s' }} />
+              <span className="size-1 animate-bounce bg-white" style={{ animationDelay: '0s' }} />
+              <span
+                className="size-1 animate-bounce bg-white"
+                style={{ animationDelay: '0.15s' }}
+              />
+              <span className="size-1 animate-bounce bg-white" style={{ animationDelay: '0.3s' }} />
             </span>
           </div>
-          <p className="text-[10px] tracking-[0.18em] text-neutral-500 uppercase">
+          <p className="text-[10px] text-neutral-500 uppercase tracking-[0.18em]">
             Preparando jogos e avaliações...
           </p>
         </div>

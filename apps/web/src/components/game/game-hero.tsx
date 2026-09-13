@@ -18,12 +18,12 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { PixelHeart } from '@/components/landing/pixel-heart';
 import {
   CopyLinkMicroButton,
   FavoriteMicroButton,
   ReviewMicroButton
 } from '@/components/ui/micro-button';
-import { PixelHeart } from '@/components/landing/pixel-heart';
 import type { Game, GameReview } from '@/lib/games';
 
 interface GameHeroProps {
@@ -46,7 +46,7 @@ export function GameHero({
   const [isFavorite, setIsFavorite] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [expandedSummary, setExpandedSummary] = useState(false);
-  const [isCollectionHovered, setIsCollectionHovered] = useState(false);
+  const [_isCollectionHovered, setIsCollectionHovered] = useState(false);
 
   // Use custom selected banner, IGDB banner, or fallback to cover
   const bannerImage = bannerUrl || game.bannerUrl || game.coverUrl;
@@ -65,7 +65,11 @@ export function GameHero({
           localStorage.removeItem(`game_status_${game.slug}`);
           localStorage.removeItem(`game_meta_${game.slug}`);
           window.dispatchEvent(new Event('storage'));
-          window.dispatchEvent(new CustomEvent('joysticked:review-updated', { detail: { slug: game.slug, removed: true } }));
+          window.dispatchEvent(
+            new CustomEvent('joysticked:review-updated', {
+              detail: { slug: game.slug, removed: true }
+            })
+          );
         } catch {}
       }
     } else {
@@ -87,7 +91,9 @@ export function GameHero({
             title: game.name,
             coverUrl: game.coverUrl || game.bannerUrl || '',
             backdropUrl: game.bannerUrl || '',
-            year: game.firstReleaseDate ? new Date(game.firstReleaseDate).getFullYear().toString() : '',
+            year: game.firstReleaseDate
+              ? new Date(game.firstReleaseDate).getFullYear().toString()
+              : '',
             developer: game.developer || '',
             genres: game.genres || [],
             status: status,
@@ -189,7 +195,7 @@ export function GameHero({
             </div>
 
             {/* Title with Geist Sans */}
-            <h1 className="font-sans font-bold text-3xl text-white tracking-tight sm:text-4xl md:text-5xl [text-wrap:balance]">
+            <h1 className="font-bold font-sans text-3xl text-white tracking-tight [text-wrap:balance] sm:text-4xl md:text-5xl">
               {game.name}
             </h1>
 
@@ -198,7 +204,7 @@ export function GameHero({
               {game.genres?.map((genre) => (
                 <span
                   key={genre}
-                  className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-xs font-medium tracking-tight text-neutral-300"
+                  className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 font-medium text-neutral-300 text-xs tracking-tight"
                 >
                   {genre}
                 </span>
@@ -206,18 +212,20 @@ export function GameHero({
 
               {/* IGDB Score */}
               {(game.rating || game.aggregatedRating) && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1 font-bold text-white text-xs backdrop-blur-md">
                   <Star className="size-3 fill-white text-white" />
-                  <span className="font-mono">{(game.rating || game.aggregatedRating)?.toFixed(1)}</span>
-                  <span className="text-[10px] font-normal text-neutral-400">IGDB</span>
+                  <span className="font-mono">
+                    {(game.rating || game.aggregatedRating)?.toFixed(1)}
+                  </span>
+                  <span className="font-normal text-[10px] text-neutral-400">IGDB</span>
                 </span>
               )}
 
               {/* Community Review Tag */}
               {communityRating && communityRating.count > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.06] px-2.5 py-1 text-xs font-medium text-neutral-200">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.06] px-2.5 py-1 font-medium text-neutral-200 text-xs">
                   <Star className="size-3 fill-amber-400 text-amber-400" />
-                  <span className="font-mono font-bold text-white">{communityRating.average}</span>
+                  <span className="font-bold font-mono text-white">{communityRating.average}</span>
                   <span className="text-[10px] text-neutral-400">
                     ({communityRating.count}{' '}
                     {communityRating.count === 1 ? 'avaliação' : 'avaliações'})
@@ -228,7 +236,7 @@ export function GameHero({
 
             {/* Description / Synopsis */}
             {game.summary && (
-              <div className="max-w-2xl text-neutral-300 text-xs leading-relaxed sm:text-sm [text-wrap:pretty]">
+              <div className="max-w-2xl text-neutral-300 text-xs leading-relaxed [text-wrap:pretty] sm:text-sm">
                 <p className={!expandedSummary ? 'line-clamp-3' : ''}>{game.summary}</p>
                 {game.summary.length > 200 && (
                   <button
@@ -366,7 +374,9 @@ export function GameHero({
                   className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3.5 font-semibold text-white text-xs backdrop-blur-md transition-colors hover:bg-red-500/20"
                 >
                   <PixelHeart size={14} variant="full" color="#EF4444" />
-                  <span className="font-mono">Sua Nota: {Number(userReview.rating).toFixed(1)}</span>
+                  <span className="font-mono">
+                    Sua Nota: {Number(userReview.rating).toFixed(1)}
+                  </span>
                   <PenLine className="ml-0.5 size-3 text-neutral-400" />
                 </motion.button>
               ) : (

@@ -1,7 +1,7 @@
+import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createUserRepository } from '../../../shared/database/repositories/user-repository';
 import { UnauthorizedError } from '../../../shared/errors/unauthorized-error';
-import { envs } from '../../../shared/config/envs';
 
 export const inMemoryDevUsers = new Map<string, any>();
 
@@ -45,7 +45,9 @@ export async function getMeUseCase(db: Database, userId: string | null) {
   if (envs.app.NODE_ENV === 'dev') {
     const devUser = {
       id: userId,
-      username: userId.startsWith('user_') ? userId : `user_${userId.replace('usr_dev_', '').replace('usr_', '').slice(0, 6)}`,
+      username: userId.startsWith('user_')
+        ? userId
+        : `user_${userId.replace('usr_dev_', '').replace('usr_', '').slice(0, 6)}`,
       displayName: 'Novo Jogador',
       email: `${userId}@joysticked.dev`,
       emailVerified: true,

@@ -11,7 +11,12 @@ export type PixelIconProps = SVGProps<SVGSVGElement> & {
  */
 
 // 1. Pixel Gamepad Controller
-export function PixelGamepad({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelGamepad({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -43,7 +48,12 @@ export function PixelGamepad({ size = 24, className = '', color = 'currentColor'
 }
 
 // 2. Pixel Heart (Health)
-export function PixelHeart({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelHeart({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -70,7 +80,12 @@ export function PixelHeart({ size = 24, className = '', color = 'currentColor', 
 }
 
 // 3. Pixel Potion / Mana Flask
-export function PixelPotion({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelPotion({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -90,10 +105,7 @@ export function PixelPotion({ size = 24, className = '', color = 'currentColor',
         fillOpacity="0.3"
       />
       {/* Liquid Contents */}
-      <path
-        d="M8 13h8v7H8v-7zm1-2h6v2H9v-2z"
-        fill={color}
-      />
+      <path d="M8 13h8v7H8v-7zm1-2h6v2H9v-2z" fill={color} />
       {/* Bubble Highlight */}
       <path d="M10 14h2v2h-2v-2zm3 3h2v2h-2v-2z" fill="#FFFFFF" fillOpacity="0.75" />
     </svg>
@@ -101,7 +113,12 @@ export function PixelPotion({ size = 24, className = '', color = 'currentColor',
 }
 
 // 4. Pixel Master Sword
-export function PixelSword({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelSword({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -113,9 +130,16 @@ export function PixelSword({ size = 24, className = '', color = 'currentColor', 
       {...props}
     >
       {/* Blade Tip */}
-      <path d="M20 2h2v2h-2V2zm-2 2h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2h-2V8zm-2 2h2v2h-2v-2zm-2 2h2v2h-2v-2z" fill={color} />
+      <path
+        d="M20 2h2v2h-2V2zm-2 2h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2h-2V8zm-2 2h2v2h-2v-2zm-2 2h2v2h-2v-2z"
+        fill={color}
+      />
       {/* Blade Body */}
-      <path d="M19 3h2v2h-2V3zm-2 2h2v2h-2V5zm-2 2h2v2h-2V7zm-2 2h2v2h-2V9zm-2 2h2v2h-2v-2z" fill="#FFFFFF" fillOpacity="0.9" />
+      <path
+        d="M19 3h2v2h-2V3zm-2 2h2v2h-2V5zm-2 2h2v2h-2V7zm-2 2h2v2h-2V9zm-2 2h2v2h-2v-2z"
+        fill="#FFFFFF"
+        fillOpacity="0.9"
+      />
       {/* Crossguard */}
       <path d="M6 14h6v2H6v-2zm2-2h2v6H8v-6zm2 2h2v2h-2v-2zm-4 0h2v2H6v-2z" fill={color} />
       {/* Hilt */}
@@ -127,7 +151,12 @@ export function PixelSword({ size = 24, className = '', color = 'currentColor', 
 }
 
 // 5. Pixel Cartridge
-export function PixelCartridge({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelCartridge({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -139,10 +168,7 @@ export function PixelCartridge({ size = 24, className = '', color = 'currentColo
       {...props}
     >
       {/* Cartridge Outline */}
-      <path
-        d="M4 3h16v18H4V3zm2 2v14h12V5H6z"
-        fill={color}
-      />
+      <path d="M4 3h16v18H4V3zm2 2v14h12V5H6z" fill={color} />
       {/* Top Notch & Label Window */}
       <path d="M7 6h10v2H7V6zm0 3h10v7H7V9z" fill={color} fillOpacity="0.15" />
       {/* Label Art / Joystick mark */}
@@ -154,7 +180,12 @@ export function PixelCartridge({ size = 24, className = '', color = 'currentColo
 }
 
 // 6. Pixel Memory Card
-export function PixelMemoryCard({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelMemoryCard({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -178,7 +209,12 @@ export function PixelMemoryCard({ size = 24, className = '', color = 'currentCol
 }
 
 // 7. Pixel Arcade Coin
-export function PixelCoin({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelCoin({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -201,7 +237,12 @@ export function PixelCoin({ size = 24, className = '', color = 'currentColor', .
 }
 
 // 8. Pixel Skull (Boss fight / Game Over)
-export function PixelSkull({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelSkull({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -230,7 +271,12 @@ export function PixelSkull({ size = 24, className = '', color = 'currentColor', 
 }
 
 // 9. Pixel Dungeon Key
-export function PixelKey({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelKey({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -242,10 +288,7 @@ export function PixelKey({ size = 24, className = '', color = 'currentColor', ..
       {...props}
     >
       {/* Bow (Key Head) */}
-      <path
-        d="M15 3h6v6h-6V3zm2 2h2v2h-2V5z"
-        fill={color}
-      />
+      <path d="M15 3h6v6h-6V3zm2 2h2v2h-2V5z" fill={color} />
       {/* Shaft */}
       <path d="M9 9h6v2H9V9zm-3 3h6v2H6v-2zm-3 3h6v2H3v-2zm1 3h2v2H4v-2z" fill={color} />
       {/* Teeth */}
@@ -255,7 +298,12 @@ export function PixelKey({ size = 24, className = '', color = 'currentColor', ..
 }
 
 // 10. Pixel Trophy / Achievement
-export function PixelTrophy({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelTrophy({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -269,7 +317,11 @@ export function PixelTrophy({ size = 24, className = '', color = 'currentColor',
       {/* Cup Rim & Body */}
       <path d="M6 3h12v2H6V3zm1 2h10v5H7V5zm2 5h6v3H9v-3zm2 3h2v4h-2v-4z" fill={color} />
       {/* Handles */}
-      <path d="M4 5h2v4H4V5zm14 0h2v4h-2V5zM3 9h2v1H3V9zm16 0h2v1h-2V9z" fill={color} fillOpacity="0.6" />
+      <path
+        d="M4 5h2v4H4V5zm14 0h2v4h-2V5zM3 9h2v1H3V9zm16 0h2v1h-2V9z"
+        fill={color}
+        fillOpacity="0.6"
+      />
       {/* Stem & Base */}
       <path d="M10 17h4v2h-4v-2zm-3 2h10v2H7v-2z" fill={color} />
       {/* Star Highlight */}
@@ -279,7 +331,12 @@ export function PixelTrophy({ size = 24, className = '', color = 'currentColor',
 }
 
 // 11. Pixel CRT TV
-export function PixelCRT({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelCRT({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -293,10 +350,7 @@ export function PixelCRT({ size = 24, className = '', color = 'currentColor', ..
       {/* Antenna */}
       <path d="M7 2h2v2H7V2zm8 0h2v2h-2V2zm-4 3h2v2h-2V5z" fill={color} />
       {/* Frame */}
-      <path
-        d="M3 6h18v14H3V6zm2 2v10h14V8H5z"
-        fill={color}
-      />
+      <path d="M3 6h18v14H3V6zm2 2v10h14V8H5z" fill={color} />
       {/* Screen */}
       <path d="M6 9h9v8H6V9z" fill={color} fillOpacity="0.3" />
       {/* Dials & Buttons */}
@@ -308,7 +362,12 @@ export function PixelCRT({ size = 24, className = '', color = 'currentColor', ..
 }
 
 // 12. Pixel Floppy Disk (Save)
-export function PixelSave({ size = 24, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelSave({
+  size = 24,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -320,10 +379,7 @@ export function PixelSave({ size = 24, className = '', color = 'currentColor', .
       {...props}
     >
       {/* Disk Body */}
-      <path
-        d="M4 3h13l3 3v15H4V3zm2 2v14h12V7.5L15.5 5H6z"
-        fill={color}
-      />
+      <path d="M4 3h13l3 3v15H4V3zm2 2v14h12V7.5L15.5 5H6z" fill={color} />
       {/* Shutter / Top Metal */}
       <path d="M8 5h7v5H8V5zm2 1h2v3h-2V6z" fill={color} fillOpacity="0.75" />
       {/* Label Area */}
@@ -333,7 +389,12 @@ export function PixelSave({ size = 24, className = '', color = 'currentColor', .
 }
 
 // 13. Pixel User / Profile Avatar
-export function PixelUser({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelUser({
+  size = 16,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -359,7 +420,12 @@ export function PixelUser({ size = 16, className = '', color = 'currentColor', .
 }
 
 // 14. Pixel Settings / Gear
-export function PixelSettings({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelSettings({
+  size = 16,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -371,7 +437,10 @@ export function PixelSettings({ size = 16, className = '', color = 'currentColor
       {...props}
     >
       {/* Outer Teeth */}
-      <path d="M7 1h2v2H7V1zm0 12h2v2H7v-2zM1 7h2v2H1V7zm12 0h2v2h-2V7zM3 3h2v2H3V3zm8 0h2v2h-2V3zm-8 8h2v2H3v-2zm8 0h2v2h-2v-2z" fill={color} />
+      <path
+        d="M7 1h2v2H7V1zm0 12h2v2H7v-2zM1 7h2v2H1V7zm12 0h2v2h-2V7zM3 3h2v2H3V3zm8 0h2v2h-2V3zm-8 8h2v2H3v-2zm8 0h2v2h-2v-2z"
+        fill={color}
+      />
       {/* Gear Rim */}
       <path d="M4 4h8v8H4V4z" fill={color} />
       {/* Center Axle Hole */}
@@ -381,7 +450,12 @@ export function PixelSettings({ size = 16, className = '', color = 'currentColor
 }
 
 // 15. Pixel Globe / Language
-export function PixelGlobe({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelGlobe({
+  size = 16,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -393,7 +467,10 @@ export function PixelGlobe({ size = 16, className = '', color = 'currentColor', 
       {...props}
     >
       {/* Outer circle perimeter */}
-      <path d="M6 1h4v1H6V1zM4 2h2v1H4V2zm6 0h2v1h-2V2zM2 4h2v2H2V4zm10 0h2v2h-2V4zM1 6h1v4H1V6zm13 0h1v4h-1V6zM2 10h2v2H2v-2zm10 0h2v2h-2v-2zM4 13h2v1H4v-1zm6 0h2v1h-2v-1zM6 14h4v1H6v-1z" fill={color} />
+      <path
+        d="M6 1h4v1H6V1zM4 2h2v1H4V2zm6 0h2v1h-2V2zM2 4h2v2H2V4zm10 0h2v2h-2V4zM1 6h1v4H1V6zm13 0h1v4h-1V6zM2 10h2v2H2v-2zm10 0h2v2h-2v-2zM4 13h2v1H4v-1zm6 0h2v1h-2v-1zM6 14h4v1H6v-1z"
+        fill={color}
+      />
       {/* Grid Lines */}
       <path d="M7 2h2v12H7V2zM2 7h12v2H2V7z" fill={color} />
       <path d="M4 4h8v1H4V4zm0 7h8v1H4v-1z" fill={color} fillOpacity="0.4" />
@@ -402,7 +479,12 @@ export function PixelGlobe({ size = 16, className = '', color = 'currentColor', 
 }
 
 // 16. Pixel Logout / Exit Door
-export function PixelLogout({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelLogout({
+  size = 16,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -420,13 +502,21 @@ export function PixelLogout({ size = 16, className = '', color = 'currentColor',
       {/* Exit Arrow Shaft */}
       <path d="M5 7h7v2H5V7z" fill={color} />
       {/* Exit Arrow Head */}
-      <path d="M10 4h2v1h-2V4zm2 1h1v2h-1V5zm-2 4h2v1h-2V9zm2-1h1v1h-1V8zm-1-1h1v2h-1V7z" fill={color} />
+      <path
+        d="M10 4h2v1h-2V4zm2 1h1v2h-1V5zm-2 4h2v1h-2V9zm2-1h1v1h-1V8zm-1-1h1v2h-1V7z"
+        fill={color}
+      />
     </svg>
   );
 }
 
 // 17. Pixel Bookmark / Lists
-export function PixelBookmark({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+export function PixelBookmark({
+  size = 16,
+  className = '',
+  color = 'currentColor',
+  ...props
+}: PixelIconProps) {
   return (
     <svg
       width={size}
@@ -442,4 +532,3 @@ export function PixelBookmark({ size = 16, className = '', color = 'currentColor
     </svg>
   );
 }
-

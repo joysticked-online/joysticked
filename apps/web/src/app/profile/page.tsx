@@ -7,14 +7,11 @@ import {
   ArrowLeft,
   Camera,
   Check,
-  Gamepad2,
-  Globe,
   ImageIcon,
   Instagram,
   Loader2,
   MessageSquare,
   Save,
-  Sparkles,
   Twitch,
   Twitter,
   User
@@ -184,7 +181,10 @@ export default function ProfileSetupPage() {
         if (typeof window !== 'undefined') {
           const currentLocal = localStorage.getItem('joysticked_session_user');
           const parsed = currentLocal ? JSON.parse(currentLocal) : {};
-          localStorage.setItem('joysticked_session_user', JSON.stringify({ ...parsed, ...payload }));
+          localStorage.setItem(
+            'joysticked_session_user',
+            JSON.stringify({ ...parsed, ...payload })
+          );
         }
 
         // 2. Persist to API
@@ -294,7 +294,7 @@ export default function ProfileSetupPage() {
     <div className="relative min-h-screen bg-[#08080a] font-geist-sans text-white selection:bg-white selection:text-black">
       {/* Subtle Retro Dot Matrix Background */}
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000_60%,transparent_100%)] opacity-70"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] opacity-70 [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000_60%,transparent_100%)]"
         aria-hidden="true"
       />
 
@@ -312,7 +312,7 @@ export default function ProfileSetupPage() {
                 <ArrowLeft className="size-4" strokeWidth={1.5} />
               </Link>
             </Button>
-            <span className="font-redaction font-medium text-white text-sm tracking-tight">
+            <span className="font-medium font-redaction text-sm text-white tracking-tight">
               {isNewProfile ? 'Criar Perfil' : 'Editar Perfil'}
             </span>
           </div>
@@ -355,7 +355,9 @@ export default function ProfileSetupPage() {
                 <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-white/[0.03] to-transparent">
                   <div className="flex flex-col items-center gap-2 text-zinc-500">
                     <ImageIcon className="size-6 opacity-40" strokeWidth={1.5} />
-                    <span className="font-mono text-[11px] text-zinc-500">Sem banner personalizado</span>
+                    <span className="font-mono text-[11px] text-zinc-500">
+                      Sem banner personalizado
+                    </span>
                   </div>
                 </div>
               )}
@@ -417,7 +419,7 @@ export default function ProfileSetupPage() {
           </form.Field>
 
           <div className="mb-2 space-y-0.5">
-            <h1 className="font-redaction text-2xl font-medium tracking-tight text-white md:text-3xl [text-wrap:balance]">
+            <h1 className="font-medium font-redaction text-2xl text-white tracking-tight [text-wrap:balance] md:text-3xl">
               {isNewProfile ? 'Configure seu Perfil' : 'Personalizar Perfil'}
             </h1>
             <p className="text-xs text-zinc-400 [text-wrap:pretty]">
@@ -435,7 +437,7 @@ export default function ProfileSetupPage() {
         >
           {/* ── 1. IDENTIDADE ── */}
           <section className="space-y-2.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+            <h2 className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
               Identidade
             </h2>
 
@@ -444,7 +446,10 @@ export default function ProfileSetupPage() {
               <form.Field name="displayName">
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="displayName" className="block text-[11px] font-medium text-zinc-300">
+                    <label
+                      htmlFor="displayName"
+                      className="block font-medium text-[11px] text-zinc-300"
+                    >
                       Nome de exibição
                     </label>
                     <Input
@@ -453,7 +458,7 @@ export default function ProfileSetupPage() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
+                      className="h-11 rounded-xl border-0 bg-white/[0.03] px-3.5 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30 sm:text-xs"
                     />
                     <FieldInfo field={field} />
                   </div>
@@ -475,7 +480,10 @@ export default function ProfileSetupPage() {
               >
                 {(field) => (
                   <div className="space-y-1.5">
-                    <label htmlFor="username" className="block text-[11px] font-medium text-zinc-300">
+                    <label
+                      htmlFor="username"
+                      className="block font-medium text-[11px] text-zinc-300"
+                    >
                       Nome de usuário (@handle)
                     </label>
                     <div className="relative flex items-center">
@@ -495,7 +503,7 @@ export default function ProfileSetupPage() {
                         aria-invalid={
                           field.state.meta.isTouched && field.state.meta.errors.length > 0
                         }
-                        className="h-11 rounded-xl border-0 bg-white/[0.03] pl-8 pr-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30"
+                        className="h-11 rounded-xl border-0 bg-white/[0.03] pr-3.5 pl-8 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/30 sm:text-xs"
                       />
                     </div>
                     <FieldInfo field={field} />
@@ -515,7 +523,7 @@ export default function ProfileSetupPage() {
                 {(field) => (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label htmlFor="bio" className="block text-[11px] font-medium text-zinc-300">
+                      <label htmlFor="bio" className="block font-medium text-[11px] text-zinc-300">
                         Bio
                       </label>
                       <span className="font-mono text-[10px] text-zinc-500 tabular-nums">
@@ -529,7 +537,7 @@ export default function ProfileSetupPage() {
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
-                      className="w-full resize-none rounded-xl border-0 bg-white/[0.03] p-3.5 text-base sm:text-xs text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/30"
+                      className="w-full resize-none rounded-xl border-0 bg-white/[0.03] p-3.5 text-base text-white ring-1 ring-white/[0.08] placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/30 sm:text-xs"
                     />
                     <FieldInfo field={field} />
                   </div>
@@ -540,14 +548,14 @@ export default function ProfileSetupPage() {
 
           {/* ── 2. PLATAFORMAS & GÊNEROS ── */}
           <section className="space-y-2.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+            <h2 className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
               Preferências Gamer
             </h2>
 
             <div className="space-y-5 rounded-[24px] bg-[#111114]/90 p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.08] backdrop-blur-2xl">
               {/* Platforms */}
               <div className="space-y-2">
-                <span className="block text-[11px] font-medium text-zinc-300">
+                <span className="block font-medium text-[11px] text-zinc-300">
                   Plataformas que você joga
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -575,7 +583,7 @@ export default function ProfileSetupPage() {
 
               {/* Genres */}
               <div className="space-y-2">
-                <span className="block text-[11px] font-medium text-zinc-300">
+                <span className="block font-medium text-[11px] text-zinc-300">
                   Gêneros favoritos
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -605,7 +613,7 @@ export default function ProfileSetupPage() {
 
           {/* ── 3. REDES SOCIAIS & STEAM ── */}
           <section className="space-y-2.5">
-            <h2 className="font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+            <h2 className="font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
               Conexões &amp; Redes
             </h2>
 
@@ -616,7 +624,7 @@ export default function ProfileSetupPage() {
                     <div className="space-y-1.5">
                       <label
                         htmlFor={`social-${key}`}
-                        className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-300"
+                        className="flex items-center gap-1.5 font-medium text-[11px] text-zinc-300"
                       >
                         <Icon className="size-3.5 text-zinc-400" strokeWidth={1.5} />
                         <span>{label}</span>
@@ -632,7 +640,7 @@ export default function ProfileSetupPage() {
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
-                          className="h-11 flex-1 bg-transparent pr-3.5 text-base sm:text-xs text-white outline-none placeholder:text-zinc-600"
+                          className="h-11 flex-1 bg-transparent pr-3.5 text-base text-white outline-none placeholder:text-zinc-600 sm:text-xs"
                         />
                       </div>
                       <FieldInfo field={field} />

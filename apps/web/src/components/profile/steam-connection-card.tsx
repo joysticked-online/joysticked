@@ -111,7 +111,7 @@ export function SteamConnectionCard({
   };
 
   return (
-    <div className="space-y-4 rounded-[20px] bg-white/[0.02] p-5 ring-1 ring-white/[0.06] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]">
+    <div className="space-y-4 rounded-[20px] bg-white/[0.02] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/[0.06]">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-white/[0.06] text-white ring-1 ring-white/10">
@@ -119,11 +119,11 @@ export function SteamConnectionCard({
           </div>
           <div className="space-y-0.5 text-left">
             <div className="flex items-center gap-2">
-              <h3 className="font-sans text-base font-bold text-white tracking-tight">
+              <h3 className="font-bold font-sans text-base text-white tracking-tight">
                 Vincular Conta Steam
               </h3>
               {isConnected && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-0.5 font-mono text-[9px] font-bold text-black uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 rounded-md bg-white px-2 py-0.5 font-bold font-mono text-[9px] text-black uppercase tracking-wider">
                   <CheckCircle2 className="size-2.5" />
                   Conectado
                 </span>
@@ -154,10 +154,10 @@ export function SteamConnectionCard({
           {/* Connected Details Bar */}
           <div className="flex flex-col justify-between gap-3 rounded-xl bg-white/[0.03] p-3.5 px-4 ring-1 ring-white/[0.06] sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-zinc-800 font-mono text-xs font-bold text-white">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-zinc-800 font-bold font-mono text-white text-xs">
                 {steam?.[0]?.toUpperCase() || 'S'}
               </div>
-              <div className="text-xs text-left">
+              <div className="text-left text-xs">
                 <div className="flex items-center gap-1.5 font-medium text-white">
                   <span>{steam || 'Steam Player'}</span>
                   <a
@@ -194,7 +194,7 @@ export function SteamConnectionCard({
           {/* Privacy & Visibility Toggle */}
           <div className="flex items-center justify-between gap-4 rounded-xl bg-white/[0.02] p-3.5 ring-1 ring-white/[0.04] sm:p-4">
             <div className="space-y-0.5 text-left">
-              <div className="flex items-center gap-1.5 font-medium text-xs text-white">
+              <div className="flex items-center gap-1.5 font-medium text-white text-xs">
                 {isPublic ? (
                   <>
                     <Eye className="size-3.5 text-zinc-400" />
@@ -207,7 +207,7 @@ export function SteamConnectionCard({
                   </>
                 )}
               </div>
-              <p className="text-[11px] leading-relaxed text-zinc-500 [text-wrap:pretty]">
+              <p className="text-[11px] text-zinc-500 leading-relaxed [text-wrap:pretty]">
                 {isPublic
                   ? 'Seu badge e link da Steam estão visíveis para todos os visitantes do perfil.'
                   : 'Oculto para visitantes, mantendo horas e conquistas sincronizadas no sistema.'}
@@ -235,7 +235,7 @@ export function SteamConnectionCard({
           <button
             type="button"
             onClick={handleOpenIdLogin}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-4 py-2.5 font-medium text-xs text-white ring-1 ring-white/10 transition-all hover:bg-white/[0.1] active:scale-[0.96]"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-4 py-2.5 font-medium text-white text-xs ring-1 ring-white/10 transition-all hover:bg-white/[0.1] active:scale-[0.96]"
           >
             <Gamepad2 className="size-4 text-white" />
             <span>Conectar com a Steam (OpenID)</span>
