@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PixelHeart } from '@/components/landing/pixel-heart';
 import { Dialog } from '@/components/ui/dialog';
@@ -170,6 +170,7 @@ export function GameReviewModal({
   onReviewCreated,
   onReviewDeleted
 }: GameReviewModalProps) {
+  const handleOpenChange = useCallback((open: boolean) => { if (!open) onClose(); }, [onClose]);
   const router = useRouter();
   const { user: currentUser } = useAuth();
   const [rating, setRating] = useState<number>(initialReview?.rating || 5);
@@ -401,7 +402,7 @@ export function GameReviewModal({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={handleOpenChange}
       title={isEditing ? `Editar avaliação de ${game.name}` : `Avaliar ${game.name}`}
       description="Defina uma nota, adicione detalhes e publique sua resenha."
     >

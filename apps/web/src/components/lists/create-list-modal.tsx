@@ -3,7 +3,7 @@
 import { ListPlus, Sparkles, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { createCustomList } from '@/lib/lists';
@@ -26,6 +26,7 @@ const PRESET_TAGS = [
 ];
 
 export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalProps) {
+  const handleOpenChange = useCallback((open: boolean) => { if (!open) onClose(); }, [onClose]);
   const router = useRouter();
   const { user } = useAuth();
   const [name, setName] = useState('');
@@ -83,7 +84,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={handleOpenChange}
       title="Criar nova lista"
       description="Colecione, organize e compartilhe seus jogos favoritos."
     >

@@ -3,7 +3,7 @@
 import { Check, Loader2, Plus, Search, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { type Game, searchGames } from '@/lib/games';
 
@@ -20,6 +20,7 @@ export function AddGameToListModal({
   existingGames,
   onAddGame
 }: AddGameToListModalProps) {
+  const handleOpenChange = useCallback((open: boolean) => { if (!open) onClose(); }, [onClose]);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Game[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -53,7 +54,7 @@ export function AddGameToListModal({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={handleOpenChange}
       title="Adicionar jogos à lista"
       description="Busque títulos no catálogo para incluir nesta coleção."
     >

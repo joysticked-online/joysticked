@@ -2,7 +2,7 @@
 
 import { Edit3, X } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Dialog } from '@/components/ui/dialog';
 import { type UserList, updateUserList } from '@/lib/lists';
 
@@ -25,6 +25,7 @@ const PRESET_TAGS = [
 ];
 
 export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModalProps) {
+  const handleOpenChange = useCallback((open: boolean) => { if (!open) onClose(); }, [onClose]);
   const [name, setName] = useState(list.name);
   const [description, setDescription] = useState(list.description || '');
   const [isPublic, setIsPublic] = useState(list.isPublic ?? true);
@@ -83,7 +84,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={handleOpenChange}
       title="Editar lista"
       description="Atualize o título, a descrição, as tags e a privacidade da lista."
     >
