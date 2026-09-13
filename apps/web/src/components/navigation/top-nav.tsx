@@ -19,6 +19,13 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
+import {
+  PixelBookmark,
+  PixelGlobe,
+  PixelLogout,
+  PixelSettings,
+  PixelUser
+} from '@/components/landing/game-pixel-icons';
 import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -84,8 +91,27 @@ function TopNavContent({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Game[]>([]);
+  const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (searchResults.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedSearchIndex((prev) => (prev + 1) % searchResults.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedSearchIndex((prev) => (prev - 1 + searchResults.length) % searchResults.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const target = searchResults[selectedSearchIndex];
+      if (target) {
+        setSearchOpen(false);
+        router.push(`/games/${target.slug}`);
+      }
+    }
+  };
 
   // Global shortcut CTRL+K / CMD+K
   useEffect(() => {
@@ -194,13 +220,13 @@ function TopNavContent({
   return (
     <>
       {/* Centralized Floating Capsule Bar */}
-      <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex flex-col items-center px-3 sm:top-4 sm:px-4">
-        <header className="pointer-events-auto relative flex h-11 min-w-[720px] max-w-2xl items-center justify-between gap-3 rounded-full  bg-[#121212]/95 px-2.5 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl transition-all sm:h-12 sm:gap-9 sm:px-3.5">
+      <div className="pointer-events-none fixed inset-x-0 top-2.5 z-50 flex flex-col items-center px-2.5 sm:top-4 sm:px-4">
+        <header className="pointer-events-auto relative flex h-11 w-full max-w-2xl items-center justify-between gap-1.5 rounded-full border border-white/[0.08] bg-[#121212]/95 px-2 shadow-[0_16px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl transition-all sm:h-12 sm:gap-4 sm:px-3.5">
           {/* Left: Logo & Nav Links */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             <Link
               href="/home"
-              className="flex size-8 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
+              className="flex size-7.5 sm:size-8 shrink-0 items-center justify-center rounded-full bg-white/[0.04] p-1.5 transition-colors hover:bg-white/[0.08] active:scale-95"
             >
               <Logos.Joysticked className="size-full text-white" />
             </Link>
@@ -225,7 +251,7 @@ function TopNavContent({
                       <Link
                         href={item.href}
                         onClick={() => setGamesMenuOpen(false)}
-                        className={`relative flex select-none items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11.5px] transition-colors sm:px-3 sm:text-xs ${gamesMenuOpen ? 'text-white' : 'text-neutral-300 hover:text-white'
+                        className={`relative flex select-none items-center gap-1 sm:gap-1.5 rounded-full px-2 py-1 text-[11px] transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${gamesMenuOpen ? 'text-white' : 'text-neutral-300 hover:text-white'
                           }`}
                       >
                         {(isActive || gamesMenuOpen) && (
@@ -235,7 +261,7 @@ function TopNavContent({
                             className="absolute inset-0 rounded-full bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
                           />
                         )}
-                        <span className="relative z-10 flex items-center gap-1.5">
+                        <span className="relative z-10 flex items-center gap-1 sm:gap-1.5">
                           <Icon className="size-3.5" />
                           <span>{item.label}</span>
                           <ChevronDown
@@ -252,7 +278,7 @@ function TopNavContent({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="relative flex select-none items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11.5px] text-neutral-300 transition-colors hover:text-white sm:px-3 sm:text-xs"
+                    className="relative flex select-none items-center gap-1 sm:gap-1.5 rounded-full px-2 py-1 text-[11px] text-neutral-300 transition-colors hover:text-white sm:px-3 sm:py-1.5 sm:text-xs"
                   >
                     {isActive && (
                       <motion.div
@@ -261,7 +287,7 @@ function TopNavContent({
                         className="absolute inset-0 rounded-full bg-white/[0.12] shadow-[0_2px_12px_rgba(255,255,255,0.08)]"
                       />
                     )}
-                    <span className="relative z-10 flex items-center gap-1.5">
+                    <span className="relative z-10 flex items-center gap-1 sm:gap-1.5">
                       <Icon className="size-3.5" />
                       <span>{item.label}</span>
                     </span>
@@ -272,15 +298,16 @@ function TopNavContent({
           </div>
 
           {/* Right: Search Pill & User Profile */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Search Pill with CTRL+K */}
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex cursor-pointer select-none items-center gap-2 rounded-full bg-white/[0.04] px-2.5 py-1 text-neutral-400 text-xs transition-colors hover:bg-white/[0.08] hover:text-neutral-200 sm:px-3"
+              className="flex cursor-pointer select-none items-center gap-1.5 rounded-full bg-white/[0.04] p-1.5 text-neutral-400 text-xs transition-colors hover:bg-white/[0.08] hover:text-neutral-200 sm:px-3 sm:py-1"
+              title="Buscar (Ctrl+K)"
             >
               <Search className="size-3.5 text-neutral-400" />
-              <span className="hidden text-[11px] md:inline">Procure por tudo</span>
+              <span className="hidden text-[11px] md:inline">Buscar</span>
               <kbd className="hidden items-center rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[9px] text-neutral-400 sm:inline-flex">
                 CTRL + K
               </kbd>
@@ -304,7 +331,7 @@ function TopNavContent({
                       className="size-full object-cover"
                     />
                   ) : (
-                    <div className="flex size-full items-center justify-center bg-indigo-900 font-bold text-[10px] text-white uppercase">
+                    <div className="flex size-full items-center justify-center bg-neutral-800 font-bold text-[10px] text-white uppercase">
                       {currentUser.username[0] || 'U'}
                     </div>
                   )}
@@ -318,10 +345,10 @@ function TopNavContent({
                       animate={{ clipPath: 'inset(0% 0% 0% 0% round 16px)', opacity: 1 }}
                       exit={{ clipPath: 'inset(0% 0% 100% 0% round 16px)', opacity: 0 }}
                       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-0 top-[calc(100%+10px)] z-50 w-44 select-none overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_16px_40px_rgba(0,0,0,0.9)]"
+                      className="absolute right-0 top-[calc(100%+8px)] z-50 w-48 max-w-[calc(100vw-2rem)] select-none overflow-hidden rounded-2xl border border-white/10 bg-[#121212]/95 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
                     >
                       {/* User info header */}
-                      <div className="border-b border-white/[0.06] px-3.5 py-2.5">
+                      <div className="border-b border-white/[0.06] px-3.5 py-2.5 bg-white/[0.02]">
                         <p className="truncate font-semibold text-[11px] text-white">{currentUser.displayName || currentUser.username}</p>
                         <p className="truncate text-[10px] text-neutral-500">@{currentUser.username}</p>
                       </div>
@@ -334,14 +361,18 @@ function TopNavContent({
                           onClick={() => setUserMenuOpen(false)}
                           className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          {/* Pixel user icon */}
-                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
-                            <rect x="3" y="0" width="2" height="2" />
-                            <rect x="2" y="2" width="4" height="2" />
-                            <rect x="1" y="4" width="6" height="1" />
-                            <rect x="0" y="5" width="8" height="3" />
-                          </svg>
-                          Perfil
+                          <PixelUser size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <span>Perfil</span>
+                        </Link>
+
+                        {/* Saved / Lists */}
+                        <Link
+                          href="/lists"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                        >
+                          <PixelBookmark size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <span>Minhas Listas</span>
                         </Link>
 
                         {/* Settings */}
@@ -350,20 +381,8 @@ function TopNavContent({
                           onClick={() => setUserMenuOpen(false)}
                           className="group flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          {/* Pixel gear icon */}
-                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
-                            <rect x="3" y="0" width="2" height="1" />
-                            <rect x="0" y="3" width="1" height="2" />
-                            <rect x="7" y="3" width="1" height="2" />
-                            <rect x="3" y="7" width="2" height="1" />
-                            <rect x="1" y="1" width="2" height="1" />
-                            <rect x="5" y="1" width="2" height="1" />
-                            <rect x="1" y="6" width="2" height="1" />
-                            <rect x="5" y="6" width="2" height="1" />
-                            <rect x="2" y="2" width="4" height="4" />
-                            <rect x="3" y="3" width="2" height="2" fill="#141414" />
-                          </svg>
-                          Configurações
+                          <PixelSettings size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <span>Configurações</span>
                         </Link>
 
                         {/* Language */}
@@ -371,26 +390,14 @@ function TopNavContent({
                           type="button"
                           className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-neutral-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                         >
-                          {/* Pixel globe icon */}
-                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-70 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
-                            <rect x="2" y="0" width="4" height="1" />
-                            <rect x="1" y="1" width="1" height="1" />
-                            <rect x="6" y="1" width="1" height="1" />
-                            <rect x="0" y="2" width="1" height="4" />
-                            <rect x="7" y="2" width="1" height="4" />
-                            <rect x="1" y="6" width="1" height="1" />
-                            <rect x="6" y="6" width="1" height="1" />
-                            <rect x="2" y="7" width="4" height="1" />
-                            <rect x="3" y="0" width="2" height="8" />
-                            <rect x="1" y="3" width="6" height="2" />
-                          </svg>
-                          Idioma
-                          <span className="ml-auto text-[10px] text-neutral-500">PT-BR</span>
+                          <PixelGlobe size={15} className="shrink-0 text-neutral-400 group-hover:text-white" />
+                          <span>Idioma</span>
+                          <span className="ml-auto text-[10px] font-medium text-neutral-500">PT-BR</span>
                         </button>
                       </div>
 
                       {/* Logout */}
-                      <div className="border-t border-white/[0.06] p-1.5">
+                      <div className="border-t border-white/[0.06] p-1.5 bg-white/[0.01]">
                         <button
                           type="button"
                           onClick={() => {
@@ -399,17 +406,8 @@ function TopNavContent({
                           }}
                           className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
                         >
-                          {/* Pixel door/exit icon */}
-                          <svg width="12" height="12" viewBox="0 0 8 8" fill="currentColor" className="shrink-0 opacity-80 group-hover:opacity-100" style={{ imageRendering: 'pixelated' }}>
-                            <rect x="0" y="0" width="4" height="8" />
-                            <rect x="5" y="2" width="3" height="1" />
-                            <rect x="5" y="5" width="3" height="1" />
-                            <rect x="6" y="3" width="2" height="2" />
-                            <rect x="4" y="3" width="4" height="2" fill="transparent" />
-                            <rect x="7" y="3" width="1" height="1" fill="currentColor" />
-                            <rect x="4" y="3" width="1" height="1" fill="currentColor" />
-                          </svg>
-                          Sair
+                          <PixelLogout size={15} className="shrink-0 text-rose-400 group-hover:text-rose-300" />
+                          <span>Sair</span>
                         </button>
                       </div>
                     </motion.div>
@@ -421,7 +419,7 @@ function TopNavContent({
                 variant="ghost"
                 size="sm"
                 asChild
-                className="h-7 rounded-full bg-white/[0.05] px-3 text-white text-xs hover:bg-white/[0.1]"
+                className="h-7 rounded-full bg-white/[0.05] px-2.5 sm:px-3 text-white text-xs hover:bg-white/[0.1]"
               >
                 <Link href="/auth">Entrar</Link>
               </Button>
@@ -460,6 +458,7 @@ function TopNavContent({
                       }
                       alt={featuredAwaited?.name || 'Halloween: The Game'}
                       fill
+                      unoptimized
                       sizes="56px"
                       className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -480,7 +479,7 @@ function TopNavContent({
               </div>
 
               {/* Short category links */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {DROPDOWN_OPTIONS.map((item) => {
                   const isTabActive = currentTab === item.tab;
                   const Icon = item.icon;
@@ -519,116 +518,259 @@ function TopNavContent({
         </AnimatePresence>
       </div>
 
-      {/* Quick Search Modal (CTRL + K) */}
+      {/* Quick Search Command Palette Modal (CTRL + K) */}
       <AnimatePresence>
         {searchOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/75 px-4 pt-20 backdrop-blur-md sm:pt-28">
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 p-4 pt-16 backdrop-blur-md sm:pt-24">
+            {/* Backdrop click to close */}
+            <div
+              className="fixed inset-0"
+              onClick={() => setSearchOpen(false)}
+              aria-hidden="true"
+            />
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: -8 }}
+              initial={{ opacity: 0, scale: 0.97, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -8 }}
-              transition={{ duration: 0.15 }}
-              className="relative w-full max-w-xl space-y-3 rounded-2xl bg-neutral-900/95 p-4 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.97, y: -10 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 flex w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c0c0e]/95 shadow-[0_30px_90px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
             >
-              {/* Search Bar Input */}
-              <div className="relative flex items-center">
-                <Search className="absolute left-3.5 size-4 text-neutral-400" />
+              {/* Search Header Input */}
+              <div className="relative flex items-center border-b border-white/[0.08] px-4 py-3.5">
+                <Search className="size-4 text-neutral-400 shrink-0 mr-3" />
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Procure por jogos, franquias, gêneros..."
-                  className="w-full rounded-xl bg-white/[0.05] py-2.5 pr-10 pl-10 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-white/20"
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSelectedSearchIndex(0);
+                  }}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Buscar jogos por título, gênero ou franquia..."
+                  className="w-full bg-transparent font-sans text-sm text-white placeholder-neutral-500 outline-none sm:text-base"
                 />
-                {searchQuery ? (
+
+                {isSearching ? (
+                  <Loader2 className="size-4 animate-spin text-neutral-400 shrink-0" />
+                ) : searchQuery ? (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 text-neutral-400 hover:text-white"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchResults([]);
+                    }}
+                    className="rounded-md p-1 text-neutral-400 hover:bg-white/[0.08] hover:text-white"
                   >
                     <X className="size-4" />
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSearchOpen(false)}
-                    className="absolute right-3 rounded bg-white/[0.08] px-1.5 py-0.5 font-mono text-[10px] text-neutral-400 hover:text-white"
-                  >
+                  <kbd className="hidden rounded border border-white/10 bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-neutral-400 sm:inline-flex">
                     ESC
-                  </button>
+                  </kbd>
                 )}
               </div>
 
-              {/* Live Search Results */}
-              <div className="max-h-[380px] space-y-1 overflow-y-auto">
+              {/* Quick Filter Categories */}
+              <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-white/[0.01] px-4 py-2 text-xs overflow-x-auto">
+                <span className="text-[11px] text-neutral-500 mr-1">Explorar:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    router.push('/games?tab=descobrir');
+                  }}
+                  className="rounded-full border border-white/[0.06] bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-neutral-300 hover:border-white/20 hover:text-white"
+                >
+                  Descobrir
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    router.push('/games?tab=populares');
+                  }}
+                  className="rounded-full border border-white/[0.06] bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-neutral-300 hover:border-white/20 hover:text-white"
+                >
+                  Populares
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    router.push('/games?tab=bem-avaliados');
+                  }}
+                  className="rounded-full border border-white/[0.06] bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-neutral-300 hover:border-white/20 hover:text-white"
+                >
+                  Mais Bem Avaliados
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    router.push('/games?tab=lancamentos');
+                  }}
+                  className="rounded-full border border-white/[0.06] bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-neutral-300 hover:border-white/20 hover:text-white"
+                >
+                  Lançamentos
+                </button>
+              </div>
+
+              {/* Search Results / Suggestions Area */}
+              <div className="max-h-[380px] overflow-y-auto p-2">
                 {isSearching ? (
-                  <div className="flex items-center justify-center gap-2 p-8 text-center text-neutral-400 text-xs">
-                    <Loader2 className="size-4 animate-spin" />
-                    <span>Buscando jogos...</span>
+                  <div className="flex items-center justify-center gap-2.5 py-12 text-neutral-400 text-xs">
+                    <Loader2 className="size-4 animate-spin text-white" />
+                    <span>Pesquisando no catálogo...</span>
                   </div>
                 ) : searchResults.length > 0 ? (
-                  searchResults.map((game) => (
-                    <button
-                      key={game.id || game.slug}
-                      type="button"
-                      onClick={() => {
-                        setSearchOpen(false);
-                        router.push(`/games/${game.slug}`);
-                      }}
-                      className="group flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-white/[0.06]"
-                    >
-                      <div className="relative aspect-[3/4] w-9 shrink-0 overflow-hidden rounded-md bg-neutral-800">
-                        {game.coverUrl ? (
-                          <Image
-                            src={game.coverUrl}
-                            alt={game.name}
-                            fill
-                            sizes="36px"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex size-full items-center justify-center bg-neutral-800 text-neutral-600">
-                            <Gamepad2 className="size-3.5" />
+                  <div className="space-y-1">
+                    <div className="px-3 py-1 font-semibold text-[10.5px] text-neutral-500 uppercase tracking-wider">
+                      Resultados ({searchResults.length})
+                    </div>
+                    {searchResults.map((game, index) => {
+                      const isSelected = index === selectedSearchIndex;
+                      return (
+                        <button
+                          key={game.id || game.slug}
+                          type="button"
+                          onMouseEnter={() => setSelectedSearchIndex(index)}
+                          onClick={() => {
+                            setSearchOpen(false);
+                            router.push(`/games/${game.slug}`);
+                          }}
+                          className={`flex w-full items-center gap-3 rounded-xl p-2 text-left transition-all ${
+                            isSelected
+                              ? 'bg-white/[0.08] ring-1 ring-white/15'
+                              : 'hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div className="relative aspect-[2/3] w-10 shrink-0 overflow-hidden rounded-lg bg-neutral-800 border border-white/[0.08]">
+                            {game.coverUrl ? (
+                              <Image
+                                src={game.coverUrl}
+                                alt={game.name}
+                                fill
+                                unoptimized
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex size-full items-center justify-center bg-neutral-800 text-neutral-600">
+                                <Gamepad2 className="size-4" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate font-semibold text-white text-xs transition-colors group-hover:text-purple-300">
-                            {game.name}
-                          </p>
-                          {game.releaseYear && (
-                            <span className="shrink-0 text-[10px] text-neutral-400">
-                              ({game.releaseYear})
-                            </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="truncate font-semibold text-white text-xs sm:text-sm">
+                                {game.name}
+                              </p>
+                              {game.releaseYear && (
+                                <span className="shrink-0 text-[10.5px] text-neutral-400 tabular-nums">
+                                  ({game.releaseYear})
+                                </span>
+                              )}
+                            </div>
+                            {game.genres && game.genres.length > 0 && (
+                              <p className="truncate text-[11px] text-neutral-400">
+                                {game.genres.slice(0, 3).join(' • ')}
+                              </p>
+                            )}
+                          </div>
+
+                          {game.rating && (
+                            <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-black/40 px-2 py-0.5 font-bold text-[10.5px] text-white tabular-nums">
+                              <Star className="size-2.5 fill-white text-white" />
+                              <span>
+                                {game.rating > 5
+                                  ? (game.rating / 2).toFixed(1)
+                                  : Number(game.rating).toFixed(1)}
+                              </span>
+                            </div>
                           )}
-                        </div>
-                        {game.genres && game.genres.length > 0 && (
-                          <p className="truncate text-[10px] text-neutral-400">
-                            {game.genres.slice(0, 2).join(' • ')}
-                          </p>
-                        )}
-                      </div>
-
-                      {game.rating && (
-                        <div className="flex shrink-0 items-center gap-1 font-bold text-[10px] text-amber-300">
-                          <Star className="size-2.5 fill-amber-300" />
-                          <span>{Number(game.rating).toFixed(1)}</span>
-                        </div>
-                      )}
-                    </button>
-                  ))
+                        </button>
+                      );
+                    })}
+                  </div>
                 ) : searchQuery.trim() ? (
-                  <div className="p-8 text-center text-neutral-400 text-xs">
-                    Nenhum jogo encontrado para &ldquo;{searchQuery}&rdquo;.
+                  <div className="py-12 text-center text-neutral-400 text-xs">
+                    <p className="font-medium text-neutral-300 text-sm">Nenhum título encontrado</p>
+                    <p className="mt-1 text-neutral-500">
+                      Não encontramos jogos para &ldquo;{searchQuery}&rdquo;. Tente buscar por palavras-chave ou confira as abas do catálogo.
+                    </p>
                   </div>
                 ) : (
-                  <div className="p-6 text-center text-neutral-500 text-xs">
-                    Digite o nome de um jogo para buscar rapidamente.
+                  /* Quick Popular Suggestions & Genres */
+                  <div className="space-y-4 p-3">
+                    <div>
+                      <span className="block px-1 pb-2 font-semibold text-[10.5px] text-neutral-500 uppercase tracking-wider">
+                        Jogos Populares
+                      </span>
+                      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+                        {['Elden Ring', "Baldur's Gate 3", 'Cyberpunk 2077', 'The Witcher 3', 'Red Dead Redemption 2', 'Grand Theft Auto VI'].map(
+                          (title) => (
+                            <button
+                              key={title}
+                              type="button"
+                              onClick={() => setSearchQuery(title)}
+                              className="flex items-center gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] p-2 text-left text-xs text-neutral-300 transition-colors hover:border-white/15 hover:bg-white/[0.06] hover:text-white"
+                            >
+                              <Gamepad2 className="size-3.5 text-neutral-400 shrink-0" />
+                              <span className="truncate">{title}</span>
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="block px-1 pb-2 font-semibold text-[10.5px] text-neutral-500 uppercase tracking-wider">
+                        Gêneros em Alta
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {['RPG', 'Souls-like', 'Ação', 'Aventura', 'Indie', 'Mundo Aberto', 'Estratégia'].map(
+                          (genre) => (
+                            <button
+                              key={genre}
+                              type="button"
+                              onClick={() => setSearchQuery(genre)}
+                              className="rounded-full border border-white/[0.06] bg-white/[0.03] px-3 py-1 text-[11px] text-neutral-300 transition-colors hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                            >
+                              {genre}
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
+              </div>
+
+              {/* Command Palette Keyboard Hints Footer */}
+              <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-[11px] text-neutral-400">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1">
+                    <kbd className="rounded border border-white/10 bg-white/[0.06] px-1 py-0.2 font-mono text-[9px]">
+                      ↑↓
+                    </kbd>
+                    Navegar
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <kbd className="rounded border border-white/10 bg-white/[0.06] px-1 py-0.2 font-mono text-[9px]">
+                      ↵
+                    </kbd>
+                    Abrir jogo
+                  </span>
+                </div>
+                <span className="flex items-center gap-1">
+                  <kbd className="rounded border border-white/10 bg-white/[0.06] px-1.5 py-0.2 font-mono text-[9px]">
+                    ESC
+                  </kbd>
+                  Fechar
+                </span>
               </div>
             </motion.div>
           </div>

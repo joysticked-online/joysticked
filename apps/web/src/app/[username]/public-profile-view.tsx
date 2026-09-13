@@ -205,7 +205,14 @@ export function PublicProfileView({ profile: initialProfile }: { profile: Profil
                 <CollectionTab key="collection" displayGames={displayGames} />
               )}
 
-              {activeTab === 'lists' && <ListsTab key="lists" displayGames={displayGames} />}
+              {activeTab === 'lists' && (
+                <ListsTab
+                  key="lists"
+                  displayGames={displayGames}
+                  username={profile.username}
+                  isOwnProfile={isOwnProfile}
+                />
+              )}
 
               {activeTab === 'reviews' && (
                 <ReviewsTab

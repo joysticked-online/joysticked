@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default async function GamesPage() {
   const [popularGames, topRatedGames, newReleases] = await Promise.all([
-    getPopularGames(18),
-    getTopRatedGames(18),
-    getPopularNewReleases(18)
+    getPopularGames(21),
+    getTopRatedGames(21),
+    getPopularNewReleases(21)
   ]);
 
   return (

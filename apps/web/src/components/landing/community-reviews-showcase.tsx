@@ -51,7 +51,7 @@ const FEATURED_REVIEWS: FeaturedReview[] = [
     id: '2',
     gameTitle: 'Hollow Knight',
     gameSlug: 'hollow-knight',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cobfzp.webp',
     hearts: 4.5,
     user: {
       username: 'clara_pixels',
@@ -71,7 +71,7 @@ const FEATURED_REVIEWS: FeaturedReview[] = [
     id: '3',
     gameTitle: 'Chrono Trigger',
     gameSlug: 'chrono-trigger',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co87df.webp',
     hearts: 5.0,
     user: {
       username: 'retro_marcos',
@@ -91,7 +91,7 @@ const FEATURED_REVIEWS: FeaturedReview[] = [
     id: '4',
     gameTitle: 'Balatro',
     gameSlug: 'balatro',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co7rq6.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co9f4g.webp',
     hearts: 4.5,
     user: {
       username: 'deck_builder',

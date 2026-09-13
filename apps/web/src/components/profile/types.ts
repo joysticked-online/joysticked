@@ -161,7 +161,7 @@ export const GAME_CATALOG_LOOKUP: Record<string, ProfileGame> = {
   'hollow-knight': {
     id: 'hollow-knight',
     title: 'Hollow Knight',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co952f.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cobfzp.webp',
     backdropUrl: 'https://images.igdb.com/igdb/image/upload/t_1080p/sc6w2k.webp',
     year: '2017',
     developer: 'Team Cherry',

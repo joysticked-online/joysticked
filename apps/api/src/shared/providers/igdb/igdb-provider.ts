@@ -1839,47 +1839,47 @@ class IgdbProvider {
     // Default RPG / Adventure / Souls
     const defaultGames: IgdbGame[] = [
       {
-        id: 119133,
+        id: 11133,
         name: 'Dark Souls III',
         slug: 'dark-souls-iii',
         summary:
           'Enquanto o fogo se apaga e o mundo cai em ruínas, viaje para um universo repleto de inimigos colossais.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co1vce.webp',
+        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cob9ed.webp',
         genres: ['Role-playing (RPG)', 'Aventura'],
         platforms: ['PC', 'PlayStation 4', 'Xbox One'],
         releaseYear: '2016',
         rating: 4.8
       },
       {
-        id: 119134,
+        id: 7334,
         name: 'Bloodborne',
         slug: 'bloodborne',
         summary: 'Enfrente seus medos enquanto busca respostas na antiga cidade de Yharnam.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co1rba.webp',
+        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cob99l.webp',
         genres: ['Role-playing (RPG)', 'Ação'],
         platforms: ['PlayStation 4'],
         releaseYear: '2015',
         rating: 4.9
       },
       {
-        id: 119135,
+        id: 76882,
         name: 'Sekiro: Shadows Die Twice',
         slug: 'sekiro-shadows-die-twice',
         summary:
           'Trace seu próprio caminho para a vingança nesta aventura premiada da FromSoftware.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co1rbu.webp',
+        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co2a23.webp',
         genres: ['Ação', 'Aventura'],
         platforms: ['PC', 'PlayStation 4', 'Xbox One'],
         releaseYear: '2019',
         rating: 4.9
       },
       {
-        id: 119136,
+        id: 148241,
         name: 'Lies of P',
         slug: 'lies-of-p',
         summary:
           'Um soulslike emocionante que adapta a história de Pinóquio em uma cidade sombria da Belle Époque.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co6p64.webp',
+        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co6lxr.webp',
         genres: ['Role-playing (RPG)', 'Aventura'],
         platforms: ['PC', 'PlayStation 5', 'Xbox Series X|S'],
         releaseYear: '2023',
@@ -2127,7 +2127,7 @@ class IgdbProvider {
         slug: 'hollow-knight',
         summary:
           'Explore um vasto reino arruinado de insetos e heróis neste aclamado metroidvania.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co9505.webp',
+        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/cobfzp.webp',
         genres: ['Aventura', 'Plataforma', 'Indie'],
         platforms: ['PC', 'PlayStation 4', 'Xbox One', 'Nintendo Switch'],
         releaseYear: '2017',

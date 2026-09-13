@@ -62,7 +62,7 @@ export const DEFAULT_DISCOVERY_GAMES: DiscoveryGame[] = [
     title: 'Hollow Knight',
     year: '2017',
     developer: 'Team Cherry',
-    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/co952f.webp',
+    coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big_2x/cobfzp.webp',
     genres: ['Metroidvania', 'Indie']
   }
 ];

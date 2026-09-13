@@ -331,3 +331,115 @@ export function PixelSave({ size = 24, className = '', color = 'currentColor', .
     </svg>
   );
 }
+
+// 13. Pixel User / Profile Avatar
+export function PixelUser({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      shapeRendering="crispEdges"
+      {...props}
+    >
+      {/* Head & Hair */}
+      <path d="M5 2h6v2H5V2zM4 4h8v4H4V4z" fill={color} />
+      {/* Face cutout & features */}
+      <path d="M5 5h6v3H5V5z" fill={color} />
+      <path d="M6 6h1v1H6V6zm3 0h1v1H9V6z" fill="#141414" />
+      {/* Neck */}
+      <path d="M7 8h2v2H7V8z" fill={color} />
+      {/* Torso & Shoulders */}
+      <path d="M4 10h8v1H4v-1zM2 11h12v4H2v-4z" fill={color} />
+      <path d="M7 11h2v3H7v-3z" fill="#141414" fillOpacity="0.7" />
+    </svg>
+  );
+}
+
+// 14. Pixel Settings / Gear
+export function PixelSettings({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      shapeRendering="crispEdges"
+      {...props}
+    >
+      {/* Outer Teeth */}
+      <path d="M7 1h2v2H7V1zm0 12h2v2H7v-2zM1 7h2v2H1V7zm12 0h2v2h-2V7zM3 3h2v2H3V3zm8 0h2v2h-2V3zm-8 8h2v2H3v-2zm8 0h2v2h-2v-2z" fill={color} />
+      {/* Gear Rim */}
+      <path d="M4 4h8v8H4V4z" fill={color} />
+      {/* Center Axle Hole */}
+      <path d="M6 6h4v4H6V6z" fill="#141414" />
+    </svg>
+  );
+}
+
+// 15. Pixel Globe / Language
+export function PixelGlobe({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      shapeRendering="crispEdges"
+      {...props}
+    >
+      {/* Outer circle perimeter */}
+      <path d="M6 1h4v1H6V1zM4 2h2v1H4V2zm6 0h2v1h-2V2zM2 4h2v2H2V4zm10 0h2v2h-2V4zM1 6h1v4H1V6zm13 0h1v4h-1V6zM2 10h2v2H2v-2zm10 0h2v2h-2v-2zM4 13h2v1H4v-1zm6 0h2v1h-2v-1zM6 14h4v1H6v-1z" fill={color} />
+      {/* Grid Lines */}
+      <path d="M7 2h2v12H7V2zM2 7h12v2H2V7z" fill={color} />
+      <path d="M4 4h8v1H4V4zm0 7h8v1H4v-1z" fill={color} fillOpacity="0.4" />
+    </svg>
+  );
+}
+
+// 16. Pixel Logout / Exit Door
+export function PixelLogout({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      shapeRendering="crispEdges"
+      {...props}
+    >
+      {/* Door Outline */}
+      <path d="M2 1h7v2H2V1zm0 2h2v10H2V3zm0 10h7v2H2v-2z" fill={color} />
+      {/* Door Jam Accents */}
+      <path d="M7 2h2v1H7V2zm0 11h2v1H7v-1z" fill={color} fillOpacity="0.5" />
+      {/* Exit Arrow Shaft */}
+      <path d="M5 7h7v2H5V7z" fill={color} />
+      {/* Exit Arrow Head */}
+      <path d="M10 4h2v1h-2V4zm2 1h1v2h-1V5zm-2 4h2v1h-2V9zm2-1h1v1h-1V8zm-1-1h1v2h-1V7z" fill={color} />
+    </svg>
+  );
+}
+
+// 17. Pixel Bookmark / Lists
+export function PixelBookmark({ size = 16, className = '', color = 'currentColor', ...props }: PixelIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      shapeRendering="crispEdges"
+      {...props}
+    >
+      <path d="M3 2h10v12l-5-4-5 4V2z" fill={color} />
+      <path d="M5 4h6v2H5V4z" fill="#141414" fillOpacity="0.3" />
+    </svg>
+  );
+}
+
