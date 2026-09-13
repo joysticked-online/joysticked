@@ -13,8 +13,11 @@ type RateLimitOptions = {
   failureMode?: 'open' | 'closed';
 };
 
-const clientIdentifier = (request: Request) => {
-  if (!envs.app.TRUST_PROXY) return 'direct-connection';
+const clientIdentifier = (
+  request: Request,
+  server: { requestIP(request: Request): { address: string } | null } | null
+) => {
+  if (!envs.app.TRUST_PROXY) return server?.requestIP(request)?.address || 'unknown';
 
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
@@ -28,14 +31,14 @@ export const rateLimitMiddleware = ({
   key,
   failureMode = 'open'
 }: RateLimitOptions) =>
-  new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request }) => {
+  new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request, server }) => {
     try {
       const ratelimit = new Ratelimit({
         redis,
         limiter: strategy
       });
 
-      const ip = clientIdentifier(request);
+      const ip = clientIdentifier(request, server);
 
       const { success } = await ratelimit.limit(key ? `${key}:${ip}` : ip);
 
