@@ -1,121 +1,9 @@
 import { envs } from '../../../config/envs';
 import { ADMIN_GAME_BANNERS } from '../../../constants/admin-banners';
+import { isForbiddenGame } from './search-policy';
+import type { IgdbGame, IgdbPlatform, IgdbRawGame, IgdbTimeToBeat } from '../types';
 
-export type IgdbGame = {
-  id: number;
-  name: string;
-  slug: string;
-  summary?: string;
-  storyline?: string;
-  coverUrl?: string;
-  bannerUrl?: string;
-  artworks?: string[];
-  screenshots?: string[];
-  genres: string[];
-  platforms: string[];
-  gameModes?: string[];
-  firstReleaseDate?: string;
-  releaseYear?: string;
-  developer?: string;
-  publisher?: string;
-  rating?: number;
-  aggregatedRating?: number;
-  category?: number;
-  genreIds?: number[];
-  similarGames?: IgdbGame[];
-  recommendedGames?: IgdbGame[];
-};
-
-export type IgdbPlatform = {
-  id: number;
-  name: string;
-  abbreviation?: string;
-};
-
-export type IgdbTimeToBeat = {
-  gameId: number;
-  completely?: number;
-  hastily?: number;
-  normally?: number;
-};
-
-export type IgdbRawGame = {
-  id: number;
-  name: string;
-  slug: string;
-  category?: number;
-  summary?: string;
-  storyline?: string;
-  cover?: { id: number; image_id?: string; url?: string };
-  artworks?: { id: number; image_id?: string; url?: string }[];
-  screenshots?: { id: number; image_id?: string; url?: string }[];
-  genres?: { id: number; name: string }[];
-  platforms?: { id: number; name: string; abbreviation?: string }[];
-  game_modes?: { id: number; name: string }[];
-  first_release_date?: number;
-  rating?: number;
-  aggregated_rating?: number;
-  involved_companies?: {
-    id: number;
-    developer: boolean;
-    publisher: boolean;
-    company?: { id: number; name: string };
-  }[];
-  similar_games?: (IgdbRawGame | number)[];
-};
-
-export function normalizeSearchText(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-}
-
-function removeSearchFillers(value: string): string {
-  const fillerWords = new Set([
-    'a',
-    'an',
-    'and',
-    'da',
-    'das',
-    'de',
-    'do',
-    'dos',
-    'e',
-    'for',
-    'in',
-    'of',
-    'on',
-    'the',
-    'to'
-  ]);
-  return value
-    .split(' ')
-    .filter((word) => word && !fillerWords.has(word))
-    .join(' ');
-}
-
-export function getSearchRelevance(game: Pick<IgdbGame, 'name' | 'slug'>, query: string): number {
-  const normalizedQuery = normalizeSearchText(query);
-  const normalizedName = normalizeSearchText(game.name);
-  const normalizedSlug = normalizeSearchText(game.slug);
-  const compactQuery = removeSearchFillers(normalizedQuery);
-  const compactName = removeSearchFillers(normalizedName);
-
-  if (!normalizedQuery) return 0;
-  if (normalizedName === normalizedQuery || normalizedSlug === normalizedQuery) return 100;
-  if (compactName === compactQuery) return 95;
-  if (normalizedName.startsWith(normalizedQuery)) return 90;
-  if (normalizedName.split(' ').some((word) => word.startsWith(normalizedQuery))) return 80;
-  if (normalizedName.includes(normalizedQuery) || normalizedSlug.includes(normalizedQuery))
-    return 70;
-
-  if (compactQuery.length > 1 && compactName.startsWith(compactQuery)) return 85;
-
-  return 0;
-}
+export type { IgdbGame, IgdbPlatform, IgdbRawGame, IgdbTimeToBeat } from '../types';
 
 export class IgdbCoreMethods {
   protected static readonly LIST_CACHE_TTL = 5 * 60 * 1000;
@@ -156,46 +44,7 @@ export class IgdbCoreMethods {
       return true;
     }
 
-    const n = (name || '').toLowerCase();
-    const s = (slug || '').toLowerCase();
-
-    const forbiddenPatterns = [
-      'game of the year',
-      'goty',
-      'expansion',
-      'dlc',
-      'season pass',
-      'expansion pass',
-      'deluxe edition',
-      'complete edition',
-      'ultimate edition',
-      'gold edition',
-      'silver edition',
-      "collector's edition",
-      'collectors edition',
-      'special edition',
-      'definitive edition',
-      'anniversary edition',
-      'enhanced edition',
-      'soundtrack',
-      'artbook',
-      'booster pack',
-      'skin pack',
-      'character pack',
-      'dlc pack',
-      'upgrade pack',
-      'bonus content',
-      'add-on',
-      'starter pack',
-      'founders pack',
-      'battle pass',
-      'bundle',
-      'digital soundtrack',
-      'original soundtrack',
-      'shadow of the erdtree'
-    ];
-
-    return forbiddenPatterns.some((pattern) => n.includes(pattern) || s.includes(pattern));
+    return isForbiddenGame(name, slug, category);
   }
 
   protected async getAccessToken(): Promise<string | null> {

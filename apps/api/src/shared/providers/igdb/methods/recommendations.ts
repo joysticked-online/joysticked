@@ -1,7 +1,7 @@
-import type { IgdbGame, IgdbRawGame } from './core';
-import { IgdbSearchMethods } from './search';
+import type { IgdbGame, IgdbRawGame } from '../types';
+import { IgdbTimeToBeatMethods } from './time-to-beat';
 
-export class IgdbRecommendationMethods extends IgdbSearchMethods {
+export class IgdbRecommendationMethods extends IgdbTimeToBeatMethods {
   async getGameBySlugOrId(identifier: string): Promise<IgdbGame | null> {
     const normalizedIdentifier = identifier.toLowerCase().trim();
     const isNumeric = /^\d+$/.test(normalizedIdentifier);
@@ -16,15 +16,7 @@ export class IgdbRecommendationMethods extends IgdbSearchMethods {
     }
 
     const token = await this.getAccessToken();
-    if (!token || !this.clientId) {
-      const fallback =
-        this.getFallbackGames().find((g) => g.slug === identifier || String(g.id) === identifier) ||
-        null;
-      if (fallback && (!fallback.similarGames || fallback.similarGames.length === 0)) {
-        fallback.similarGames = this.getGenreFallbackGames(fallback, 8);
-      }
-      return fallback;
-    }
+    if (!token || !this.clientId) return null;
 
     try {
       const whereClause = isNumeric
@@ -220,19 +212,6 @@ export class IgdbRecommendationMethods extends IgdbSearchMethods {
         return (hasSportGenre || hasSportKeyword) && g.slug !== game.slug;
       });
 
-      const fallbackSports = this.getGenreFallbackGames(game, 30);
-      const existingSlugs = new Set(filtered.map((g) => g.slug));
-      existingSlugs.add(game.slug);
-
-      for (const fallback of fallbackSports) {
-        if (
-          !existingSlugs.has(fallback.slug) &&
-          !this.isDlcOrExpansion(fallback.name, fallback.slug, fallback.category)
-        ) {
-          filtered.push(fallback);
-          existingSlugs.add(fallback.slug);
-        }
-      }
       return filtered.slice(0, limit);
     }
 
@@ -266,19 +245,6 @@ export class IgdbRecommendationMethods extends IgdbSearchMethods {
         return g.slug !== game.slug;
       });
 
-      const fallbackCozy = this.getGenreFallbackGames(game, 30);
-      const existingSlugs = new Set(filtered.map((g) => g.slug));
-      existingSlugs.add(game.slug);
-
-      for (const fallback of fallbackCozy) {
-        if (
-          !existingSlugs.has(fallback.slug) &&
-          !this.isDlcOrExpansion(fallback.name, fallback.slug, fallback.category)
-        ) {
-          filtered.push(fallback);
-          existingSlugs.add(fallback.slug);
-        }
-      }
       return filtered.slice(0, limit);
     }
 
@@ -303,17 +269,6 @@ export class IgdbRecommendationMethods extends IgdbSearchMethods {
         }
       } catch (err) {
         console.warn('Error querying genre games in filterAndEnrichSimilarGames:', err);
-      }
-    }
-
-    // If still under limit, backfill with curated genre-appropriate titles
-    if (filtered.length < limit) {
-      const fallbackList = this.getGenreFallbackGames(game, 30);
-      for (const f of fallbackList) {
-        if (!existingSlugs.has(f.slug) && !this.isDlcOrExpansion(f.name, f.slug, f.category)) {
-          filtered.push(f);
-          existingSlugs.add(f.slug);
-        }
       }
     }
 
@@ -377,17 +332,12 @@ export class IgdbRecommendationMethods extends IgdbSearchMethods {
 
     let finalRecs: IgdbGame[] = [];
 
-    // For sports and cozy games, return strictly tailored curated suggestions
-    if (isSports || isCozy) {
-      finalRecs = this.getGenreFallbackGames(game, limit);
-    } else {
+    if (!isSports && !isCozy) {
       const genreIds = game.genreIds || [];
       const results = await this.queryGamesByGenre(genreIds, game.id, limit);
 
       if (results.length > 0) {
         finalRecs = results;
-      } else {
-        finalRecs = this.getGenreFallbackGames(game, limit);
       }
     }
 

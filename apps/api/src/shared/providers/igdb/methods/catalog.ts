@@ -1,4 +1,4 @@
-import type { IgdbGame, IgdbRawGame } from './core';
+import type { IgdbGame, IgdbRawGame } from '../types';
 import { IgdbCoreMethods } from './core';
 import { IgdbRecommendationMethods } from './recommendations';
 
@@ -254,56 +254,9 @@ export class IgdbCatalogMethods extends IgdbRecommendationMethods {
     if (cached && Date.now() - cached.timestamp < IgdbCoreMethods.LIST_CACHE_TTL) {
       return cached.data;
     }
-    const upcomingFallbacks: IgdbGame[] = [
-      {
-        id: 119171,
-        name: 'Grand Theft Auto VI',
-        slug: 'grand-theft-auto-vi',
-        summary:
-          'Grand Theft Auto VI heads to the state of Leonida, home to the neon-soaked streets of Vice City and beyond in the biggest, most immersive evolution of the Grand Theft Auto series yet.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co7v2e.webp',
-        genres: ['Action', 'Adventure', 'Shooter'],
-        platforms: ['PlayStation 5', 'Xbox Series X|S'],
-        releaseYear: '2025'
-      },
-      {
-        id: 279555,
-        name: 'Monster Hunter Wilds',
-        slug: 'monster-hunter-wilds',
-        summary:
-          'The next generation in the Monster Hunter series. Experience seamless gameplay and dynamic living ecosystems.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co8352.webp',
-        genres: ['Action', 'Role-playing (RPG)', 'Adventure'],
-        platforms: ['PC (Microsoft Windows)', 'PlayStation 5', 'Xbox Series X|S'],
-        releaseYear: '2025'
-      },
-      {
-        id: 301294,
-        name: 'DOOM: The Dark Ages',
-        slug: 'doom-the-dark-ages',
-        summary:
-          'The prequel to the critically acclaimed DOOM (2016) and DOOM Eternal. Witness the origin of the Doom Slayer rage.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co8g92.webp',
-        genres: ['Shooter', 'Action'],
-        platforms: ['PC (Microsoft Windows)', 'PlayStation 5', 'Xbox Series X|S'],
-        releaseYear: '2025'
-      },
-      {
-        id: 228498,
-        name: 'Death Stranding 2: On The Beach',
-        slug: 'death-stranding-2-on-the-beach',
-        summary:
-          'Embark on an inspiring mission of human connection beyond the UCA. Sam with companions sets out on a new journey to save humanity from extinction.',
-        coverUrl: 'https://images.igdb.com/igdb/image/upload/t_cover_big/co7rqp.webp',
-        genres: ['Action', 'Adventure'],
-        platforms: ['PlayStation 5'],
-        releaseYear: '2025'
-      }
-    ];
-
     const token = await this.getAccessToken();
     if (!token || !this.clientId) {
-      return upcomingFallbacks.slice(0, limit);
+      return [];
     }
 
     try {
@@ -331,7 +284,7 @@ export class IgdbCatalogMethods extends IgdbRecommendationMethods {
       });
 
       if (!res.ok) {
-        return upcomingFallbacks.slice(0, limit);
+        return [];
       }
 
       const rawGames = (await res.json()) as IgdbRawGame[];
@@ -339,19 +292,11 @@ export class IgdbCatalogMethods extends IgdbRecommendationMethods {
         .map((g) => this.transformGame(g))
         .filter((g) => !this.isDlcOrExpansion(g.name, g.slug, g.category));
 
-      if (filtered.length < limit) {
-        for (const f of upcomingFallbacks) {
-          if (!filtered.some((x) => x.slug === f.slug)) {
-            filtered.push(f);
-          }
-        }
-      }
-
       const result = filtered.slice(0, limit);
       this.upcomingCache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
     } catch {
-      return upcomingFallbacks.slice(0, limit);
+      return [];
     }
   }
 }
