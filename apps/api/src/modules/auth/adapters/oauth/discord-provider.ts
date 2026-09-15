@@ -2,6 +2,7 @@ import type { Discord } from 'arctic';
 import { z } from 'zod';
 
 import { getDiscordOAuthClient } from '../../../../shared/providers/oauth';
+import { externalFetch } from '../../../../shared/providers/external-fetch';
 import { normalizeEmail } from '../../../../shared/utils/email-validation';
 import type { OAuthProviderAdapter } from '../../application/oauth-provider';
 
@@ -23,7 +24,7 @@ export const discordProvider: OAuthProviderAdapter = {
   exchangeCode: async (code, codeVerifier) => {
     const client = getDiscordOAuthClient();
     const tokens = await client.validateAuthorizationCode(code, codeVerifier);
-    const response = await fetch('https://discord.com/api/v10/users/@me', {
+    const response = await externalFetch('https://discord.com/api/v10/users/@me', {
       headers: { Authorization: `Bearer ${tokens.accessToken()}` }
     });
 

@@ -1,5 +1,6 @@
 import { envs } from '../../config/envs';
 import { igdbProvider } from '../igdb/igdb-provider';
+import { externalFetch } from '../external-fetch';
 
 export interface SteamPlayerSummary {
   steamId: string;
@@ -74,7 +75,7 @@ export class SteamService {
       if (!term) continue;
       try {
         const searchUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(term)}&l=english&cc=US`;
-        const res = await fetch(searchUrl);
+        const res = await externalFetch(searchUrl);
         if (res.ok) {
           const data = (await res.json()) as any;
           const items = data?.items;
@@ -152,7 +153,7 @@ export class SteamService {
     verificationParams.set('openid.mode', 'check_authentication');
 
     try {
-      const response = await fetch(STEAM_OPENID_URL, {
+      const response = await externalFetch(STEAM_OPENID_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: verificationParams.toString()
@@ -197,7 +198,7 @@ export class SteamService {
     if (this.apiKey) {
       try {
         const url = `${STEAM_API_BASE}/ISteamUser/ResolveVanityURL/v0001/?key=${this.apiKey}&vanityurl=${encodeURIComponent(vanity)}`;
-        const res = await fetch(url);
+        const res = await externalFetch(url);
         if (res.ok) {
           const data = (await res.json()) as any;
           if (data?.response?.success === 1 && data.response.steamid) {
@@ -211,7 +212,7 @@ export class SteamService {
 
     // Attempt XML fallback for public profiles
     try {
-      const xmlRes = await fetch(
+      const xmlRes = await externalFetch(
         `https://steamcommunity.com/id/${encodeURIComponent(vanity)}/?xml=1`
       );
       if (xmlRes.ok) {
@@ -235,7 +236,7 @@ export class SteamService {
     if (this.apiKey) {
       try {
         const url = `${STEAM_API_BASE}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.apiKey}&steamids=${steamId}`;
-        const res = await fetch(url);
+        const res = await externalFetch(url);
         if (res.ok) {
           const data = (await res.json()) as any;
           const player = data?.response?.players?.[0];
@@ -258,7 +259,7 @@ export class SteamService {
 
     // Public fallback scrape if no API key
     try {
-      const xmlRes = await fetch(`https://steamcommunity.com/profiles/${steamId}/?xml=1`);
+      const xmlRes = await externalFetch(`https://steamcommunity.com/profiles/${steamId}/?xml=1`);
       if (xmlRes.ok) {
         const text = await xmlRes.text();
         const nameMatch = text.match(/<steamID><!\[CDATA\[(.*?)\]\]><\/steamID>/);
@@ -313,7 +314,7 @@ export class SteamService {
 
       if (this.apiKey) {
         const schemaUrl = `${STEAM_API_BASE}/ISteamUserStats/GetSchemaForGame/v2/?key=${this.apiKey}&appid=${numericAppId}&l=brazilian`;
-        const schemaRes = await fetch(schemaUrl);
+        const schemaRes = await externalFetch(schemaUrl);
         if (schemaRes.ok) {
           const schemaData = (await schemaRes.json()) as any;
           schemaAchievements = schemaData?.game?.availableGameStats?.achievements || [];
@@ -324,7 +325,7 @@ export class SteamService {
       // 2. Fetch global achievement percentages (public)
       const globalPercentages: Record<string, number> = {};
       try {
-        const globalRes = await fetch(
+        const globalRes = await externalFetch(
           `${STEAM_API_BASE}/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid=${numericAppId}`
         );
         if (globalRes.ok) {
@@ -346,7 +347,7 @@ export class SteamService {
       if (steamId && this.apiKey) {
         try {
           const userStatsUrl = `${STEAM_API_BASE}/ISteamUserStats/GetPlayerAchievements/v0001/?appid=${numericAppId}&key=${this.apiKey}&steamid=${steamId}&l=brazilian`;
-          const statsRes = await fetch(userStatsUrl);
+          const statsRes = await externalFetch(userStatsUrl);
           if (statsRes.ok) {
             const statsData = (await statsRes.json()) as any;
             const raw = statsData?.playerstats?.achievements || [];
@@ -373,7 +374,7 @@ export class SteamService {
         if (Object.keys(playerAchievementsMap).length === 0) {
           try {
             const xmlUrl = `https://steamcommunity.com/profiles/${steamId}/stats/${numericAppId}/?xml=1`;
-            const xmlRes = await fetch(xmlUrl);
+            const xmlRes = await externalFetch(xmlUrl);
             if (xmlRes.ok) {
               const xmlText = await xmlRes.text();
               const achMatches = xmlText.matchAll(
@@ -464,7 +465,7 @@ export class SteamService {
 
     try {
       const url = `${STEAM_API_BASE}/IPlayerService/GetOwnedGames/v0001/?key=${this.apiKey}&steamid=${steamId}&include_appinfo=true&include_played_free_games=true`;
-      const res = await fetch(url);
+      const res = await externalFetch(url);
       if (!res.ok) return [];
 
       const data = (await res.json()) as any;
@@ -494,7 +495,7 @@ export class SteamService {
 
     // 1. Fetch directly from Steam's official popularcomingsoon endpoint
     try {
-      const searchRes = await fetch(
+      const searchRes = await externalFetch(
         'https://store.steampowered.com/search/results/?query=&filter=popularcomingsoon&json=1',
         {
           headers: {
@@ -544,7 +545,7 @@ export class SteamService {
     // 2. Fetch from Steam's featuredcategories coming_soon if more needed
     if (results.length < limit) {
       try {
-        const res = await fetch(
+        const res = await externalFetch(
           'https://store.steampowered.com/api/featuredcategories?cc=US&l=english',
           {
             headers: {
@@ -615,7 +616,7 @@ export class SteamService {
     const seenAppIds = new Set<number>();
 
     try {
-      const res = await fetch(
+      const res = await externalFetch(
         'https://store.steampowered.com/search/results/?query=&filter=topsellers&json=1',
         {
           headers: {
@@ -672,7 +673,7 @@ export class SteamService {
     const seenAppIds = new Set<number>();
 
     try {
-      const res = await fetch(
+      const res = await externalFetch(
         'https://store.steampowered.com/search/results/?query=&filter=popularnewreleases&json=1',
         {
           headers: {

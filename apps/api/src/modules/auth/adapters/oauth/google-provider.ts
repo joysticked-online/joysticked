@@ -2,6 +2,7 @@ import type { Google } from 'arctic';
 import { z } from 'zod';
 
 import { getGoogleOAuthClient } from '../../../../shared/providers/oauth';
+import { externalFetch } from '../../../../shared/providers/external-fetch';
 import { normalizeEmail } from '../../../../shared/utils/email-validation';
 import type { OAuthProviderAdapter } from '../../application/oauth-provider';
 
@@ -24,7 +25,7 @@ export const googleProvider: OAuthProviderAdapter = {
   exchangeCode: async (code, codeVerifier) => {
     const client = getGoogleOAuthClient();
     const tokens = await client.validateAuthorizationCode(code, codeVerifier);
-    const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+    const response = await externalFetch('https://openidconnect.googleapis.com/v1/userinfo', {
       headers: { Authorization: `Bearer ${tokens.accessToken()}` }
     });
 

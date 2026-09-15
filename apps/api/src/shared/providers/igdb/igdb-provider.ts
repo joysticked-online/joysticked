@@ -1,5 +1,6 @@
 import { envs } from '../../config/envs';
 import { ADMIN_GAME_BANNERS } from '../../constants/admin-banners';
+import { externalFetch } from '../external-fetch';
 
 export type IgdbGame = {
   id: number;
@@ -209,7 +210,7 @@ class IgdbProvider {
     }
 
     try {
-      const res = await fetch(
+      const res = await externalFetch(
         `https://id.twitch.tv/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`,
         { method: 'POST' }
       );
@@ -342,7 +343,7 @@ class IgdbProvider {
     if (!token || !this.clientId) return [];
 
     try {
-      const res = await fetch('https://api.igdb.com/v4/platforms', {
+      const res = await externalFetch('https://api.igdb.com/v4/platforms', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -372,7 +373,7 @@ class IgdbProvider {
     if (!token || !this.clientId) return null;
 
     try {
-      const res = await fetch('https://api.igdb.com/v4/game_time_to_beats', {
+      const res = await externalFetch('https://api.igdb.com/v4/game_time_to_beats', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -447,7 +448,7 @@ class IgdbProvider {
         limit ${fetchLimit};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -509,7 +510,7 @@ class IgdbProvider {
           .replace(/[:\-–—]/g, ' ')
           .replace(/\s+/g, ' ')
           .trim();
-        const res = await fetch('https://api.igdb.com/v4/games', {
+        const res = await externalFetch('https://api.igdb.com/v4/games', {
           method: 'POST',
           headers: {
             'Client-ID': this.clientId,
@@ -638,7 +639,7 @@ class IgdbProvider {
         limit 1;
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -667,7 +668,7 @@ class IgdbProvider {
             search "${identifier.replace(/"/g, '')}";
             limit 1;
           `;
-          const searchRes = await fetch('https://api.igdb.com/v4/games', {
+          const searchRes = await externalFetch('https://api.igdb.com/v4/games', {
             method: 'POST',
             headers: {
               'Client-ID': this.clientId,
@@ -1014,7 +1015,7 @@ class IgdbProvider {
         limit ${limit};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -2164,7 +2165,7 @@ class IgdbProvider {
         limit ${fetchLimit};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -2227,7 +2228,7 @@ class IgdbProvider {
         limit ${fetchLimit};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -2323,7 +2324,7 @@ class IgdbProvider {
         limit ${fetchCount};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
@@ -2456,7 +2457,7 @@ class IgdbProvider {
         limit ${fetchLimit};
       `;
 
-      const res = await fetch('https://api.igdb.com/v4/games', {
+      const res = await externalFetch('https://api.igdb.com/v4/games', {
         method: 'POST',
         headers: {
           'Client-ID': this.clientId,
