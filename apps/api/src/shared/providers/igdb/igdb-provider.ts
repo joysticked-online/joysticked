@@ -1,4 +1,5 @@
 import { envs } from '../../config/envs';
+import { withRedisCache } from '../redis-cache';
 import { ADMIN_GAME_BANNERS } from '../../constants/admin-banners';
 
 export type IgdbGame = {
@@ -405,6 +406,17 @@ class IgdbProvider {
   }
 
   async searchGames(query: string, limit = 20): Promise<IgdbGame[]> {
+    const normalizedQuery = normalizeSearchText(query);
+    if (!normalizedQuery) return [];
+    return withRedisCache({
+      key: `igdb:search:${normalizedQuery}:${limit}`,
+      ttlSeconds: IgdbProvider.SEARCH_CACHE_TTL / 1000,
+      parse: (value) => Array.isArray(value) ? value as IgdbGame[] : [],
+      load: () => this.searchGamesUncached(query, limit)
+    });
+  }
+
+  private async searchGamesUncached(query: string, limit = 20): Promise<IgdbGame[]> {
     const normalizedQuery = normalizeSearchText(query);
     if (!normalizedQuery) return [];
     const cacheKey = `${normalizedQuery}:${limit}`;
