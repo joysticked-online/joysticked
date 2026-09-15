@@ -4,7 +4,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check, ChevronRight, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Logos } from '@/components/logos';
@@ -14,90 +13,8 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
-
-type PlatformOption = {
-  id: string;
-  name: string;
-  badge: string;
-  description: string;
-  iconTag: string;
-};
-
-const PLATFORMS: PlatformOption[] = [
-  {
-    id: 'pc',
-    name: 'PC / Steam',
-    badge: 'Steam',
-    description: 'Steam, Epic Games, GOG',
-    iconTag: 'PC'
-  },
-  {
-    id: 'playstation',
-    name: 'PlayStation',
-    badge: 'PS5 / PS4',
-    description: 'PlayStation 5 & PlayStation 4',
-    iconTag: 'PS'
-  },
-  {
-    id: 'xbox',
-    name: 'Xbox',
-    badge: 'Series / One',
-    description: 'Xbox Series X|S & Game Pass',
-    iconTag: 'XB'
-  },
-  {
-    id: 'switch',
-    name: 'Nintendo Switch',
-    badge: 'Switch',
-    description: 'Switch, OLED & Retro Nintendo',
-    iconTag: 'NSW'
-  },
-  {
-    id: 'handheld',
-    name: 'Portáteis & Emuladores',
-    badge: 'Deck / Retro',
-    description: 'Steam Deck, ROG Ally, Portáteis',
-    iconTag: 'HD'
-  }
-];
-
-const GENRES = [
-  'RPG',
-  'Ação',
-  'Souls-like',
-  'FPS',
-  'Indie',
-  'Terror',
-  'Roguelike',
-  'Mundo Aberto',
-  'Estratégia',
-  'Plataforma',
-  'Metroidvania',
-  'Narrativo'
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { duration: 0.16 }
-  },
-  exit: { opacity: 0, transition: { duration: 0.1 } }
-};
-
-const itemVariants = {
-  hidden: (dir: number) => ({ opacity: 0, x: dir * 12 }),
-  show: {
-    opacity: 1,
-    x: 0,
-    transition: { type: 'spring' as const, duration: 0.24, bounce: 0 }
-  },
-  exit: (dir: number) => ({
-    opacity: 0,
-    x: dir * -10,
-    transition: { duration: 0.1 }
-  })
-};
+import { containerVariants, GENRES, itemVariants, PLATFORMS } from './onboarding-options';
+import { useOnboardingState } from './use-onboarding-state';
 
 export function OnboardingFlow({
   isModal = false,
@@ -110,61 +27,23 @@ export function OnboardingFlow({
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['pc']);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>(['RPG', 'Ação', 'Souls-like']);
-  const [likedGameIds, setLikedGameIds] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Direction tracker for horizontal transition
-  const directionRef = useRef(1);
-
-  const goToStep = (next: number) => {
-    directionRef.current = next > currentStep ? 1 : -1;
-    setCurrentStep(next);
-  };
-
-  useEffect(() => {
-    if (user) {
-      if (user.username && !user.username.startsWith('user_')) {
-        setUsername(user.username);
-      }
-      if (
-        user.displayName &&
-        user.displayName !== 'Dev Gamer' &&
-        user.displayName !== 'Novo Jogador'
-      ) {
-        setDisplayName(user.displayName);
-      }
-    } else if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('joysticked_session_user');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed.username && !parsed.username.startsWith('user_')) {
-            setUsername(parsed.username);
-          }
-          if (parsed.displayName) {
-            setDisplayName(parsed.displayName);
-          }
-        } catch {}
-      }
-    }
-  }, [user]);
-
-  const togglePlatform = (id: string) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
-  };
-
-  const toggleGenre = (genre: string) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
-    );
-  };
+  const {
+    currentStep,
+    directionRef,
+    displayName,
+    goToStep,
+    isSubmitting,
+    likedGameIds,
+    selectedGenres,
+    selectedPlatforms,
+    setDisplayName,
+    setIsSubmitting,
+    setLikedGameIds,
+    setUsername,
+    toggleGenre,
+    togglePlatform,
+    username
+  } = useOnboardingState(user);
 
   const handleFinish = async (finalLikedIds?: string[]) => {
     setIsSubmitting(true);
