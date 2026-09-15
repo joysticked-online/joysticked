@@ -3,7 +3,18 @@
 'use client';
 
 import confetti from 'canvas-confetti';
-import { AlertTriangle, Clock, Plus, Send, Tag, Trash2, X } from 'lucide-react';
+import {
+  AlertTriangle,
+  Clock,
+  Gamepad2,
+  Monitor,
+  Plus,
+  Send,
+  Smartphone,
+  Tag,
+  Trash2,
+  X
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -11,8 +22,6 @@ import { toast } from 'sonner';
 import { PixelHeart } from '@/components/landing/pixel-heart';
 import { useAuth } from '@/hooks/use-auth';
 import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
-import { getPlatformIcon, TopScreenRating } from './review-rating';
-import { useReviewForm } from './use-review-form';
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -21,6 +30,135 @@ interface GameReviewModalProps {
   initialReview?: GameReview | null;
   onReviewCreated?: (review: GameReview) => void;
   onReviewDeleted?: (reviewId: string) => void;
+}
+
+function getPlatformIcon(name: string) {
+  const lower = name.toLowerCase();
+  if (
+    lower.includes('pc') ||
+    lower.includes('windows') ||
+    lower.includes('mac') ||
+    lower.includes('linux') ||
+    lower.includes('steam')
+  ) {
+    return <Monitor className="size-3.5" />;
+  }
+  if (lower.includes('ios') || lower.includes('android')) {
+    return <Smartphone className="size-3.5" />;
+  }
+  return <Gamepad2 className="size-3.5" />;
+}
+
+function TopScreenRating({
+  game,
+  rating,
+  onRatingChange
+}: {
+  game: Game;
+  rating: number;
+  onRatingChange: (val: number) => void;
+}) {
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const activeRating = hoverRating !== null ? hoverRating : rating;
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#050505] p-3.5 shadow-inner sm:p-4">
+      {/* Scanline CRT Ambient Background */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.2),transparent_70%)] opacity-30" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02)_50%,rgba(0,0,0,0.25)_50%)] bg-[size:100%_4px]" />
+
+      {/* Game Header */}
+      <div className="relative z-10 flex items-center gap-3">
+        {/* Floating Game Cover */}
+        <div className="relative aspect-[3/4] w-12 shrink-0 overflow-hidden rounded-xl border border-white/20 bg-neutral-950 shadow-xl sm:w-14">
+          {game.coverUrl ? (
+            <img src={game.coverUrl} alt={game.name} className="size-full object-cover" />
+          ) : (
+            <div className="flex size-full items-center justify-center text-neutral-600">
+              <Gamepad2 className="size-4" />
+            </div>
+          )}
+        </div>
+
+        {/* Game Title & Details */}
+        <div className="min-w-0 flex-1">
+          <span className="font-mono text-[10px] text-neutral-400">
+            {game.developer || game.publisher || 'Jogo'}{' '}
+            {game.releaseYear ? `• ${game.releaseYear}` : ''}
+          </span>
+          <h3 className="truncate font-bold font-sans text-base text-white tracking-tight sm:text-lg">
+            {game.name}
+          </h3>
+        </div>
+
+        {/* Score Pill in Top Right */}
+        <div className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/[0.1] px-3 py-1">
+          <PixelHeart size={14} variant="full" color="#EF4444" />
+          <span className="font-bold font-mono text-base text-white tracking-tight">
+            {activeRating.toFixed(1)}
+          </span>
+          <span className="font-mono text-[11px] text-neutral-500">/ 5.0</span>
+        </div>
+      </div>
+
+      {/* The 5 Red 8-Bit Pixel Hearts */}
+      <div
+        className="relative z-10 mt-3 flex select-none items-center justify-center gap-2 py-1.5 sm:gap-3"
+        onMouseLeave={() => setHoverRating(null)}
+      >
+        {[1, 2, 3, 4, 5].map((heartIndex) => {
+          const isFull = activeRating >= heartIndex;
+          const isHalf = !isFull && activeRating >= heartIndex - 0.5;
+          const currentVariant: 'full' | 'half' | 'empty' = isFull
+            ? 'full'
+            : isHalf
+              ? 'half'
+              : 'empty';
+
+          const isFocusedHeart =
+            hoverRating !== null &&
+            (heartIndex === Math.ceil(hoverRating) || (hoverRating === 0.5 && heartIndex === 1));
+
+          const isFilled = currentVariant !== 'empty';
+
+          return (
+            <div
+              key={heartIndex}
+              style={isFilled ? { filter: 'drop-shadow(0 0 8px rgba(239,68,68,0.8))' } : undefined}
+              className={`relative cursor-pointer select-none p-1 transition-transform duration-[50ms] ease-out will-change-transform ${
+                isFocusedHeart ? '-translate-y-px scale-110' : 'scale-100'
+              }`}
+            >
+              <PixelHeart
+                size={38}
+                variant={currentVariant}
+                color="#EF4444"
+                className={`pointer-events-none ${isFilled ? 'opacity-100' : 'opacity-25'}`}
+              />
+
+              {/* Exact Split Hitboxes for Half (x.5) and Full (x.0) */}
+              <div className="absolute inset-0 z-20 flex">
+                <button
+                  type="button"
+                  aria-label={`${heartIndex - 0.5} corações`}
+                  className="h-full w-1/2 cursor-pointer focus:outline-hidden"
+                  onMouseEnter={() => setHoverRating(heartIndex - 0.5)}
+                  onClick={() => onRatingChange(heartIndex - 0.5)}
+                />
+                <button
+                  type="button"
+                  aria-label={`${heartIndex} corações`}
+                  className="h-full w-1/2 cursor-pointer focus:outline-hidden"
+                  onMouseEnter={() => setHoverRating(heartIndex)}
+                  onClick={() => onRatingChange(heartIndex)}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function GameReviewModal({
@@ -33,23 +171,15 @@ export function GameReviewModal({
 }: GameReviewModalProps) {
   const router = useRouter();
   const { user: currentUser } = useAuth();
-  const {
-    addTag,
-    containsSpoiler,
-    customTags,
-    hoursPlayed,
-    rating,
-    removeTag,
-    reviewText,
-    selectedPlatform,
-    setContainsSpoiler,
-    setHoursPlayed,
-    setRating,
-    setReviewText,
-    setSelectedPlatform,
-    setTagInput,
-    tagInput
-  } = useReviewForm(game, initialReview);
+  const [rating, setRating] = useState<number>(initialReview?.rating || 5);
+  const [reviewText, setReviewText] = useState(initialReview?.reviewText || '');
+  const [containsSpoiler, setContainsSpoiler] = useState(initialReview?.containsSpoiler ?? false);
+  const [selectedPlatform, setSelectedPlatform] = useState(
+    initialReview?.platform || game.platforms?.[0] || ''
+  );
+  const [hoursPlayed, setHoursPlayed] = useState(initialReview?.hoursPlayed || '');
+  const [customTags, setCustomTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Visitors CANNOT review: redirect immediately to login/register
@@ -60,6 +190,23 @@ export function GameReviewModal({
       router.push(`/auth?redirect=/games/${game.slug}`);
     }
   }, [isOpen, currentUser, game.slug, router, onClose]);
+
+  // Sync state when initialReview changes
+  useEffect(() => {
+    if (initialReview) {
+      setRating(initialReview.rating);
+      setReviewText(initialReview.reviewText || '');
+      setContainsSpoiler(initialReview.containsSpoiler ?? false);
+      setSelectedPlatform(initialReview.platform || game.platforms?.[0] || '');
+      setHoursPlayed(initialReview.hoursPlayed || '');
+    } else {
+      setRating(5);
+      setReviewText('');
+      setContainsSpoiler(false);
+      setSelectedPlatform(game.platforms?.[0] || '');
+      setHoursPlayed('');
+    }
+  }, [initialReview, game.platforms]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -85,6 +232,20 @@ export function GameReviewModal({
   }, [isOpen]);
 
   const isEditing = Boolean(initialReview);
+
+  // Add user custom tag
+  const handleAddTag = () => {
+    const trimmed = tagInput.trim().replace(/^#/, '');
+    if (!trimmed) return;
+    if (!customTags.includes(trimmed)) {
+      setCustomTags([...customTags, trimmed]);
+    }
+    setTagInput('');
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setCustomTags(customTags.filter((t) => t !== tagToRemove));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -377,7 +538,7 @@ export function GameReviewModal({
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
-                            addTag();
+                            handleAddTag();
                           }
                         }}
                         placeholder="Digite uma tag (ex: gameplay, chefes, história) e tecle Enter..."
@@ -385,7 +546,7 @@ export function GameReviewModal({
                       />
                       <button
                         type="button"
-                        onClick={addTag}
+                        onClick={handleAddTag}
                         className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-xl border border-white/10 bg-white/[0.05] px-2.5 font-mono text-neutral-300 text-xs transition-colors hover:bg-white/10 hover:text-white"
                       >
                         <Plus className="size-3.5" />
@@ -404,7 +565,7 @@ export function GameReviewModal({
                             <span>#{tag}</span>
                             <button
                               type="button"
-                              onClick={() => removeTag(tag)}
+                              onClick={() => handleRemoveTag(tag)}
                               className="cursor-pointer text-red-400 transition-colors hover:text-white"
                             >
                               <X className="size-3" />

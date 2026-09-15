@@ -22,42 +22,171 @@ import {
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { AddGameToListModal } from '@/components/lists/add-game-to-list-modal';
 import { CreateListModal } from '@/components/lists/create-list-modal';
 import { EditListModal } from '@/components/lists/edit-list-modal';
 import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { PosterImage } from '@/components/ui/poster-image';
-import { useListViewState } from './use-list-view-state';
+import { useAuth } from '@/hooks/use-auth';
+import type { Game } from '@/lib/games';
+import {
+  addGameToUserList,
+  DEFAULT_COMMUNITY_LISTS,
+  deleteUserList,
+  getAllLists,
+  getListByUserAndSlug,
+  isListLiked,
+  removeGameFromUserList,
+  toggleLikeList,
+  type UserList
+} from '@/lib/lists';
+
+type ViewMode = 'grid' | 'detailed' | 'compact';
 
 export function ListView() {
-  const {
-    copied,
-    handleAddGame,
-    handleDeleteList,
-    handleLikeToggle,
-    handleRemoveGame,
-    handleShare,
-    isAddGameOpen,
-    isCreateOpen,
-    isEditOpen,
-    isOfficial,
-    isOwner,
-    liked,
-    likesCount,
-    list,
-    listStats,
-    mounted,
-    otherLists,
-    setIsAddGameOpen,
-    setIsCreateOpen,
-    setIsEditOpen,
-    setList,
-    setViewMode,
-    targetListSlug,
-    targetUser,
-    viewMode
-  } = useListViewState();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user: currentUser } = useAuth();
+
+  // Support query parameter variations: user, listname, lsitname, list, name, id
+  const targetUser = searchParams.get('user') || searchParams.get('username') || '';
+  const targetListSlug =
+    searchParams.get('listname') ||
+    searchParams.get('lsitname') ||
+    searchParams.get('list') ||
+    searchParams.get('name') ||
+    searchParams.get('id') ||
+    '';
+
+  const [list, setList] = useState<UserList | null>(() => {
+    if (!targetListSlug && !targetUser) return DEFAULT_COMMUNITY_LISTS[0] || null;
+    return (
+      DEFAULT_COMMUNITY_LISTS.find(
+        (l) =>
+          (!targetUser || l.ownerUsername.toLowerCase() === targetUser.toLowerCase()) &&
+          (l.slug.toLowerCase() === targetListSlug.toLowerCase() || l.id === targetListSlug)
+      ) || null
+    );
+  });
+
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [otherLists, setOtherLists] = useState<UserList[]>(() =>
+    DEFAULT_COMMUNITY_LISTS.slice(0, 4)
+  );
+  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [mounted, setMounted] = useState(false);
+
+  // Client-side synchronization on mount & parameter change
+  useEffect(() => {
+    setMounted(true);
+    const all = getAllLists();
+
+    if (!targetListSlug && !targetUser) {
+      const first = all[0] || DEFAULT_COMMUNITY_LISTS[0];
+      setList(first);
+      if (first) {
+        setLikesCount(first.likesCount);
+        setLiked(isListLiked(first.id));
+      }
+      setOtherLists(all.filter((l) => l.id !== first?.id).slice(0, 4));
+      return;
+    }
+
+    const found = getListByUserAndSlug(targetUser, targetListSlug);
+    if (found) {
+      setList(found);
+      setLikesCount(found.likesCount);
+      setLiked(isListLiked(found.id));
+      setOtherLists(all.filter((l) => l.id !== found.id).slice(0, 4));
+    } else {
+      setList(null);
+    }
+  }, [targetUser, targetListSlug]);
+
+  const isOwner = useMemo(() => {
+    if (!currentUser || !list) return false;
+    return (
+      currentUser.username.toLowerCase() === list.ownerUsername.toLowerCase() ||
+      list.ownerUsername === 'jogador'
+    );
+  }, [currentUser, list]);
+
+  const isOfficial = useMemo(() => {
+    return list?.ownerUsername.toLowerCase() === 'joysticked';
+  }, [list]);
+
+  // Derived statistics for the list
+  const listStats = useMemo(() => {
+    if (!list || list.games.length === 0) return { avgRating: 0, topGenres: [] };
+    const ratings = list.games.map((g) => g.rating || 0).filter((r) => r > 0);
+    const avgRating =
+      ratings.length > 0
+        ? (ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length).toFixed(1)
+        : '5.0';
+
+    const genreCounts: Record<string, number> = {};
+    for (const g of list.games) {
+      for (const gen of g.genres || []) {
+        genreCounts[gen] = (genreCounts[gen] || 0) + 1;
+      }
+    }
+    const topGenres = Object.entries(genreCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([name]) => name);
+
+    return { avgRating, topGenres };
+  }, [list]);
+
+  const handleLikeToggle = () => {
+    if (!list) return;
+    const res = toggleLikeList(list.id, likesCount);
+    setLiked(res.isLiked);
+    setLikesCount(res.likesCount);
+  };
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+    }
+  };
+
+  const handleAddGame = (game: Game) => {
+    if (!list) return;
+    const updated = addGameToUserList(list.id, game);
+    if (updated) {
+      setList(updated);
+    }
+  };
+
+  const handleRemoveGame = (gameSlugOrId: string | number) => {
+    if (!list) return;
+    const updated = removeGameFromUserList(list.id, gameSlugOrId);
+    if (updated) {
+      setList(updated);
+    }
+  };
+
+  const handleDeleteList = () => {
+    if (!list) return;
+    if (confirm(`Tem certeza que deseja excluir a lista "${list.name}"?`)) {
+      deleteUserList(list.id);
+      router.push('/lists');
+    }
+  };
 
   if (mounted && !list && (targetUser || targetListSlug)) {
     return (
