@@ -8,6 +8,7 @@ import { authRouter } from '../../modules/auth/router';
 import { gamesRouter } from '../../modules/games/router';
 import { homeRouter } from '../../modules/home/router';
 import { profileRouter } from '../../modules/profile/router';
+import { listsRouter } from '../../modules/lists/router';
 import { steamAuthRouter, steamRouter } from '../../modules/steam/router';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
@@ -46,6 +47,7 @@ const app = new Elysia()
   .use(homeRouter)
   .use(waitlistRouter)
   .use(profileRouter)
+  .use(listsRouter)
   .use(authRouter)
   .use(gamesRouter)
   .use(steamRouter)

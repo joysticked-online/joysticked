@@ -52,7 +52,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Por favor, informe um título para sua lista.');
@@ -62,12 +62,12 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
     setIsSubmitting(true);
     setError(null);
 
-    const updated = updateUserList(list.id, {
+    const updated = await updateUserList(list.id, {
       name: name.trim(),
       description: description.trim() || undefined,
       isPublic,
       tags: selectedTags
-    });
+    }).catch(() => null);
 
     setIsSubmitting(false);
 

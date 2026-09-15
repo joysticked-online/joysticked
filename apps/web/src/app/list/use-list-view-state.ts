@@ -8,7 +8,6 @@ import {
   deleteUserList,
   getAllLists,
   getListByUserAndSlug,
-  isListLiked,
   removeGameFromUserList,
   toggleLikeList,
   type UserList
@@ -40,17 +39,12 @@ export function useListViewState() {
 
   useEffect(() => {
     setMounted(true);
-    const all = getAllLists();
-    const found =
-      !targetListSlug && !targetUser
-        ? all[0] || DEFAULT_COMMUNITY_LISTS[0]
-        : getListByUserAndSlug(targetUser, targetListSlug);
-    setList(found || null);
-    if (found) {
-      setLikesCount(found.likesCount);
-      setLiked(isListLiked(found.id));
-      setOtherLists(all.filter((item) => item.id !== found.id).slice(0, 4));
-    }
+    void (async () => {
+      const all = await getAllLists();
+      const found = !targetListSlug && !targetUser ? all[0] || DEFAULT_COMMUNITY_LISTS[0] : await getListByUserAndSlug(targetUser, targetListSlug);
+      setList(found || null);
+      if (found) { setLikesCount(found.likesCount); setOtherLists(all.filter((item) => item.id !== found.id).slice(0, 4)); }
+    })();
   }, [targetListSlug, targetUser]);
 
   const isOwner = Boolean(
@@ -62,11 +56,11 @@ export function useListViewState() {
   const isOfficial = list?.ownerUsername.toLowerCase() === 'joysticked';
   const listStats = useMemo(() => getListStats(list), [list]);
 
-  const handleLikeToggle = () => {
+  const handleLikeToggle = async () => {
     if (!list) return;
-    const result = toggleLikeList(list.id, likesCount);
+    const result = await toggleLikeList(list.id);
     setLiked(result.isLiked);
-    setLikesCount(result.likesCount);
+    setLikesCount((count) => Math.max(0, count + (result.isLiked ? 1 : -1)));
   };
   const handleShare = async () => {
     if (typeof window === 'undefined') return;
@@ -78,19 +72,19 @@ export function useListViewState() {
       setCopied(false);
     }
   };
-  const handleAddGame = (game: Game) => {
+  const handleAddGame = async (game: Game) => {
     if (!list) return;
-    const updated = addGameToUserList(list.id, game);
+    const updated = await addGameToUserList(list.id, game);
     if (updated) setList(updated);
   };
-  const handleRemoveGame = (gameSlugOrId: string | number) => {
+  const handleRemoveGame = async (gameSlugOrId: string | number) => {
     if (!list) return;
-    const updated = removeGameFromUserList(list.id, gameSlugOrId);
+    const updated = await removeGameFromUserList(list.id, gameSlugOrId);
     if (updated) setList(updated);
   };
-  const handleDeleteList = () => {
+  const handleDeleteList = async () => {
     if (!list || !confirm(`Tem certeza que deseja excluir a lista "${list.name}"?`)) return;
-    deleteUserList(list.id);
+    await deleteUserList(list.id);
     router.push('/lists');
   };
 
