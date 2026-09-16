@@ -14,6 +14,8 @@ import {
 } from '@/lib/lists';
 import { getListStats, type ViewMode } from './list-view-model';
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export function useListViewState() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,6 +60,11 @@ export function useListViewState() {
 
   const handleLikeToggle = async () => {
     if (!list) return;
+    if (!UUID_PATTERN.test(list.id)) {
+      setLiked((isLiked) => !isLiked);
+      setLikesCount((count) => Math.max(0, count + (liked ? -1 : 1)));
+      return;
+    }
     const result = await toggleLikeList(list.id);
     setLiked(result.isLiked);
     setLikesCount((count) => Math.max(0, count + (result.isLiked ? 1 : -1)));
