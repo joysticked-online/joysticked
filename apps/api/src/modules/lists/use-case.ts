@@ -1,6 +1,7 @@
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, or, sql } from 'drizzle-orm';
 import type { Database } from '../../shared/database';
 import { userListGames, userListLikes, userLists, users } from '../../shared/database/schemas';
+import { executeTransaction } from '../../shared/database/transaction';
 import { ConflictError } from '../../shared/errors/conflict-error';
 import { ResourceNotFoundError } from '../../shared/errors/resource-not-found-error';
 
@@ -38,23 +39,29 @@ async function getList(db: Database, listId: string) {
   return toList(row, owner, games.map(({ game }) => game));
 }
 
-export async function listLists(db: Database, username?: string) {
+export async function listLists(db: Database, username?: string, viewerId?: string) {
   const rows = await db
     .select({ list: userLists, owner: users })
     .from(userLists)
     .innerJoin(users, eq(users.id, userLists.ownerId))
     .where(username ? eq(users.username, username.trim().toLowerCase()) : undefined)
     .orderBy(desc(userLists.updatedAt));
-  return Promise.all(rows.filter(({ list }) => list.isPublic).map(({ list, owner }) => getList(db, list.id)));
+  return Promise.all(
+    rows
+      .filter(({ list }) => list.isPublic || list.ownerId === viewerId)
+      .map(({ list }) => getList(db, list.id))
+  );
 }
 
-export async function findList(db: Database, username: string, slug: string) {
+export async function findList(db: Database, username: string, slug: string, viewerId?: string) {
   const [row] = await db
     .select({ list: userLists, owner: users })
     .from(userLists)
     .innerJoin(users, eq(users.id, userLists.ownerId))
     .where(and(eq(users.username, username.trim().toLowerCase()), eq(userLists.slug, slug.trim().toLowerCase())));
-  if (!row || !row.list.isPublic) throw new ResourceNotFoundError('List not found');
+  if (!row || (!row.list.isPublic && row.list.ownerId !== viewerId)) {
+    throw new ResourceNotFoundError('List not found');
+  }
   return getList(db, row.list.id);
 }
 
@@ -92,24 +99,24 @@ export async function addListGame(db: Database, ownerId: string, listId: string,
 export async function removeListGame(db: Database, ownerId: string, listId: string, gameId: string) {
   const [list] = await db.select({ id: userLists.id }).from(userLists).where(and(eq(userLists.id, listId), eq(userLists.ownerId, ownerId)));
   if (!list) throw new ResourceNotFoundError('List not found');
-  await db.delete(userListGames).where(and(eq(userListGames.listId, listId), eq(userListGames.gameId, gameId)));
+  await db.delete(userListGames).where(and(eq(userListGames.listId, listId), or(eq(userListGames.gameId, gameId), eq(userListGames.gameSlug, gameId))));
   return getList(db, listId);
 }
 
 export async function toggleListLike(db: Database, userId: string, listId: string) {
-  const [existing] = await db.select().from(userListLikes).where(and(eq(userListLikes.userId, userId), eq(userListLikes.listId, listId)));
-  if (existing) {
-    await db.delete(userListLikes).where(and(eq(userListLikes.userId, userId), eq(userListLikes.listId, listId)));
-    await db.update(userLists).set({ likesCount: Math.max(0, (await getListCount(db, listId)) - 1) }).where(eq(userLists.id, listId));
-    return { isLiked: false };
-  }
-  await db.insert(userListLikes).values({ userId, listId });
-  await db.update(userLists).set({ likesCount: (await getListCount(db, listId)) + 1 }).where(eq(userLists.id, listId));
-  return { isLiked: true };
-}
+  return executeTransaction(db, async (tx) => {
+    const [list] = await tx.select({ id: userLists.id }).from(userLists).where(eq(userLists.id, listId));
+    if (!list) throw new ResourceNotFoundError('List not found');
 
-async function getListCount(db: Database, listId: string) {
-  const [row] = await db.select({ likesCount: userLists.likesCount }).from(userLists).where(eq(userLists.id, listId));
-  if (!row) throw new ResourceNotFoundError('List not found');
-  return row.likesCount;
+    const [existing] = await tx.select().from(userListLikes).where(and(eq(userListLikes.userId, userId), eq(userListLikes.listId, listId)));
+    if (existing) {
+      await tx.delete(userListLikes).where(and(eq(userListLikes.userId, userId), eq(userListLikes.listId, listId)));
+      await tx.update(userLists).set({ likesCount: sql`greatest(${userLists.likesCount} - 1, 0)` }).where(eq(userLists.id, listId));
+      return { isLiked: false };
+    }
+
+    await tx.insert(userListLikes).values({ userId, listId });
+    await tx.update(userLists).set({ likesCount: sql`${userLists.likesCount} + 1` }).where(eq(userLists.id, listId));
+    return { isLiked: true };
+  });
 }
