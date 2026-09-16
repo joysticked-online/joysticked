@@ -15,7 +15,7 @@ export const rateLimitMiddleware = ({
   key?: string;
   failClosed?: boolean;
 }) =>
-  new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request }) => {
+  new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request, server }) => {
     try {
       const ratelimit = new Ratelimit({
         redis,
@@ -24,7 +24,10 @@ export const rateLimitMiddleware = ({
 
       const forwardedIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim();
       const directIp = request.headers.get('x-real-ip')?.trim();
-      const ip = envs.app.TRUSTED_PROXY ? forwardedIp || directIp || 'unknown' : 'unknown';
+      const socketIp = server?.requestIP(request)?.address;
+      const ip = envs.app.TRUSTED_PROXY
+        ? forwardedIp || directIp || socketIp || 'unknown'
+        : socketIp || 'unknown';
 
       const { success } = await ratelimit.limit(key ? `${key}:${ip}` : ip);
 
