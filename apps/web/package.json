@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
+    "lint": "biome check src",
+    "check-types": "tsc --noEmit",
     "start": "next start"
   },
   "dependencies": {

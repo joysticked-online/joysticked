@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+import { BadRequestError } from '../../errors/bad-request-error';
 import { ConflictError } from '../../errors/conflict-error';
 import { InternalServerError } from '../../errors/internal-server-error';
 import { RateLimitError } from '../../errors/rate-limit-error';
@@ -8,6 +9,7 @@ import { UnauthorizedError } from '../../errors/unauthorized-error';
 export const errorHandler = new Elysia({ name: 'error-handler' })
   .error({
     CONFLICT: ConflictError,
+    BAD_REQUEST: BadRequestError,
     INTERNAL_SERVER_ERROR: InternalServerError,
     RATE_LIMIT_EXCEEDED: RateLimitError,
     RESOURCE_NOT_FOUND: ResourceNotFoundError,
@@ -15,6 +17,9 @@ export const errorHandler = new Elysia({ name: 'error-handler' })
   })
   .onError({ as: 'scoped' }, ({ error, code, status }) => {
     switch (code) {
+      case 'BAD_REQUEST': {
+        return status(400, { code, message: error.message });
+      }
       case 'CONFLICT': {
         return status(409, { code, message: error.message });
       }

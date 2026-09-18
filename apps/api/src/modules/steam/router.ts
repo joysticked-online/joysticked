@@ -335,7 +335,7 @@ export const steamAuthRouter = new Elysia({ prefix: '/auth/steam' })
 
     // If not logged in, find or create OAuth account
     const result = await executeTransaction(db, async (tx) => {
-      const existingAccount = await oauthRepo.findByProvider('steam', steamId);
+      const existingAccount = await oauthRepo.findByProvider('steam', steamId, tx);
 
       let targetUserId: string;
       if (existingAccount) {

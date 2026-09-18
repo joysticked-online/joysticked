@@ -14,58 +14,21 @@ function CallbackContent() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const userParam = searchParams.get('user');
     const redirectTarget = safeReturnPath(searchParams.get('redirect'));
 
-    if (!token) {
-      router.replace('/auth?error=oauth_failed');
-      return;
-    }
-
-    // Set cookie on the client web domain (localhost:3000)
-    document.cookie = `session=${encodeURIComponent(token)}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-
-    try {
-      localStorage.setItem('joysticked_session_token', token);
-    } catch {}
-
-    let parsedUser = null;
-    if (userParam) {
-      try {
-        parsedUser = JSON.parse(userParam);
-        localStorage.setItem('joysticked_session_user', JSON.stringify(parsedUser));
-        queryClient.setQueryData(['auth', 'me'], parsedUser);
-      } catch (e) {
-        console.warn('Failed to parse user param:', e);
-      }
-    }
-
-    // Also fetch fresh user profile with the bearer token to ensure cache consistency
     api.auth.me
       .get({
-        fetch: {
-          credentials: 'include',
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        fetch: { credentials: 'include' }
       })
       .then((res) => {
-        if (res.data) {
-          try {
-            localStorage.setItem('joysticked_session_user', JSON.stringify(res.data));
-          } catch {}
-          queryClient.setQueryData(['auth', 'me'], res.data);
+        if (!res.data) {
+          router.replace('/auth?error=oauth_failed');
+          return;
         }
-      })
-      .catch((err) => {
-        console.warn('Could not sync user profile from API:', err);
-      })
-      .finally(() => {
-        // Redirect to target destination
+        queryClient.setQueryData(['auth', 'me'], res.data);
         router.replace(redirectTarget);
-      });
+      })
+      .catch(() => router.replace('/auth?error=oauth_failed'));
   }, [router, searchParams, queryClient]);
 
   return (
