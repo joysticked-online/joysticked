@@ -40,12 +40,14 @@ export function ListsHubView() {
 
   useEffect(() => {
     setMounted(true);
-    setAllLists(getAllLists());
+    void getAllLists().then(setAllLists).catch(() => setAllLists(DEFAULT_COMMUNITY_LISTS));
   }, []);
 
-  const myLists = useMemo(() => {
-    if (!currentUser || !mounted) return [];
-    return getUserLists(currentUser.username);
+  const [myLists, setMyLists] = useState<UserList[]>([]);
+
+  useEffect(() => {
+    if (!currentUser || !mounted) return;
+    void getUserLists(currentUser.username).then(setMyLists).catch(() => setMyLists([]));
   }, [currentUser, mounted]);
 
   const featuredList = useMemo(() => {

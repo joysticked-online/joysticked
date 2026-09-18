@@ -44,7 +44,7 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Por favor, informe um título para sua lista.');
@@ -55,19 +55,14 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
     setError(null);
 
     const ownerUsername = user?.username || 'jogador';
-    const ownerDisplayName = user?.displayName || user?.username || 'Jogador';
-    const ownerAvatarUrl =
-      user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${ownerUsername}`;
-
-    const created = createCustomList({
+    const created = await createCustomList({
       name: name.trim(),
       description: description.trim() || undefined,
-      ownerUsername,
-      ownerDisplayName,
-      ownerAvatarUrl,
       isPublic,
       tags: selectedTags
-    });
+    }).catch(() => null);
+
+    if (!created) { setError('Não foi possível salvar a lista.'); setIsSubmitting(false); return; }
 
     setIsSubmitting(false);
     onClose();

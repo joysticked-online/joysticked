@@ -218,262 +218,53 @@ export const DEFAULT_COMMUNITY_LISTS: UserList[] = [
   }
 ];
 
-const STORAGE_KEY = 'joysticked_custom_user_lists';
-const LIKES_STORAGE_KEY = 'joysticked_liked_lists';
+import { env } from '@/env';
 
-export function getLocalStoredLists(): UserList[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as UserList[];
-  } catch {
-    return [];
-  }
+const apiUrl = `${env.NEXT_PUBLIC_API_URL}/lists`;
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${apiUrl}${path}`, { ...init, credentials: 'include', headers: { 'Content-Type': 'application/json', ...init?.headers } });
+  if (!response.ok) throw new Error('List request failed');
+  return response.json() as Promise<T>;
 }
 
-export function saveLocalStoredLists(lists: UserList[]): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
-  } catch (e) {
-    console.error('Failed to save lists:', e);
-  }
+export async function getAllLists(): Promise<UserList[]> {
+  const data = await request<{ lists: UserList[] }>('/');
+  return [...DEFAULT_COMMUNITY_LISTS, ...data.lists.filter((list) => list.ownerUsername.toLowerCase() !== 'joysticked')];
 }
 
-export function getAllLists(): UserList[] {
-  const customLists = getLocalStoredLists().filter(
-    (l) => l.ownerUsername.toLowerCase() !== 'joysticked'
-  );
-  return [...DEFAULT_COMMUNITY_LISTS, ...customLists];
+export async function getUserLists(username: string): Promise<UserList[]> {
+  const data = await request<{ lists: UserList[] }>(`/?username=${encodeURIComponent(username.trim().toLowerCase())}`);
+  return data.lists;
 }
 
-export function getUserLists(username: string): UserList[] {
-  const all = getAllLists();
-  const normalized = username.toLowerCase().trim();
-  return all.filter((l) => l.ownerUsername.toLowerCase() === normalized);
+export async function getListByUserAndSlug(username: string, listSlug: string): Promise<UserList | null> {
+  if (!username || !listSlug) return (await getAllLists()).find((list) => list.slug === listSlug) ?? null;
+  if (username.toLowerCase() === 'joysticked') return DEFAULT_COMMUNITY_LISTS.find((list) => list.slug === listSlug) ?? null;
+  try { return await request<UserList>(`/${encodeURIComponent(username)}/${encodeURIComponent(listSlug)}`); } catch { return null; }
 }
 
-export function getListByUserAndSlug(username: string, listSlug: string): UserList | null {
-  const all = getAllLists();
-  const normalizedUser = username.toLowerCase().trim();
-  const normalizedSlug = listSlug.toLowerCase().trim();
-
-  // Try exact user + slug match
-  const found = all.find(
-    (l) =>
-      (!normalizedUser || l.ownerUsername.toLowerCase() === normalizedUser) &&
-      (l.slug.toLowerCase() === normalizedSlug || l.id === normalizedSlug)
-  );
-  if (found) return found;
-
-  // Fallback: match by slug only (e.g. curated list or direct link)
-  const bySlugOnly = all.find(
-    (l) => l.slug.toLowerCase() === normalizedSlug || l.id === normalizedSlug
-  );
-  return bySlugOnly || null;
+export function createCustomList(params: { name: string; description?: string; isPublic?: boolean; tags?: string[] }): Promise<UserList> {
+  return request<UserList>('/', { method: 'POST', body: JSON.stringify(params) });
 }
 
-export function createCustomList(params: {
-  name: string;
-  description?: string;
-  ownerUsername: string;
-  ownerDisplayName?: string;
-  ownerAvatarUrl?: string;
-  isPublic?: boolean;
-  tags?: string[];
-  initialGames?: Game[];
-}): UserList {
-  const slug =
-    params.name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '') || `lista-${Date.now()}`;
-
-  const games = params.initialGames || [];
-
-  const newList: UserList = {
-    id: `list_${Date.now()}`,
-    slug,
-    name: params.name.trim(),
-    description: params.description?.trim() || null,
-    ownerUsername: params.ownerUsername,
-    ownerDisplayName: params.ownerDisplayName || params.ownerUsername,
-    ownerAvatarUrl:
-      params.ownerAvatarUrl ||
-      `https://api.dicebear.com/7.x/bottts/svg?seed=${params.ownerUsername}`,
-    isPublic: params.isPublic ?? true,
-    coverUrl: games[0]?.coverUrl || null,
-    games,
-    gameCount: games.length,
-    likesCount: 0,
-    tags: params.tags && params.tags.length > 0 ? params.tags : ['Personalizada'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  const stored = getLocalStoredLists();
-  const updated = [newList, ...stored];
-  saveLocalStoredLists(updated);
-  return newList;
+export function addGameToUserList(listId: string, game: Game): Promise<UserList> {
+  return request<UserList>(`/${encodeURIComponent(listId)}/games`, { method: 'POST', body: JSON.stringify(game) });
 }
 
-export function addGameToUserList(listId: string, game: Game): UserList | null {
-  const stored = getLocalStoredLists();
-  const index = stored.findIndex((l) => l.id === listId || l.slug === listId);
-
-  if (index >= 0) {
-    const list = stored[index];
-    if (list.games.some((g) => (g.slug || g.id) === (game.slug || game.id))) {
-      return list; // already added
-    }
-    const updatedGames = [...list.games, game];
-    const updatedList: UserList = {
-      ...list,
-      games: updatedGames,
-      gameCount: updatedGames.length,
-      coverUrl: list.coverUrl || game.coverUrl,
-      updatedAt: new Date().toISOString()
-    };
-    stored[index] = updatedList;
-    saveLocalStoredLists(stored);
-    return updatedList;
-  }
-
-  // If modifying a curated default list, clone it into custom stored lists for the user
-  const defaultList = DEFAULT_COMMUNITY_LISTS.find((l) => l.id === listId || l.slug === listId);
-  if (defaultList) {
-    if (defaultList.games.some((g) => (g.slug || g.id) === (game.slug || game.id))) {
-      return defaultList;
-    }
-    const updatedGames = [...defaultList.games, game];
-    const clonedList: UserList = {
-      ...defaultList,
-      games: updatedGames,
-      gameCount: updatedGames.length,
-      updatedAt: new Date().toISOString()
-    };
-    saveLocalStoredLists([clonedList, ...stored]);
-    return clonedList;
-  }
-
-  return null;
+export function removeGameFromUserList(listId: string, gameSlugOrId: string | number): Promise<UserList> {
+  return request<UserList>(`/${encodeURIComponent(listId)}/games/${encodeURIComponent(String(gameSlugOrId))}`, { method: 'DELETE' });
 }
 
-export function removeGameFromUserList(
-  listId: string,
-  gameSlugOrId: string | number
-): UserList | null {
-  const stored = getLocalStoredLists();
-  const index = stored.findIndex((l) => l.id === listId || l.slug === listId);
-
-  if (index >= 0) {
-    const list = stored[index];
-    const updatedGames = list.games.filter((g) => g.slug !== gameSlugOrId && g.id !== gameSlugOrId);
-    const updatedList: UserList = {
-      ...list,
-      games: updatedGames,
-      gameCount: updatedGames.length,
-      coverUrl: updatedGames[0]?.coverUrl || null,
-      updatedAt: new Date().toISOString()
-    };
-    stored[index] = updatedList;
-    saveLocalStoredLists(stored);
-    return updatedList;
-  }
-  return null;
+export function updateUserList(listId: string, params: { name: string; description?: string; isPublic?: boolean; tags?: string[] }): Promise<UserList> {
+  return request<UserList>(`/${encodeURIComponent(listId)}`, { method: 'PATCH', body: JSON.stringify(params) });
 }
 
-export function updateUserList(
-  listId: string,
-  params: {
-    name: string;
-    description?: string;
-    isPublic?: boolean;
-    tags?: string[];
-  }
-): UserList | null {
-  const stored = getLocalStoredLists();
-  const index = stored.findIndex((l) => l.id === listId || l.slug === listId);
-
-  if (index >= 0) {
-    const list = stored[index];
-    const updatedList: UserList = {
-      ...list,
-      name: params.name.trim(),
-      description: params.description?.trim() || null,
-      isPublic: params.isPublic ?? list.isPublic,
-      tags: params.tags || list.tags,
-      updatedAt: new Date().toISOString()
-    };
-    stored[index] = updatedList;
-    saveLocalStoredLists(stored);
-    return updatedList;
-  }
-
-  // If modifying a curated default list, clone it into custom stored lists for the user
-  const defaultList = DEFAULT_COMMUNITY_LISTS.find((l) => l.id === listId || l.slug === listId);
-  if (defaultList) {
-    const clonedList: UserList = {
-      ...defaultList,
-      name: params.name.trim(),
-      description: params.description?.trim() || null,
-      isPublic: params.isPublic ?? defaultList.isPublic,
-      tags: params.tags || defaultList.tags,
-      updatedAt: new Date().toISOString()
-    };
-    saveLocalStoredLists([clonedList, ...stored]);
-    return clonedList;
-  }
-
-  return null;
+export async function deleteUserList(listId: string): Promise<boolean> {
+  await request(`/${encodeURIComponent(listId)}`, { method: 'DELETE' });
+  return true;
 }
 
-export function deleteUserList(listId: string): boolean {
-  const stored = getLocalStoredLists();
-  const filtered = stored.filter((l) => l.id !== listId && l.slug !== listId);
-  saveLocalStoredLists(filtered);
-  return filtered.length < stored.length;
-}
-
-export function isListLiked(listId: string): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const raw = localStorage.getItem(LIKES_STORAGE_KEY);
-    if (!raw) return false;
-    const liked = JSON.parse(raw) as string[];
-    return liked.includes(listId);
-  } catch {
-    return false;
-  }
-}
-
-export function toggleLikeList(
-  listId: string,
-  currentCount: number
-): { isLiked: boolean; likesCount: number } {
-  if (typeof window === 'undefined') return { isLiked: false, likesCount: currentCount };
-  try {
-    const raw = localStorage.getItem(LIKES_STORAGE_KEY);
-    const liked: string[] = raw ? JSON.parse(raw) : [];
-    const isAlreadyLiked = liked.includes(listId);
-
-    let nextLiked: string[];
-    let nextCount = currentCount;
-
-    if (isAlreadyLiked) {
-      nextLiked = liked.filter((id) => id !== listId);
-      nextCount = Math.max(0, currentCount - 1);
-    } else {
-      nextLiked = [...liked, listId];
-      nextCount = currentCount + 1;
-    }
-
-    localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(nextLiked));
-    return { isLiked: !isAlreadyLiked, likesCount: nextCount };
-  } catch {
-    return { isLiked: false, likesCount: currentCount };
-  }
+export async function toggleLikeList(listId: string): Promise<{ isLiked: boolean }> {
+  return request<{ isLiked: boolean }>(`/${encodeURIComponent(listId)}/likes`, { method: 'POST' });
 }

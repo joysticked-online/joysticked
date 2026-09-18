@@ -33,6 +33,13 @@ describe('magic-link provider', () => {
           const existed = memoryStore.has(key);
           memoryStore.delete(key);
           return existed ? 1 : 0;
+        }),
+        send: mock(async (_command: string, args: string[]) => {
+          const key = args[0];
+          if (!key) return null;
+          const value = memoryStore.get(key) ?? null;
+          memoryStore.delete(key);
+          return value;
         })
       }
     }));

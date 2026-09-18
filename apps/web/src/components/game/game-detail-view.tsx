@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
 import type { Game, GameActivity, GameReview } from '@/lib/games';
+import { authHref } from '@/lib/navigation';
 import { GameAchievementsTab } from './game-achievements-tab';
 import { GameActivitySection } from './game-activity-section';
 import { GameHero } from './game-hero';
@@ -85,7 +86,7 @@ export function GameDetailView({
   const handleOpenReview = () => {
     if (!currentUser) {
       toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
-      router.push(`/auth?redirect=/games/${game.slug}`);
+      router.push(authHref(`/games/${game.slug}`));
       return;
     }
     setEditingReview(userReview || null);
@@ -95,7 +96,7 @@ export function GameDetailView({
   const handleEditReview = (review: GameReview) => {
     if (!currentUser) {
       toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
-      router.push(`/auth?redirect=/games/${game.slug}`);
+      router.push(authHref(`/games/${game.slug}`));
       return;
     }
     setEditingReview(review);

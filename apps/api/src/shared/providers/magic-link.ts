@@ -1,4 +1,5 @@
 import { redis } from './redis';
+import { consumeRedisValue } from './redis-atomic';
 
 const MAGIC_LINK_TTL_SECONDS = 60 * 15; // 15 minutes
 const MAGIC_LINK_PREFIX = 'magic:';
@@ -28,10 +29,5 @@ export async function createMagicLinkToken(email: string): Promise<string> {
  */
 export async function consumeMagicLinkToken(token: string): Promise<string | null> {
   const key = `${MAGIC_LINK_PREFIX}${token}`;
-  const email = await redis.get(key);
-  if (!email) {
-    return null;
-  }
-  await redis.del(key);
-  return email;
+  return consumeRedisValue(key);
 }

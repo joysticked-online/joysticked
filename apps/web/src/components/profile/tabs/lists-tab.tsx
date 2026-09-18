@@ -6,7 +6,7 @@ import { List, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CreateListModal } from '@/components/lists/create-list-modal';
 import { getUserLists } from '@/lib/lists';
 import type { ProfileGame } from '../types';
@@ -24,9 +24,8 @@ export function ListsTab({
 }: ListsTabProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const lists = useMemo(() => {
-    return getUserLists(username);
-  }, [username]);
+  const [lists, setLists] = useState<Awaited<ReturnType<typeof getUserLists>>>([]);
+  useEffect(() => { void getUserLists(username).then(setLists).catch(() => setLists([])); }, [username]);
 
   if (lists.length === 0) {
     return (

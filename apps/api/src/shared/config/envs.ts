@@ -11,7 +11,11 @@ function loadAppEnvs() {
   const schema = z.object({
     NODE_ENV: z.enum(['dev', 'prod', 'test']).default('dev'),
     PORT: z.coerce.number().default(8080),
-    CLIENT_URL: z.url().default('http://localhost:3000')
+    CLIENT_URL: z.url().default('http://localhost:3000'),
+    TRUST_PROXY: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true')
   });
 
   return schema.parse(process.env);

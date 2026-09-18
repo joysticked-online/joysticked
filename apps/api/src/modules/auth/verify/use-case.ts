@@ -14,7 +14,7 @@ export async function verifyMagicLinkUseCase(db: Database, { token }: { token: s
   const userRepository = createUserRepository(db);
 
   return executeTransaction(db, async (tx) => {
-    let user = await userRepository.findByEmail(email);
+    let user = await userRepository.findByEmail(email, tx);
 
     if (!user) {
       user = await userRepository.createWithEmail(email, tx);

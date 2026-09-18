@@ -34,16 +34,19 @@ type UpdateProfileData = Partial<CreateProfileData>;
 class ProfileRepository {
   constructor(private readonly db: Database) {}
 
-  async findById(id: string) {
-    const result = await this.db.select().from(users).where(eq(users.id, id));
+  async findById(id: string, tx?: Transaction) {
+    const result = await (tx ?? this.db).select().from(users).where(eq(users.id, id));
 
     if (!result[0]) return null;
 
     return result[0];
   }
 
-  async findByUsername(username: string) {
-    const result = await this.db.select().from(users).where(eq(users.username, username));
+  async findByUsername(username: string, tx?: Transaction) {
+    const result = await (tx ?? this.db)
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
 
     if (!result[0]) return null;
 
@@ -70,8 +73,8 @@ class ProfileRepository {
     return result[0];
   }
 
-  async delete(id: string) {
-    await this.db.delete(users).where(eq(users.id, id));
+  async delete(id: string, tx?: Transaction) {
+    await (tx ?? this.db).delete(users).where(eq(users.id, id));
   }
 }
 

@@ -7,6 +7,8 @@
     "lint": "biome lint src next.config.ts postcss.config.mjs",
     "check-types": "tsc --noEmit",
     "build": "next build",
+    "lint": "biome check src",
+    "check-types": "tsc --noEmit",
     "start": "next start"
   },
   "dependencies": {
