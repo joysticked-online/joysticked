@@ -37,8 +37,13 @@ export function Dialog({
 }: DialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onOpenChangeRef = useRef(onOpenChange);
   const titleId = useId();
   const descriptionId = useId();
+
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  }, [onOpenChange]);
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +57,7 @@ export function Dialog({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onOpenChange(false);
+        onOpenChangeRef.current(false);
         return;
       }
 
@@ -81,7 +86,7 @@ export function Dialog({
       document.removeEventListener('keydown', onKeyDown);
       previousFocusRef.current?.focus();
     };
-  }, [onOpenChange, open]);
+  }, [open]);
 
   if (!open || typeof document === 'undefined') return null;
 
@@ -91,7 +96,7 @@ export function Dialog({
         type="button"
         aria-label="Fechar diálogo"
         className="fixed inset-0 cursor-default bg-black/80 backdrop-blur-md"
-        onClick={() => onOpenChange(false)}
+        onClick={() => onOpenChangeRef.current(false)}
       />
       <div
         ref={dialogRef}
