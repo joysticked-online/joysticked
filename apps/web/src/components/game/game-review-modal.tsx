@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { PixelHeart } from '@/components/landing/pixel-heart';
 import { useAuth } from '@/hooks/use-auth';
 import { deleteGameReview, type Game, type GameReview, submitGameReview } from '@/lib/games';
+import { authHref } from '@/lib/navigation';
 
 interface GameReviewModalProps {
   isOpen: boolean;
@@ -187,7 +188,7 @@ export function GameReviewModal({
     if (isOpen && !currentUser) {
       toast.info('Você precisa entrar ou criar uma conta para avaliar jogos.');
       onClose();
-      router.push(`/auth?redirect=/games/${game.slug}`);
+      router.push(authHref(`/games/${game.slug}`));
     }
   }, [isOpen, currentUser, game.slug, router, onClose]);
 
@@ -252,7 +253,7 @@ export function GameReviewModal({
     if (!currentUser) {
       toast.error('Você precisa entrar ou criar uma conta para publicar uma avaliação.');
       onClose();
-      router.push(`/auth?redirect=/games/${game.slug}`);
+      router.push(authHref(`/games/${game.slug}`));
       return;
     }
 

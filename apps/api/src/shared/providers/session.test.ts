@@ -50,4 +50,12 @@ describe('session provider', () => {
     const result = await getSession('nonexistent_session_token');
     expect(result).toBeNull();
   });
+
+  it('migrates sessions stored with the legacy unhashed key', async () => {
+    const token = 'legacy_session_token';
+    memoryStore.set(`session:${token}`, 'legacy-user-id');
+
+    expect(await getSession(token)).toBe('legacy-user-id');
+    expect(memoryStore.has(`session:${token}`)).toBe(false);
+  });
 });

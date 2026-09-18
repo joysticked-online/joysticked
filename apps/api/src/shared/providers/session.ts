@@ -12,6 +12,10 @@ function sessionKey(token: string): string {
   return `${SESSION_PREFIX}${digest}`;
 }
 
+function legacySessionKey(token: string): string {
+  return `${SESSION_PREFIX}${token}`;
+}
+
 // In-memory fallback if Redis is down
 const inMemorySessions = new Map<string, { userId: string; expiresAt: number }>();
 
@@ -59,7 +63,21 @@ export async function createSession(userId: string): Promise<string> {
 export async function getSession(token: string): Promise<string | null> {
   try {
     const userId = await redis.get(sessionKey(token));
-    return userId;
+    if (userId) return userId;
+
+    // Migrate sessions created before Redis keys were hashed without forcing
+    // users to sign in again during the rollout.
+    const legacyUserId = await redis.get(legacySessionKey(token));
+    if (!legacyUserId) return null;
+
+    try {
+      await redis.set(sessionKey(token), legacyUserId, 'EX', SESSION_TTL_SECONDS);
+      await redis.del(legacySessionKey(token));
+    } catch {
+      // The legacy value is still valid for this request; retry migration later.
+    }
+
+    return legacyUserId;
   } catch {
     // Redis offline; use the bounded process-local fallback.
   }
@@ -82,6 +100,7 @@ export async function getSession(token: string): Promise<string | null> {
 export async function deleteSession(token: string): Promise<void> {
   try {
     await redis.del(sessionKey(token));
+    await redis.del(legacySessionKey(token));
   } catch {
     // Redis offline
   }
