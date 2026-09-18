@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import { Logos } from '@/components/logos';
 import { api } from '@/lib/api';
+import { safeReturnPath } from '@/lib/navigation';
 
 function CallbackContent() {
   const router = useRouter();
@@ -13,11 +14,7 @@ function CallbackContent() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const requestedTarget = searchParams.get('redirect');
-    const redirectTarget =
-      requestedTarget?.startsWith('/') && !requestedTarget.startsWith('//')
-        ? requestedTarget
-        : '/home';
+    const redirectTarget = safeReturnPath(searchParams.get('redirect'));
 
     api.auth.me
       .get({

@@ -24,12 +24,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { env } from '@/env';
 import { useAuth } from '@/hooks/use-auth';
+import { safeReturnPath } from '@/lib/navigation';
 
 function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { loginLocal } = useAuth();
-  const redirectTarget = searchParams.get('redirect') || '/home';
+  const redirectTarget = safeReturnPath(searchParams.get('redirect'));
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
