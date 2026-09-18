@@ -7,10 +7,11 @@ import { Resend } from 'resend';
 import { envs } from '../../config/envs';
 import { InternalServerError } from '../../errors/internal-server-error';
 import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
+import EmailVerificationTemplate from './templates/email-verification';
 import MagicLinkTemplate from './templates/magic-link';
 import WelcomeToTheWaitlistTemplate from './templates/welcome-to-the-waitlist';
 
-export type EmailTemplate = 'waitlist-welcome' | 'magic-link';
+export type EmailTemplate = 'waitlist-welcome' | 'magic-link' | 'email-verification';
 
 export type SendEmailParams =
   | {
@@ -24,6 +25,12 @@ export type SendEmailParams =
       template: 'magic-link';
       idempotencyKey?: string;
       link: string;
+    }
+  | {
+      to: string;
+      template: 'email-verification';
+      idempotencyKey?: string;
+      otp: string;
     };
 
 type TemplateConfig = {
@@ -75,6 +82,12 @@ class EmailService {
         return {
           subject: 'Your Magic Link for Joysticked',
           component: MagicLinkTemplate({ link: params.link }),
+          senderType: 'hello'
+        };
+      case 'email-verification':
+        return {
+          subject: 'Your Joysticked verification code',
+          component: EmailVerificationTemplate({ otp: params.otp }),
           senderType: 'hello'
         };
       default:

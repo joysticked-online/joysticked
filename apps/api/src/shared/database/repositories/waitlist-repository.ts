@@ -8,16 +8,16 @@ import type { Transaction } from '../transaction';
 class WaitListRepository {
   constructor(private readonly db: Database) {}
 
-  async findByEmail(email: string) {
-    const opt = await this.db.select().from(waitlists).where(eq(waitlists.email, email));
+  async findByEmail(email: string, tx?: Transaction) {
+    const opt = await (tx ?? this.db).select().from(waitlists).where(eq(waitlists.email, email));
 
     if (!opt[0]) return null;
 
     return opt[0];
   }
 
-  async findById(id: string) {
-    const opt = await this.db.select().from(waitlists).where(eq(waitlists.id, id));
+  async findById(id: string, tx?: Transaction) {
+    const opt = await (tx ?? this.db).select().from(waitlists).where(eq(waitlists.id, id));
 
     if (!opt[0]) return null;
 
@@ -36,22 +36,25 @@ class WaitListRepository {
     await (tx ?? this.db).update(waitlists).set({ resendContactId }).where(eq(waitlists.id, id));
   }
 
-  async delete(id: string) {
-    await this.db.delete(waitlists).where(eq(waitlists.id, id));
+  async delete(id: string, tx?: Transaction) {
+    await (tx ?? this.db).delete(waitlists).where(eq(waitlists.id, id));
   }
 
   async deleteByEmail(email: string, tx?: Transaction) {
     await (tx ?? this.db).delete(waitlists).where(eq(waitlists.email, email));
   }
 
-  async getAll() {
-    const entries = await this.db.select().from(waitlists).orderBy(desc(waitlists.joinedAt));
+  async getAll(tx?: Transaction) {
+    const entries = await (tx ?? this.db)
+      .select()
+      .from(waitlists)
+      .orderBy(desc(waitlists.joinedAt));
 
     return entries;
   }
 
-  async getCount() {
-    const count = await this.db
+  async getCount(tx?: Transaction) {
+    const count = await (tx ?? this.db)
       .select({ count: sql<number>`count(*)`.mapWith(Number) })
       .from(waitlists);
 

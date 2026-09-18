@@ -78,6 +78,27 @@
       "when": 1789257600000,
       "tag": "20260913000000_user_lists",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789300800000,
+      "tag": "20260913120000_add-game-query-indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789304400000,
+      "tag": "20260913130000_create-email-validations",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789473600000,
+      "tag": "20260915120000_user_lists",
+      "breakpoints": true
     }
   ]
 }

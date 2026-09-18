@@ -24,13 +24,13 @@ type CreateProfileInput = {
 export async function createProfileUseCase(db: Database, { id, ...data }: CreateProfileInput) {
   const profileRepository = createProfileRepository(db);
 
-  const existing = await profileRepository.findByUsername(data.username);
-  if (existing && existing.id !== id) {
-    throw new ConflictError(`Username "${data.username}" is already taken`);
-  }
-
   return executeTransaction(db, async (tx) => {
-    const currentProfile = await profileRepository.findById(id);
+    const existing = await profileRepository.findByUsername(data.username, tx);
+    if (existing && existing.id !== id) {
+      throw new ConflictError(`Username "${data.username}" is already taken`);
+    }
+
+    const currentProfile = await profileRepository.findById(id, tx);
     if (!currentProfile) {
       throw new ResourceNotFoundError('User profile not found');
     }

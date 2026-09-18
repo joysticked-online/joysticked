@@ -20,17 +20,20 @@ function generateTempUsername(): string {
 class UserRepository {
   constructor(private readonly db: Database) {}
 
-  async findById(id: string) {
-    const result = await this.db.select().from(users).where(eq(users.id, id));
+  async findById(id: string, tx?: Transaction) {
+    const result = await (tx ?? this.db).select().from(users).where(eq(users.id, id));
 
     if (!result[0]) return null;
 
     return result[0];
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string, tx?: Transaction) {
     const normalizedEmail = email.trim().toLowerCase();
-    const result = await this.db.select().from(users).where(eq(users.email, normalizedEmail));
+    const result = await (tx ?? this.db)
+      .select()
+      .from(users)
+      .where(eq(users.email, normalizedEmail));
 
     if (!result[0]) return null;
 
@@ -91,6 +94,22 @@ class UserRepository {
       .update(users)
       .set({ email: normalizedEmail, emailVerified: verified })
       .where(eq(users.id, id));
+  }
+
+  async updateAuthProfile(
+    id: string,
+    data: Pick<typeof users.$inferSelect, 'avatarUrl' | 'displayName'>,
+    tx?: Transaction
+  ) {
+    const current = await this.findById(id, tx);
+    if (!current) return null;
+
+    const updates = {
+      avatarUrl: current.avatarUrl ?? data.avatarUrl,
+      displayName: current.displayName ?? data.displayName
+    };
+    await (tx ?? this.db).update(users).set(updates).where(eq(users.id, id));
+    return updates;
   }
 }
 

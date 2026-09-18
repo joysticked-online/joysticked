@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CreateListModal } from '@/components/lists/create-list-modal';
 import { getUserLists } from '@/lib/lists';
-import { getListsFromApi } from '@/lib/lists-api';
 import type { ProfileGame } from '../types';
 
 type ListsTabProps = {
@@ -25,14 +24,8 @@ export function ListsTab({
 }: ListsTabProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const [lists, setLists] = useState(() => getUserLists(username));
-
-  useEffect(() => {
-    setLists(getUserLists(username));
-    void getListsFromApi(username).then((remote) => {
-      if (remote) setLists(remote);
-    });
-  }, [username]);
+  const [lists, setLists] = useState<Awaited<ReturnType<typeof getUserLists>>>([]);
+  useEffect(() => { void getUserLists(username).then(setLists).catch(() => setLists([])); }, [username]);
 
   if (lists.length === 0) {
     return (

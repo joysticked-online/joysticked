@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { createCustomList } from '@/lib/lists';
-import { createListOnApi } from '@/lib/lists-api';
 
 interface CreateListModalProps {
   isOpen: boolean;
@@ -56,28 +55,14 @@ export function CreateListModal({ isOpen, onClose, onSuccess }: CreateListModalP
     setError(null);
 
     const ownerUsername = user?.username || 'jogador';
-    const ownerDisplayName = user?.displayName || user?.username || 'Jogador';
-    const ownerAvatarUrl =
-      user?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${ownerUsername}`;
+    const created = await createCustomList({
+      name: name.trim(),
+      description: description.trim() || undefined,
+      isPublic,
+      tags: selectedTags
+    }).catch(() => null);
 
-      const input = {
-        name: name.trim(),
-        description: description.trim() || undefined,
-        isPublic,
-        tags: selectedTags
-      };
-      const remote = await createListOnApi(input);
-      const created = remote
-        ? {
-            ...remote,
-            ownerUsername,
-            ownerDisplayName,
-            ownerAvatarUrl,
-            games: (remote.games || []) as typeof remote.games,
-            gameCount: remote.gameCount ?? 0,
-            likesCount: remote.likesCount ?? 0
-          }
-        : createCustomList({ ...input, ownerUsername, ownerDisplayName, ownerAvatarUrl });
+    if (!created) { setError('Não foi possível salvar a lista.'); setIsSubmitting(false); return; }
 
     setIsSubmitting(false);
     onClose();

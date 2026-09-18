@@ -19,7 +19,6 @@ import { Footer } from '@/components/navigation/footer';
 import { TopNav } from '@/components/navigation/top-nav';
 import { useAuth } from '@/hooks/use-auth';
 import { DEFAULT_COMMUNITY_LISTS, getAllLists, getUserLists, type UserList } from '@/lib/lists';
-import { getListsFromApi } from '@/lib/lists-api';
 
 const CATEGORY_TAGS = [
   'Todas',
@@ -41,15 +40,14 @@ export function ListsHubView() {
 
   useEffect(() => {
     setMounted(true);
-    setAllLists(getAllLists());
-    void getListsFromApi('joysticked').then((remote) => {
-      if (remote) setAllLists([...DEFAULT_COMMUNITY_LISTS, ...remote]);
-    });
+    void getAllLists().then(setAllLists).catch(() => setAllLists(DEFAULT_COMMUNITY_LISTS));
   }, []);
 
-  const myLists = useMemo(() => {
-    if (!currentUser || !mounted) return [];
-    return getUserLists(currentUser.username);
+  const [myLists, setMyLists] = useState<UserList[]>([]);
+
+  useEffect(() => {
+    if (!currentUser || !mounted) return;
+    void getUserLists(currentUser.username).then(setMyLists).catch(() => setMyLists([]));
   }, [currentUser, mounted]);
 
   const featuredList = useMemo(() => {

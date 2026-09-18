@@ -4,7 +4,6 @@ import { Edit3, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { type UserList, updateUserList } from '@/lib/lists';
-import { updateListOnApi } from '@/lib/lists-api';
 
 interface EditListModalProps {
   isOpen: boolean;
@@ -63,13 +62,12 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
     setIsSubmitting(true);
     setError(null);
 
-      const input = {
-        name: name.trim(),
-        description: description.trim() || undefined,
-        isPublic,
-        tags: selectedTags
-      };
-      const updated = (await updateListOnApi(list.id, input)) || updateUserList(list.id, input);
+    const updated = await updateUserList(list.id, {
+      name: name.trim(),
+      description: description.trim() || undefined,
+      isPublic,
+      tags: selectedTags
+    }).catch(() => null);
 
     setIsSubmitting(false);
 
