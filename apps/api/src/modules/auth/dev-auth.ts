@@ -1,5 +1,5 @@
 import { createSession } from '../../shared/providers/session';
-import { inMemoryDevUsers } from './me/use-case';
+import { inMemoryDevUsers } from '../../shared/providers/dev-user-store';
 
 export async function createDevSocialSession(
   provider: 'google' | 'discord',
@@ -38,7 +38,7 @@ export async function createDevSocialSession(
     avatarUrl,
     bannerUrl: null,
     bio: '',
-    socials: { [provider]: username },
+    socials: provider === 'discord' ? { discord: username } : {},
     preferences: null,
     createdAt: new Date()
   };

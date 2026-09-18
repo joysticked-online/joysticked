@@ -2,8 +2,7 @@ import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createUserRepository } from '../../../shared/database/repositories/user-repository';
 import { UnauthorizedError } from '../../../shared/errors/unauthorized-error';
-
-export const inMemoryDevUsers = new Map<string, any>();
+import { inMemoryDevUsers } from '../../../shared/providers/dev-user-store';
 
 export async function getMeUseCase(db: Database, userId: string | null) {
   if (!userId) {
@@ -11,8 +10,9 @@ export async function getMeUseCase(db: Database, userId: string | null) {
   }
 
   // Check in-memory dev user first
-  if (inMemoryDevUsers.has(userId)) {
-    return { user: inMemoryDevUsers.get(userId) };
+  const devUser = inMemoryDevUsers.get(userId);
+  if (devUser) {
+    return { user: devUser };
   }
 
   try {

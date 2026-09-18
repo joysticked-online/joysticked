@@ -3,7 +3,7 @@ import z from 'zod';
 import { envs } from '../../../shared/config/envs';
 import { authMiddleware } from '../../../shared/http/middlewares/auth';
 import { databaseMiddleware } from '../../../shared/http/middlewares/database';
-import { inMemoryDevUsers } from '../../auth/me/use-case';
+import { inMemoryDevUsers } from '../../../shared/providers/dev-user-store';
 import { toPublicProfile } from '../get-profile/schemas';
 import { updateProfileBodySchema, updateProfileResponseSchema } from './schemas';
 import { updateProfileUseCase } from './use-case';

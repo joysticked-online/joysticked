@@ -2,7 +2,7 @@ import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createProfileRepository } from '../../../shared/database/repositories/profile-repository';
 import { ResourceNotFoundError } from '../../../shared/errors/resource-not-found-error';
-import { inMemoryDevUsers } from '../../auth/me/use-case';
+import { inMemoryDevUsers } from '../../../shared/providers/dev-user-store';
 import { toPublicProfile } from './schemas';
 
 export async function getProfileUseCase(db: Database, { id }: { id: string }) {

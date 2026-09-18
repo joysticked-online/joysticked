@@ -2,7 +2,7 @@ import { envs } from '../../../shared/config/envs';
 import type { Database } from '../../../shared/database';
 import { createProfileRepository } from '../../../shared/database/repositories/profile-repository';
 import { ConflictError } from '../../../shared/errors/conflict-error';
-import { inMemoryDevUsers } from '../../auth/me/use-case';
+import { inMemoryDevUsers } from '../../../shared/providers/dev-user-store';
 
 type UpdateProfileInput = {
   id: string;
@@ -32,6 +32,15 @@ export async function updateProfileUseCase(db: Database, { id, ...data }: Update
     const existing = inMemoryDevUsers.get(id) || {
       id,
       username: data.username || `user_${id.slice(0, 6)}`,
+      displayName: null,
+      email: null,
+      emailVerified: false,
+      onboardingCompleted: false,
+      avatarUrl: null,
+      bannerUrl: null,
+      bio: null,
+      socials: null,
+      preferences: null,
       createdAt: new Date()
     };
     const updated = {
