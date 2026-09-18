@@ -11,6 +11,7 @@ import { profileRouter } from '../../modules/profile/router';
 import { steamAuthRouter, steamRouter } from '../../modules/steam/router';
 import { waitlistRouter } from '../../modules/waitlist/router';
 import { envs } from '../config/envs';
+import { closeDatabase } from '../database';
 import { healthCheck } from './health-check';
 import { errorHandler } from './middlewares/error-handler';
 
@@ -54,5 +55,15 @@ const app = new Elysia()
   .listen(envs.app.PORT, ({ port, hostname }) =>
     console.log(`Server running on port http://${hostname}:${port}`)
   );
+
+async function shutdown(signal: NodeJS.Signals) {
+  console.info(`Received ${signal}; closing database connections.`);
+  app.stop();
+  await closeDatabase();
+  process.exit(0);
+}
+
+process.once('SIGINT', () => void shutdown('SIGINT'));
+process.once('SIGTERM', () => void shutdown('SIGTERM'));
 
 export type App = typeof app;

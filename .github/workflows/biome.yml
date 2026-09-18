@@ -1,4 +1,4 @@
-name: biome
+name: validation
 
 on:
   pull_request:
@@ -7,8 +7,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  validate:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      CLIENT_URL: http://localhost:3000
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+      REDIS_URL: redis://localhost:6379
+      SESSION_SECRET: 12345678901234567890123456789012
+      AUTH_CALLBACK_URL: http://localhost:8080
+      NEXT_PUBLIC_API_URL: http://localhost:8080
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,10 +39,14 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: 2.3.4
+      - name: Lint
+        run: bun run lint
 
-      - name: Run Biome
-        run: biome ci --changed --since=origin/main
+      - name: Type check
+        run: bun run check-types
+
+      - name: Test
+        run: bun run test
+
+      - name: Build
+        run: bun run build

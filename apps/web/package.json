@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
+    "lint": "biome lint src next.config.ts postcss.config.mjs",
+    "check-types": "tsc --noEmit",
     "build": "next build",
     "start": "next start"
   },

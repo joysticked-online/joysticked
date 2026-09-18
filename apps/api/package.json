@@ -6,6 +6,9 @@
   "types": "src/shared/http/index.ts",
   "scripts": {
     "dev": "bun run --watch src/shared/http/index.ts",
+    "lint": "biome lint src drizzle.config.ts",
+    "check-types": "tsc --noEmit",
+    "test": "bun test --preload ./src/test/setup.ts",
     "db:generate": "drizzle-kit generate --name",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

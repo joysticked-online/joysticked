@@ -20,7 +20,8 @@ function loadAppEnvs() {
 function loadDbEnvs() {
   const schema = z.object({
     DATABASE_URL: z.url(),
-    REDIS_URL: z.url()
+    REDIS_URL: z.url(),
+    DATABASE_MAX_CONNECTIONS: z.coerce.number().int().min(1).max(100).default(10)
   });
 
   return schema.parse(process.env);

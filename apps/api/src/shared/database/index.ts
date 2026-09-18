@@ -7,7 +7,7 @@ let queryClient: ReturnType<typeof postgres> | null = null;
 
 export function getDatabase(options?: { standalone?: boolean; maxConnections?: number }) {
   const config = {
-    max: options?.maxConnections ?? 5000,
+    max: options?.maxConnections ?? envs.db.DATABASE_MAX_CONNECTIONS,
     idle_timeout: 20,
     connect_timeout: 10
   };
@@ -28,3 +28,11 @@ export function getDatabase(options?: { standalone?: boolean; maxConnections?: n
 export const db = getDatabase();
 
 export type Database = ReturnType<typeof getDatabase>;
+
+export async function closeDatabase() {
+  if (!queryClient) return;
+
+  const client = queryClient;
+  queryClient = null;
+  await client.end({ timeout: 5 });
+}
