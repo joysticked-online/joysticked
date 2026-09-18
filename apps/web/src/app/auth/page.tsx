@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -23,13 +23,9 @@ import { Logos } from '@/components/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { env } from '@/env';
-import { useAuth } from '@/hooks/use-auth';
 
 function AuthContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { loginLocal } = useAuth();
-  const redirectTarget = searchParams.get('redirect') || '/home';
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
@@ -46,13 +42,7 @@ function AuthContent() {
 
     if (searchParams.get('reset') === 'true') {
       try {
-        localStorage.clear();
-        document.cookie = 'session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie =
-          'joysticked_session_user=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie =
-          'joysticked_session_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        toast.info('Sessão local redefinida.');
+        toast.info('Solicite um novo link para iniciar uma sessão segura.');
       } catch {}
     }
   }, [searchParams]);
@@ -74,10 +64,7 @@ function AuthContent() {
       const result = await requestMagicLink(email);
 
       if (!result.success) {
-        // Fallback for local dev environments
-        loginLocal(email, false);
-        toast.success(`Entrando como @${email.split('@')[0]}…`);
-        router.push(redirectTarget);
+        toast.error(result.error || 'Não foi possível enviar o link. Tente novamente.');
         return;
       }
 

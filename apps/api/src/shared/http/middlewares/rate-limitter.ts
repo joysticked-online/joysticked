@@ -1,20 +1,36 @@
 import type { Algorithm } from 'bunlimit';
 import { Ratelimit } from 'bunlimit';
 import Elysia from 'elysia';
-import { envs } from '../../config/envs';
-import { InternalServerError } from '../../errors/internal-server-error';
+
 import { RateLimitError } from '../../errors/rate-limit-error';
+import { ServiceUnavailableError } from '../../errors/service-unavailable-error';
+import { envs } from '../../config/envs';
 import { redis } from '../../providers/redis';
+
+type RateLimitOptions = {
+  strategy: Algorithm;
+  key?: string;
+  failureMode?: 'open' | 'closed';
+};
+
+const clientIdentifier = (
+  request: Request,
+  server: { requestIP(request: Request): { address: string } | null } | null
+) => {
+  if (!envs.app.TRUST_PROXY) return server?.requestIP(request)?.address || 'unknown';
+
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+};
 
 export const rateLimitMiddleware = ({
   strategy,
   key,
-  failClosed = false
-}: {
-  strategy: Algorithm;
-  key?: string;
-  failClosed?: boolean;
-}) =>
+  failureMode = 'open'
+}: RateLimitOptions) =>
   new Elysia({ name: 'rate-limit' }).onBeforeHandle({ as: 'scoped' }, async ({ request, server }) => {
     try {
       const ratelimit = new Ratelimit({
@@ -22,19 +38,18 @@ export const rateLimitMiddleware = ({
         limiter: strategy
       });
 
-      const forwardedIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim();
-      const directIp = request.headers.get('x-real-ip')?.trim();
-      const socketIp = server?.requestIP(request)?.address;
-      const ip = envs.app.TRUSTED_PROXY
-        ? forwardedIp || directIp || socketIp || 'unknown'
-        : socketIp || 'unknown';
+      const ip = clientIdentifier(request, server);
 
       const { success } = await ratelimit.limit(key ? `${key}:${ip}` : ip);
 
       if (!success) throw new RateLimitError('Rate limit exceeded');
     } catch (err) {
       if (err instanceof RateLimitError) throw err;
-      if (failClosed) throw new InternalServerError('Authentication temporarily unavailable');
+      console.warn('[RateLimit] Redis unavailable:', (err as Error)?.message);
+
+      if (failureMode === 'closed') {
+        throw new ServiceUnavailableError('Authentication is temporarily unavailable');
+      }
     }
 
     return;

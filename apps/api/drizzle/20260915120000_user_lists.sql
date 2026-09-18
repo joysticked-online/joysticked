@@ -1,16 +1,15 @@
-CREATE TABLE IF NOT EXISTS "user_lists" (
-  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-  "owner_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-  "slug" text NOT NULL,
-  "name" text NOT NULL,
-  "description" text,
-  "is_public" boolean DEFAULT true NOT NULL,
-  "tags" jsonb DEFAULT '[]'::jsonb NOT NULL,
-  "likes_count" integer DEFAULT 0 NOT NULL,
-  "created_at" timestamp DEFAULT now() NOT NULL,
-  "updated_at" timestamp DEFAULT now() NOT NULL,
-  CONSTRAINT "user_lists_owner_slug_unique" UNIQUE("owner_id", "slug")
-);
+ALTER TABLE "user_lists" ADD COLUMN IF NOT EXISTS "owner_id" uuid;
+UPDATE "user_lists" SET "owner_id" = "user_id" WHERE "owner_id" IS NULL;
+ALTER TABLE "user_lists" ALTER COLUMN "owner_id" SET NOT NULL;
+ALTER TABLE "user_lists" ADD COLUMN IF NOT EXISTS "likes_count" integer DEFAULT 0 NOT NULL;
+
+DO $$ BEGIN
+  ALTER TABLE "user_lists"
+    ADD CONSTRAINT "user_lists_owner_id_users_id_fk"
+    FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS "user_list_games" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   "list_id" uuid NOT NULL REFERENCES "user_lists"("id") ON DELETE CASCADE,
