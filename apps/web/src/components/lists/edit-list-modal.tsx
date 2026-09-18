@@ -1,8 +1,9 @@
 'use client';
 
 import { Edit3, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import { useCallback, useEffect, useState } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 import { type UserList, updateUserList } from '@/lib/lists';
 
 interface EditListModalProps {
@@ -24,6 +25,7 @@ const PRESET_TAGS = [
 ];
 
 export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModalProps) {
+  const handleOpenChange = useCallback((open: boolean) => { if (!open) onClose(); }, [onClose]);
   const [name, setName] = useState(list.name);
   const [description, setDescription] = useState(list.description || '');
   const [isPublic, setIsPublic] = useState(list.isPublic ?? true);
@@ -80,27 +82,19 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/85 backdrop-blur-md"
-            aria-hidden="true"
-          />
-
-          {/* Dialog Container */}
-          <motion.div
+    <Dialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      title="Editar lista"
+      description="Atualize o título, a descrição, as tags e a privacidade da lista."
+    >
+      <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#0e0e12] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.95)] sm:p-7"
-          >
+      >
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -120,6 +114,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
               <button
                 type="button"
                 onClick={onClose}
+                aria-label="Fechar diálogo"
                 className="flex size-8 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <X className="size-4" />
@@ -180,6 +175,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                         key={tag}
                         type="button"
                         onClick={() => toggleTag(tag)}
+                        aria-pressed={isSelected}
                         className={`rounded-lg px-2.5 py-1 font-medium text-xs transition-all active:scale-95 ${
                           isSelected
                             ? 'border border-amber-500/40 bg-amber-500/15 text-amber-300 shadow-sm'
@@ -204,6 +200,9 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                 <button
                   type="button"
                   onClick={() => setIsPublic(!isPublic)}
+                  role="switch"
+                  aria-checked={isPublic}
+                  aria-label="Lista pública"
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                     isPublic ? 'bg-amber-400' : 'bg-neutral-700'
                   }`}
@@ -234,9 +233,7 @@ export function EditListModal({ isOpen, list, onClose, onUpdate }: EditListModal
                 </button>
               </div>
             </form>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+      </motion.div>
+    </Dialog>
   );
 }
