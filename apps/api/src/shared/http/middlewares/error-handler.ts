@@ -3,6 +3,7 @@ import { ConflictError } from '../../errors/conflict-error';
 import { InternalServerError } from '../../errors/internal-server-error';
 import { RateLimitError } from '../../errors/rate-limit-error';
 import { ResourceNotFoundError } from '../../errors/resource-not-found-error';
+import { ServiceUnavailableError } from '../../errors/service-unavailable-error';
 import { UnauthorizedError } from '../../errors/unauthorized-error';
 
 export const errorHandler = new Elysia({ name: 'error-handler' })
@@ -11,6 +12,7 @@ export const errorHandler = new Elysia({ name: 'error-handler' })
     INTERNAL_SERVER_ERROR: InternalServerError,
     RATE_LIMIT_EXCEEDED: RateLimitError,
     RESOURCE_NOT_FOUND: ResourceNotFoundError,
+    SERVICE_UNAVAILABLE: ServiceUnavailableError,
     UNAUTHORIZED: UnauthorizedError
   })
   .onError({ as: 'scoped' }, ({ error, code, status }) => {
@@ -26,6 +28,12 @@ export const errorHandler = new Elysia({ name: 'error-handler' })
       }
       case 'RATE_LIMIT_EXCEEDED': {
         return status(429, {
+          code,
+          message: error.message
+        });
+      }
+      case 'SERVICE_UNAVAILABLE': {
+        return status(503, {
           code,
           message: error.message
         });

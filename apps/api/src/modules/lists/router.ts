@@ -14,6 +14,14 @@ const listBody = z.object({
   games: z.array(z.unknown()).max(500).default([])
 });
 
+const listPatchBody = z.object({
+  name: z.string().trim().min(1).max(120).optional(),
+  description: z.string().trim().max(1000).optional(),
+  isPublic: z.boolean().optional(),
+  tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  games: z.array(z.unknown()).max(500).optional()
+});
+
 const slugify = (name: string) =>
   name
     .normalize('NFD')
@@ -52,7 +60,7 @@ export const listsRouter = new Elysia({ prefix: '/lists', tags: ['lists'] })
       .returning();
     if (!updated) return status(404, { message: 'List not found' });
     return status(200, updated);
-  }, { body: listBody })
+  }, { body: listPatchBody })
   .delete('/:id', async ({ params, db, userId, status }) => {
     if (!userId) return status(401, { message: 'Authentication required' });
     const deleted = await db

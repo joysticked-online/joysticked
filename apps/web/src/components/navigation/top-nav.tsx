@@ -77,7 +77,7 @@ function TopNavContent({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user: currentUser, logoutLocal } = useAuth();
+  const { user: currentUser, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -421,7 +421,7 @@ function TopNavContent({
                           type="button"
                           onClick={() => {
                             setUserMenuOpen(false);
-                            logoutLocal();
+                            void logout();
                           }}
                           className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[11.5px] text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
                         >
